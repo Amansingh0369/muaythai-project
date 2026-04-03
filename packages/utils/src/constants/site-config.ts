@@ -7,7 +7,7 @@ export const SITE_CONFIG = {
   brand: "THIS IS MUAY THAI",
   taglines: {
     heroSub: "Most people train. Few experience.",
-    heroMain: ["TRAVEL.", "TRAIN.", "TRANSFORM."],
+    heroMain: ["TRAVEL", "TRAIN", "TRANSFORM"],
     heroDesc: "Authentic Muay Thai fight camps in Thailand. No shortcuts. No watered-down versions. Just the real thing.",
     footer: "Travel. Train. Transform.",
   },
@@ -105,8 +105,9 @@ export const SITE_CONFIG = {
       name: "Phuket",
       vibe: "Fighter Island · Chill Vibes",
       description: "The perfect balance of serious training and lifestyle experience. International camps, high-quality gyms, and the beach after every session.",
-      bestFor: "First-time trainees · Fitness-focused · Training + travel balance",
+      bestFor: "First-time trainees  Fitness-focused  Training + travel balance",
       schedule: "7:00 AM – 9:30 AM · 4:00 PM – 6:30 PM",
+      themeColor: "#f59e0b", // Sky Blue
     },
     {
       name: "Bangkok",
@@ -114,6 +115,7 @@ export const SITE_CONFIG = {
       description: "The heart of professional Muay Thai. Elite fighters, iconic stadiums, and training that pushes you harder than you thought possible.",
       bestFor: "Intermediate to advanced · Fighters · Intense environment",
       schedule: "6:30 AM – 9:00 AM · 3:30 PM – 6:30 PM",
+      themeColor: "#ef4444", // Red
     },
     {
       name: "Chiang Mai",
@@ -121,6 +123,7 @@ export const SITE_CONFIG = {
       description: "Traditional and focused training in a quieter setting. Smaller groups, disciplined culture, and full immersion in the art.",
       bestFor: "Technique-focused · Long-term learners · Quiet immersion",
       schedule: "7:00 AM – 9:00 AM · 4:00 PM – 6:00 PM",
+      themeColor: "#10b981", // Emerald Green
     },
     {
       name: "Krabi",
@@ -128,6 +131,7 @@ export const SITE_CONFIG = {
       description: "Limestone cliffs, emerald waters, and a famous gym with outdoor training that feels like another world entirely.",
       bestFor: "Beginners & intermediate · Training + scenic experience",
       schedule: "7:00 AM – 9:00 AM · 4:00 PM – 6:00 PM",
+      themeColor: "#0ea5e9", // Amber
     },
     {
       name: "Koh Samui",
@@ -135,6 +139,7 @@ export const SITE_CONFIG = {
       description: "Premium camps with strong international community. High-quality facilities, experienced trainers, and a lifestyle-oriented experience.",
       bestFor: "International trainees · Premium experience · Fitness + lifestyle",
       schedule: "7:30 AM – 10:00 AM · 4:00 PM – 6:30 PM",
+      themeColor: "#a855f7", // Purple
     },
   ],
 

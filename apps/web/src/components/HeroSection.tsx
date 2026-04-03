@@ -2,6 +2,7 @@ import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion"
 import { useRef, useState } from "react";
 import heroImg from "@/assets/hero-fighter.jpg";
 import { SITE_CONFIG } from "@repo/utils";
+import { TextRotate } from "@/components/ui/text-rotate";
 
 const HeroSection = () => {
   const [isVideoLoaded, setIsVideoLoaded] = useState(false);
@@ -35,7 +36,7 @@ const HeroSection = () => {
             <source src="/videos/hero.mp4" type="video/mp4" />
           </motion.video>
         </AnimatePresence>
-        
+
         {/* Fallback/Overlay during load */}
         {!isVideoLoaded && (
           <div className="absolute inset-0 bg-background" />
@@ -47,9 +48,32 @@ const HeroSection = () => {
 
       {/* Content */}
       <motion.div
-        className="relative z-10 h-full flex flex-col justify-end pb-20 md:pb-32 px-6 md:px-12 lg:px-20 max-w-7xl mx-auto"
+        className="relative z-10 h-full w-full flex flex-col justify-end items-start pb-8 md:pb-12 lg:pb-16 px-6 md:px-12 lg:px-20"
         style={{ opacity }}
       >
+        <motion.h1
+          className="font-display text-6xl sm:text-7xl md:text-8xl lg:text-9xl leading-[0.9] text-foreground mb-6 flex flex-wrap"
+          initial={{ opacity: 0, y: 40 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5, duration: 0.8 }}
+        >
+          <div className="flex h-full min-h-[140px] sm:min-h-[180px] items-center">
+            <TextRotate
+              texts={SITE_CONFIG.taglines.heroMain}
+              mainClassName="text-white px-2 sm:px-4 md:px-6 bg-white/5 backdrop-blur-xl border border-white/5 overflow-hidden py-1 sm:py-2 md:py-3 justify-center rounded-2xl sm:rounded-3xl shadow-[0_0_40px_rgba(255,255,255,0.05)]"
+              staggerFrom={"last"}
+              initial={{ y: "100%" }}
+              animate={{ y: 0 }}
+              exit={{ y: "-120%" }}
+              staggerDuration={0.025}
+              splitLevelClassName="overflow-hidden pb-1 sm:pb-2"
+              transition={{ type: "spring", damping: 30, stiffness: 400 }}
+              rotationInterval={2000}
+              animatePresenceMode="popLayout"
+            />
+          </div>
+        </motion.h1>
+
         <motion.p
           className="font-heading text-sm md:text-base tracking-[0.4em] uppercase text-primary mb-4"
           initial={{ opacity: 0, x: -30 }}
@@ -58,17 +82,6 @@ const HeroSection = () => {
         >
           {SITE_CONFIG.taglines.heroSub}
         </motion.p>
-
-        <motion.h1
-          className="font-display text-5xl md:text-7xl lg:text-8xl leading-[0.9] text-foreground mb-6"
-          initial={{ opacity: 0, y: 40 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5, duration: 0.8 }}
-        >
-          {SITE_CONFIG.taglines.heroMain[0]}<br />
-          <span className="text-gradient-fire">{SITE_CONFIG.taglines.heroMain[1]}</span><br />
-          {SITE_CONFIG.taglines.heroMain[2]}
-        </motion.h1>
 
         <motion.p
           className="font-body text-base md:text-lg text-muted-foreground max-w-lg mb-8"
@@ -99,9 +112,9 @@ const HeroSection = () => {
           </a>
         </motion.div>
 
-        {/* Scroll indicator */}
+        {/* Scroll indicator - Moved to bottom right to balance layout */}
         <motion.div
-          className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
+          className="absolute bottom-8 right-6 md:right-12 lg:right-20 flex flex-col items-center gap-2"
           animate={{ y: [0, 8, 0] }}
           transition={{ repeat: Infinity, duration: 2 }}
         >

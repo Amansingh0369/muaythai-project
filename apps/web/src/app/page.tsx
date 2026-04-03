@@ -26,9 +26,9 @@ export default function Home() {
           <Navbar />
           <HeroSection />
           <AboutSection />
+          <LocationsSection />
           <HighlightsSection />
           <FightCampsSection />
-          <LocationsSection />
           <MuayThaiSection />
           <Footer />
         </div>
