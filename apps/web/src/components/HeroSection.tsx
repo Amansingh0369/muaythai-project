@@ -48,19 +48,19 @@ const HeroSection = () => {
 
       {/* Content */}
       <motion.div
-        className="relative z-10 h-full w-full flex flex-col justify-end items-start pb-8 md:pb-12 lg:pb-16 px-6 md:px-12 lg:px-20"
+        className="relative z-10 h-full w-full flex flex-col justify-end items-start pb-12 md:pb-16 lg:pb-20 px-6 md:px-12 lg:px-20"
         style={{ opacity }}
       >
         <motion.h1
-          className="font-display text-6xl sm:text-7xl md:text-8xl lg:text-9xl leading-[0.9] text-foreground mb-6 flex flex-wrap"
+          className="font-display text-[11vw] sm:text-5xl md:text-6xl lg:text-7xl leading-[0.9] text-foreground mb-4 md:mb-6 flex flex-wrap w-full"
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5, duration: 0.8 }}
         >
-          <div className="flex h-full min-h-[140px] sm:min-h-[180px] items-center">
+          <div className="flex h-full min-h-[60px] sm:min-h-[80px] md:min-h-[120px] items-center w-full">
             <TextRotate
               texts={SITE_CONFIG.taglines.heroMain}
-              mainClassName="text-white px-2 sm:px-4 md:px-6 bg-white/5 backdrop-blur-xl border border-white/5 overflow-hidden py-1 sm:py-2 md:py-3 justify-center rounded-2xl sm:rounded-3xl shadow-[0_0_40px_rgba(255,255,255,0.05)]"
+              mainClassName="text-primary px-3 sm:px-4 md:px-6 bg-white/5 backdrop-blur-xl border border-orange-300/20 overflow-hidden py-1 sm:py-2 md:py-3 justify-center rounded-xl sm:rounded-2xl whitespace-nowrap"
               staggerFrom={"last"}
               initial={{ y: "100%" }}
               animate={{ y: 0 }}
@@ -75,7 +75,7 @@ const HeroSection = () => {
         </motion.h1>
 
         <motion.p
-          className="font-heading text-sm md:text-base tracking-[0.4em] uppercase text-primary mb-4"
+          className="font-heading text-xs sm:text-sm md:text-base tracking-[0.3em] uppercase text-white mb-4"
           initial={{ opacity: 0, x: -30 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.3, duration: 0.8 }}
@@ -83,16 +83,16 @@ const HeroSection = () => {
           {SITE_CONFIG.taglines.heroSub}
         </motion.p>
 
-        <motion.p
+        {/* <motion.p
           className="font-body text-base md:text-lg text-muted-foreground max-w-lg mb-8"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.8, duration: 0.6 }}
         >
           {SITE_CONFIG.taglines.heroDesc}
-        </motion.p>
+        </motion.p> */}
 
-        <motion.div
+        {/* <motion.div
           className="flex flex-col sm:flex-row gap-4"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -110,7 +110,7 @@ const HeroSection = () => {
           >
             Our Story
           </a>
-        </motion.div>
+        </motion.div> */}
 
         {/* Scroll indicator - Moved to bottom right to balance layout */}
         <motion.div

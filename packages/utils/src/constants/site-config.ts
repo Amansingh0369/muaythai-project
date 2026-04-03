@@ -4,7 +4,7 @@
  */
 
 export const SITE_CONFIG = {
-  brand: "THIS IS MUAY THAI",
+  brand: "MUAY THAI",
   taglines: {
     heroSub: "Most people train. Few experience.",
     heroMain: ["TRAVEL", "TRAIN", "TRANSFORM"],
