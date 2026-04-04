@@ -3,6 +3,7 @@
 .env.local
 .env.*.local
 .env*
+**/.env
 
 # Turborepo
 .turbo
@@ -15,3 +16,8 @@ node_modules
 
 # Build output
 dist
+
+**/__pycache__/
+**/.env.*
+**/.vscode/
+

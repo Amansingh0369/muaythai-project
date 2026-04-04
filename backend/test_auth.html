@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google Auth Test</title>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <style>
+        body {
+            font-family: sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background: #f4f4f9;
+        }
+
+        .container {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        pre {
+            background: #eee;
+            padding: 1rem;
+            text-align: left;
+            max-width: 500px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h2>Google Auth Test</h2>
+        <div id="g_id_onload" data-client_id="30379337570-vfctg2hrn6336ve2fk01qfgm0atn0s51.apps.googleusercontent.com"
+            data-callback="handleCredentialResponse">
+        </div>
+        <div class="g_id_signin" data-type="standard"></div>
+
+        <h3>Response from Backend:</h3>
+        <pre id="response">Waiting for login...</pre>
+    </div>
+
+    <script>
+        function handleCredentialResponse(response) {
+            const id_token = response.credential;
+            document.getElementById('response').innerText = "Sending token to backend...";
+
+            fetch('http://localhost:8000/api/auth/google/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ id_token: id_token })
+            })
+                .then(res => res.json())
+                .then(data => {
+                    document.getElementById('response').innerText = JSON.stringify(data, null, 2);
+                    console.log('Backend response:', data);
+                })
+                .catch(err => {
+                    document.getElementById('response').innerText = "Error: " + err.message;
+                    console.error('Error:', err);
+                });
+        }
+    </script>
+</body>
+
+</html>
