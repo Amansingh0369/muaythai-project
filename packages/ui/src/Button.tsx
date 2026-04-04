@@ -10,15 +10,15 @@ export interface ButtonProps
 }
 
 const variantClasses: Record<NonNullable<ButtonProps["variant"]>, string> = {
-  primary: "bg-blue-600 text-white hover:bg-blue-700 border border-blue-600",
-  secondary: "bg-gray-200 text-gray-800 hover:bg-gray-300 border border-gray-200",
-  ghost: "bg-transparent text-gray-700 hover:bg-gray-100 border border-transparent",
+  primary: "bg-primary-container text-white hover:border-b-2 hover:border-secondary transition-all active:brightness-90",
+  secondary: "bg-transparent text-white border border-outline/40 hover:border-outline transition-colors",
+  ghost: "bg-transparent text-white hover:bg-surface-container transition-colors",
 };
 
 const sizeClasses: Record<NonNullable<ButtonProps["size"]>, string> = {
-  sm: "px-3 py-1.5 text-sm",
-  md: "px-4 py-2 text-base",
-  lg: "px-6 py-3 text-lg",
+  sm: "px-4 py-2 text-sm",
+  md: "px-6 py-3 text-base uppercase tracking-wider font-display font-bold",
+  lg: "px-8 py-4 text-lg uppercase tracking-widest font-display font-black",
 };
 
 export function Button({
@@ -30,7 +30,7 @@ export function Button({
 }: ButtonProps) {
   return (
     <button
-      className={`inline-flex items-center justify-center rounded-md font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed ${variantClasses[variant]} ${sizeClasses[size]} ${className}`}
+      className={`inline-flex items-center justify-center rounded-none transition-all focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed ${variantClasses[variant]} ${sizeClasses[size]} ${className}`}
       {...props}
     >
       {children}

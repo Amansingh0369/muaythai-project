@@ -1,23 +1,38 @@
-import { Card, Button } from "@repo/ui";
-import { formatDate } from "@repo/utils";
+"use client";
 
-// Warn at startup if required environment variables are missing
-if (!process.env.NEXT_PUBLIC_API_URL) {
-  console.warn(
-    "[web] Warning: NEXT_PUBLIC_API_URL is not set. Some features may not work correctly."
-  );
-}
+import { useState, useCallback } from "react";
+import IntroAnimation from "@/components/IntroAnimation";
+import Navbar from "@/components/Navbar";
+import HeroSection from "@/components/HeroSection";
+import AboutSection from "@/components/AboutSection";
+import HighlightsSection from "@/components/HighlightsSection";
+import FightCampsSection from "@/components/FightCampsSection";
+import LocationsSection from "@/components/LocationsSection";
+import MuayThaiSection from "@/components/MuayThaiSection";
+import Footer from "@/components/Footer";
 
 export default function Home() {
-  const today = formatDate(new Date());
+  const [showIntro, setShowIntro] = useState(true);
+
+  const handleIntroComplete = useCallback(() => {
+    setShowIntro(false);
+  }, []);
 
   return (
-    <main className="min-h-screen flex items-center justify-center p-8">
-      <Card className="max-w-md w-full p-8 space-y-6">
-        <h1 className="text-2xl font-bold text-gray-900">Web App</h1>
-        <p className="text-gray-600">Today is {today}</p>
-        <Button variant="primary">Get Started</Button>
-      </Card>
-    </main>
+    <>
+      {showIntro && <IntroAnimation onComplete={handleIntroComplete} />}
+      {!showIntro && (
+        <div className="bg-background min-h-screen">
+          <Navbar />
+          <HeroSection />
+          <AboutSection />
+          <LocationsSection />
+          <HighlightsSection />
+          <FightCampsSection />
+          <MuayThaiSection />
+          <Footer />
+        </div>
+      )}
+    </>
   );
 }
