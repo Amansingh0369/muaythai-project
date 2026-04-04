@@ -1,0 +1,29 @@
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
+.env
+.git
+.gitignore
+# db.sqlite3 (Commented out so it IS included in the build)
+static/
+media/
+.gemini/
+Dockerfile
+docker-compose.yml
+requirements.txt
+README.md
+# Keeping image lean by ignoring documentation artifacts
+*walkthrough.md
+*plan.md
+*results.md
+*notes.md
+*specs.md
+*roadmap.md
+*task.md
+*verification.md
+*test_auth.html
