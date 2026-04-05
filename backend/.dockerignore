@@ -15,7 +15,7 @@ media/
 .gemini/
 Dockerfile
 docker-compose.yml
-requirements.txt
+
 README.md
 # Keeping image lean by ignoring documentation artifacts
 *walkthrough.md

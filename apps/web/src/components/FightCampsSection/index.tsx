@@ -1,23 +1,24 @@
 import { motion, useInView } from "framer-motion";
 import { useRef } from "react";
-import { Flame, Swords, Crown } from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
+import { useRouter } from "next/navigation";
 import { SITE_CONFIG } from "@repo/utils";
-
-// Map icon names from config to Lucide components
-const iconMap = {
-  beginner: Flame,
-  intermediate: Swords,
-  fighter: Crown,
-};
-
-const camps = SITE_CONFIG.camps.map(camp => ({
-  ...camp,
-  icon: iconMap[camp.id as keyof typeof iconMap],
-}));
+import { camps } from "./FightCampsSection.helpers";
 
 const FightCampsSection = () => {
+  const { user } = useAuth();
+  const router = useRouter();
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
+
+  const handleBookClick = (e: React.MouseEvent, campId: string) => {
+    if (!user) {
+      e.preventDefault();
+      router.push(`/login?redirect=/#camps`);
+    } else {
+      console.log(`Booking camp: ${campId}`);
+    }
+  };
 
   return (
     <section id="camps" ref={ref} className="section-padding relative overflow-hidden">
@@ -84,6 +85,7 @@ const FightCampsSection = () => {
                   {/* CTA */}
                   <a
                     href="#"
+                    onClick={(e) => handleBookClick(e, camp.id)}
                     className={`block text-center py-3 font-heading text-sm tracking-[0.2em] uppercase transition-all duration-300 ${
                       camp.featured
                         ? "bg-gradient-fire text-primary-foreground hover:opacity-90"

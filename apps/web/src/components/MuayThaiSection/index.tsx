@@ -1,23 +1,6 @@
 import { motion, useInView } from "framer-motion";
 import { useRef } from "react";
-import { Shield, Zap, Heart, Brain, Target, Flame, Move, Trophy } from "lucide-react";
-import { SITE_CONFIG } from "@repo/utils";
-
-const iconMap = [
-  Zap,
-  Flame,
-  Shield,
-  Brain,
-  Target,
-  Heart,
-  Move,
-  Trophy,
-];
-
-const benefits = SITE_CONFIG.benefits.map((benefit, index) => ({
-  ...benefit,
-  icon: iconMap[index],
-}));
+import { benefits } from "./MuayThaiSection.helpers";
 
 const MuayThaiSection = () => {
   const ref = useRef(null);
@@ -26,7 +9,8 @@ const MuayThaiSection = () => {
   return (
     <section id="muaythai" ref={ref} className="section-padding relative overflow-hidden">
       <div className="absolute inset-0 bg-gradient-dark" />
-      <div className="absolute bottom-0 left-0 w-[500px] h-[500px] rounded-full opacity-5"
+      <div
+        className="absolute bottom-0 left-0 w-[500px] h-[500px] rounded-full opacity-5"
         style={{ background: "radial-gradient(circle, hsl(210 100% 50%) 0%, transparent 70%)" }}
       />
 
