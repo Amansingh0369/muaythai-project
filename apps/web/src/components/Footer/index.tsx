@@ -1,21 +1,10 @@
-import React, { useRef } from "react";
+import React from "react";
 import { SITE_CONFIG } from "@repo/utils";
-import { FooterBackgroundGradient, TextHoverEffect } from "@/components/ui/hover-footer";
-import { motion, useScroll, useTransform } from "motion/react";
 import { footerLinks, contactInfo, socialIcons } from "./Footer.helpers";
 
 const Footer = () => {
-  const containerRef = useRef<HTMLElement>(null);
-
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ["start end", "end end"],
-  });
-
-  const textY = useTransform(scrollYProgress, [0, 1], [-350, 0]);
-
   return (
-    <footer ref={containerRef} className="relative w-full overflow-hidden bg-primary z-0">
+    <footer className="relative w-full overflow-hidden bg-primary z-0">
       {/* Front Solid Content Card */}
       <div className="bg-card shadow-[0_20px_50px_rgba(0,0,0,0.8)] relative z-20 border border-border overflow-hidden">
         <div className="max-w-7xl mx-auto p-8 md:p-14">
@@ -106,15 +95,9 @@ const Footer = () => {
         </div>
       </div>
 
-      {/* Back side - Parallax reveal */}
-      <div className="relative w-full h-[10rem] sm:h-[14rem] md:h-[18rem] z-0 overflow-hidden px-4 pointer-events-auto">
-        <FooterBackgroundGradient />
-        <motion.div className="flex w-full h-full pb-4" style={{ y: textY }}>
-          <TextHoverEffect text={SITE_CONFIG.brand} className="z-50" />
-        </motion.div>
-      </div>
     </footer>
   );
 };
 
 export default Footer;
+

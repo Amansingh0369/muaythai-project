@@ -11,6 +11,8 @@ import LocationsSection from "@/components/LocationsSection";
 import MuayThaiSection from "@/components/MuayThaiSection";
 import Footer from "@/components/Footer";
 
+import PageWrapper from "@/components/PageWrapper";
+
 export default function Home() {
   const [showIntro, setShowIntro] = useState(true);
 
@@ -22,7 +24,7 @@ export default function Home() {
     <>
       {showIntro && <IntroAnimation onComplete={handleIntroComplete} />}
       {!showIntro && (
-        <div className="bg-background min-h-screen">
+        <PageWrapper>
           <Navbar />
           <HeroSection />
           <AboutSection />
@@ -31,7 +33,7 @@ export default function Home() {
           <FightCampsSection />
           <MuayThaiSection />
           <Footer />
-        </div>
+        </PageWrapper>
       )}
     </>
   );

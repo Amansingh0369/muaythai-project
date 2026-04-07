@@ -1,7 +1,6 @@
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "motion/react";
 import { useState, useEffect } from "react";
 import { SITE_CONFIG } from "@repo/utils";
-import logo from "@/assets/logo.png";
 
 interface IntroAnimationProps {
   onComplete: () => void;
@@ -11,10 +10,9 @@ const IntroAnimation = ({ onComplete }: IntroAnimationProps) => {
   const [phase, setPhase] = useState<"enter" | "exit">("enter");
 
   useEffect(() => {
-    // Start curtain-raise exit transition
-    const timer1 = setTimeout(() => setPhase("exit"), 2400);
-    // Remove component entirely
-    const timer2 = setTimeout(() => onComplete(), 3200);
+    // Shorter, punchier intro duration for GenZ feel
+    const timer1 = setTimeout(() => setPhase("exit"), 2000);
+    const timer2 = setTimeout(() => onComplete(), 2800);
     return () => {
       clearTimeout(timer1);
       clearTimeout(timer2);
@@ -24,47 +22,67 @@ const IntroAnimation = ({ onComplete }: IntroAnimationProps) => {
   return (
     <AnimatePresence>
       <motion.div
-        className="fixed inset-0 z-50 flex items-center justify-center bg-background overflow-hidden"
+        className="fixed inset-0 z-50 flex items-center justify-center bg-black overflow-hidden"
         initial={{ y: 0 }}
         animate={phase === "exit" ? { y: "-100vh" } : { y: 0 }}
-        transition={{ duration: 0.8, ease: [0.76, 0, 0.24, 1] }}
+        transition={{ duration: 0.7, ease: [0.76, 0, 0.24, 1] }}
       >
-        <div className="relative flex flex-col items-center justify-center w-full">
-          {/* Intense ambient fire glow behind logo */}
+        {/* Film grain noise over the intro */}
+        <div
+          className="absolute inset-0 z-[1] opacity-[0.04] pointer-events-none"
+          style={{
+            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
+            backgroundSize: "128px 128px",
+          }}
+        />
+
+        <div className="relative z-10 flex flex-col items-center justify-center w-full px-4">
+          
+          {/* Eyebrow text flashing in */}
           <motion.div
-            className="absolute w-[200px] h-[200px] md:w-[400px] md:h-[400px] rounded-full"
-            style={{
-              background: "radial-gradient(circle, hsl(var(--primary) / 0.15) 0%, transparent 60%)",
-              filter: "blur(40px)",
-            }}
-            initial={{ scale: 0, opacity: 0 }}
-            animate={{ scale: 1.5, opacity: 1 }}
-            transition={{ duration: 2, ease: "easeOut" }}
-          />
-
-          {/* Premium Clean Logo Reveal */}
-          <motion.img
-            src={logo.src}
-            alt="Brand Logo"
-            className="w-24 h-24 md:w-32 md:h-32 mb-6 rounded-full shadow-[0_0_50px_hsl(var(--primary)/0.3)] relative z-20 border border-primary/20"
-            initial={{ scale: 0.8, y: 20, opacity: 0 }}
-            animate={{ scale: 1, y: 0, opacity: 1 }}
-            transition={{ duration: 0.8, ease: "easeOut", delay: 0.2 }}
-          />
-
-          {/* MUAY THAI - massive impact */}
-          <motion.h1
-            className="font-display text-5xl md:text-[8rem] lg:text-[12rem] leading-none text-foreground relative z-20 tracking-tight"
-            initial={{ scale: 0.9, opacity: 0, filter: "blur(5px)", y: 10 }}
-            animate={{ scale: 1, opacity: 1, filter: "blur(0px)", y: 0 }}
-            transition={{
-              duration: 1,
-              ease: [0.16, 1, 0.3, 1],
-              delay: 0.7,
-            }}
+            className="font-grotesk text-[10px] md:text-[12px] tracking-[0.45em] uppercase text-primary mb-6"
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: [0, 1, 0, 1], scale: 1 }}
+            transition={{ duration: 0.4, ease: "easeOut" }}
           >
-            MUAY THAI
-          </motion.h1>
+            Initializing
+          </motion.div>
+
+          <div className="relative">
+            {/* The primary massive logo text */}
+            <motion.h1
+              className="font-barlow font-black italic text-[18vw] sm:text-[14vw] md:text-[12vw] leading-none text-white uppercase text-center"
+              style={{ paddingRight: "0.05em" }}
+              initial={{ opacity: 0, x: -20, filter: "blur(10px)" }}
+              animate={{ opacity: 1, x: 0, filter: "blur(0px)" }}
+              transition={{ duration: 0.5, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
+            >
+              {SITE_CONFIG.brand}
+            </motion.h1>
+
+             {/* An orange glitch/echo block sliding behind */}
+            <motion.div
+               className="absolute inset-0 bg-primary mix-blend-difference"
+               initial={{ x: "-100%" }}
+               animate={{ x: "100%" }}
+               transition={{ duration: 0.8, delay: 0.5, ease: "easeInOut" }}
+            />
+          </div>
+
+          {/* Loading bar */}
+          <motion.div 
+            className="w-48 h-[2px] bg-white/20 mt-12 overflow-hidden relative"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.6 }}
+          >
+            <motion.div 
+              className="absolute top-0 bottom-0 left-0 bg-primary"
+              initial={{ width: "0%" }}
+              animate={{ width: "100%" }}
+              transition={{ duration: 1.2, delay: 0.7, ease: "circInOut" }}
+            />
+          </motion.div>
 
         </div>
       </motion.div>

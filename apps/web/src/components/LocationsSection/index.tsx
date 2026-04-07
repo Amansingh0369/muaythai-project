@@ -38,7 +38,7 @@ const LocationsSection = () => {
   });
 
   const activeLocation = locations[activeIndex];
-  const totalHeight = useMemo(() => `${locations.length * 100}vh`, []);
+  const totalHeight = useMemo(() => `${locations.length * 100}svh`, []);
 
   return (
     <section
@@ -48,7 +48,7 @@ const LocationsSection = () => {
       style={{ height: totalHeight, "--loc-theme": activeLocation.themeColor } as React.CSSProperties}
     >
       {/* Sticky Content Wrapper */}
-      <div className="sticky top-0 h-screen w-full overflow-hidden">
+      <div className="sticky top-0 h-[100dvh] w-full overflow-hidden">
 
         {/* Immersive Background Images */}
         <div className="absolute inset-0 z-0">
@@ -57,7 +57,7 @@ const LocationsSection = () => {
               key={activeLocation.name}
               initial={{ opacity: 0, scale: 1.1 }}
               animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
+              exit={{ opacity: 0, scale: 1 }}
               transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
               className="absolute inset-0 w-full h-full"
             >

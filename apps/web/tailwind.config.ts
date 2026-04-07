@@ -14,9 +14,11 @@ export default {
     },
     extend: {
       fontFamily: {
-        display: ['"Bebas Neue"', 'sans-serif'],
-        heading: ['"Oswald"', 'sans-serif'],
-        body: ['"Inter"', 'sans-serif'],
+        display: ['var(--font-bebas-neue)', 'sans-serif'],
+        heading: ['var(--font-oswald)', 'sans-serif'],
+        body: ['var(--font-inter)', 'sans-serif'],
+        barlow: ['var(--font-barlow-condensed)', 'sans-serif'],
+        grotesk: ['var(--font-space-grotesk)', 'sans-serif'],
       },
       colors: {
         border: "hsl(var(--border))",
