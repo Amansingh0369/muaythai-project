@@ -10,6 +10,7 @@ import FightCampsSection from "@/components/FightCampsSection";
 import LocationsSection from "@/components/LocationsSection";
 import MuayThaiSection from "@/components/MuayThaiSection";
 import Footer from "@/components/Footer";
+import BurnStrip from "@/components/BurnStrip";
 
 import PageWrapper from "@/components/PageWrapper";
 
@@ -28,8 +29,9 @@ export default function Home() {
           <Navbar />
           <HeroSection />
           <AboutSection />
-          <LocationsSection />
           <HighlightsSection />
+          <LocationsSection />
+          <BurnStrip />
           <FightCampsSection />
           <MuayThaiSection />
           <Footer />

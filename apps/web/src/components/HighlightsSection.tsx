@@ -1,5 +1,4 @@
 "use client";
-
 import { motion, useInView } from "framer-motion";
 import { useRef } from "react";
 import {
@@ -37,7 +36,7 @@ const HighlightsSection = () => {
   return (
     <section
       ref={ref}
-      className="relative bg-black overflow-hidden px-6 md:px-12 lg:px-20 py-24 md:py-36"
+      className="relative z-30 bg-[#121212] px-6 md:px-12 lg:px-20 py-24 md:py-36"
     >
       {/* Noise grain */}
       <div
