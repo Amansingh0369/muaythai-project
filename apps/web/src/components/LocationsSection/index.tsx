@@ -88,7 +88,7 @@ const LocationsSection = () => {
                 style={{ backgroundColor: activeLocation.themeColor }}
               />
               <span
-                className="font-heading text-[10px] md:text-xs tracking-[0.4em] md:tracking-[0.5rem] uppercase mb-4 md:mb-6 block transition-colors duration-1000"
+                className="font-grotesk text-[10px] md:text-xs tracking-[0.4em] md:tracking-[0.5rem] uppercase mb-4 md:mb-6 block transition-colors duration-1000 font-bold"
                 style={{ color: activeLocation.themeColor }}
               >
                 EXPERIENCE REALITY
@@ -97,7 +97,7 @@ const LocationsSection = () => {
                 <TextRotate
                   ref={textRotateRef}
                   texts={locations.map((l) => l.name)}
-                  mainClassName="font-display text-4xl sm:text-5xl md:text-7xl lg:text-8xl xl:text-[9rem] text-foreground uppercase leading-[0.85] tracking-tighter break-words"
+                  mainClassName="font-barlow font-black italic text-4xl sm:text-5xl md:text-7xl lg:text-8xl xl:text-[9rem] text-white uppercase leading-[0.85] tracking-tighter break-words"
                   staggerDuration={0.03}
                   auto={false}
                   loop={false}
@@ -125,7 +125,7 @@ const LocationsSection = () => {
                 <TextRotate
                   ref={vibeRotateRef}
                   texts={locations.map((l) => l.vibe)}
-                  mainClassName="font-heading text-[10px] sm:text-xs md:text-sm lg:text-base tracking-[0.2em] md:tracking-[0.3em] uppercase font-bold line-clamp-2"
+                  mainClassName="font-barlow font-bold text-[10px] sm:text-xs md:text-sm lg:text-base tracking-[0.2em] md:tracking-[0.3em] uppercase italic line-clamp-2"
                   auto={false}
                   loop={false}
                   staggerDuration={0.01}
@@ -135,7 +135,7 @@ const LocationsSection = () => {
                   exit={{ opacity: 0, x: -20 }}
                 />
               </div>
-              <p className="font-body text-white/70 text-xs sm:text-sm md:text-base leading-relaxed font-light">
+              <p className="font-grotesk text-white/70 text-xs sm:text-sm md:text-base leading-relaxed">
                 {activeLocation.description}
               </p>
             </motion.div>
@@ -155,16 +155,16 @@ const LocationsSection = () => {
               <div className="space-y-1 md:space-y-2 relative z-10">
                 <div className="flex items-center gap-2 transition-colors duration-1000" style={{ color: activeLocation.themeColor }}>
                   <Star size={14} className="fill-current" />
-                  <span className="font-heading text-[9px] md:text-[10px] tracking-[0.3em] uppercase text-white/60">Target Goal</span>
+                  <span className="font-grotesk font-bold text-[9px] md:text-[10px] tracking-[0.3em] uppercase text-white/60">Target Goal</span>
                 </div>
-                <p className="font-body text-xs md:text-sm text-white font-medium">{activeLocation.bestFor}</p>
+                <p className="font-barlow font-bold text-xs md:text-sm text-white uppercase italic">{activeLocation.bestFor}</p>
               </div>
               <div className="space-y-1 md:space-y-2 relative z-10">
                 <div className="flex items-center gap-2 transition-colors duration-1000" style={{ color: activeLocation.themeColor }}>
                   <Clock size={14} />
-                  <span className="font-heading text-[9px] md:text-[10px] tracking-[0.3em] uppercase text-white/60">Sessions</span>
+                  <span className="font-grotesk font-bold text-[9px] md:text-[10px] tracking-[0.3em] uppercase text-white/60">Sessions</span>
                 </div>
-                <p className="font-body text-xs md:text-sm text-white font-medium">{activeLocation.schedule}</p>
+                <p className="font-barlow font-bold text-xs md:text-sm text-white uppercase italic">{activeLocation.schedule}</p>
               </div>
             </motion.div>
 
@@ -191,11 +191,11 @@ const LocationsSection = () => {
                   <MapPin size={22} className="lg:w-6 lg:h-6 transition-colors duration-[800ms]" style={{ color: activeLocation.themeColor }} />
                 </div>
                 <div className="px-2">
-                  <span className="font-heading text-[9px] sm:text-[10px] md:text-xs lg:text-[10px] xl:text-xs tracking-[0.3em] md:tracking-[0.4em] uppercase text-white block transition-colors duration-[800ms] mb-1 md:mb-2 group-hover:text-[var(--loc-theme)]">
+                  <span className="font-grotesk font-bold text-[9px] sm:text-[10px] md:text-xs lg:text-[10px] xl:text-xs tracking-[0.3em] md:tracking-[0.4em] uppercase text-white block transition-colors duration-[800ms] mb-1 md:mb-2 group-hover:text-[var(--loc-theme)]">
                     Secure Spot
                   </span>
                   <span
-                    className="text-[8px] sm:text-[9px] md:text-[10px] uppercase font-bold tracking-[0.2em] leading-tight block break-words max-w-[120px] mx-auto transition-colors duration-[800ms]"
+                    className="font-barlow font-bold text-[8px] sm:text-[9px] md:text-[10px] uppercase tracking-[0.2em] leading-tight block break-words max-w-[120px] mx-auto transition-colors duration-[800ms] italic"
                     style={{ color: activeLocation.themeColor + "99" }}
                   >
                     {activeLocation.name} · TH
@@ -221,7 +221,7 @@ const LocationsSection = () => {
               }}
             >
               <span
-                className={`font-heading text-[10px] tracking-widest uppercase transition-all duration-[800ms] ${
+                className={`font-barlow font-bold text-[11px] tracking-widest uppercase transition-all duration-[800ms] ${
                   idx === activeIndex ? "opacity-100" : "text-white opacity-0 group-hover:opacity-40"
                 }`}
                 style={idx === activeIndex ? { color: activeLocation.themeColor } : {}}
@@ -230,7 +230,7 @@ const LocationsSection = () => {
               </span>
               <div
                 className={`w-1 transition-all duration-[800ms] rounded-full ${
-                  idx === activeIndex ? "h-12" : "bg-white/20 h-6 group-hover:bg-white/40"
+                  idx === activeIndex ? "h-12 bg-primary" : "bg-white/20 h-6 group-hover:bg-white/40"
                 }`}
                 style={idx === activeIndex ? { backgroundColor: activeLocation.themeColor } : {}}
               />
