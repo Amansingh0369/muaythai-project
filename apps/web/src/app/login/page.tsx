@@ -3,13 +3,13 @@
 import { GoogleLogin } from "@react-oauth/google";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import { motion } from "motion/react";
 import { Loader2 } from "lucide-react";
 import logo from "@/assets/logo.png";
 import { extractCredential, getRedirectPath } from "./login.helpers";
 
-export default function LoginPage() {
+function LoginContent() {
   const { login } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -35,6 +35,45 @@ export default function LoginPage() {
   };
 
   return (
+    <div className="flex flex-col items-center gap-6 w-full">
+      {isLoggingIn ? (
+        <div className="flex items-center gap-3 text-primary animate-pulse font-heading tracking-widest text-sm uppercase">
+            <Loader2 className="animate-spin" />
+            Authenticating...
+        </div>
+      ) : (
+        <div className="scale-110 hover:scale-[1.03] transition-transform duration-300">
+            <GoogleLogin
+                onSuccess={handleSuccess}
+                onError={() => setError("Google Login Failed")}
+                useOneTap
+                theme="filled_black"
+                shape="pill"
+                size="large"
+                width="300"
+            />
+        </div>
+      )}
+      
+      {error && (
+        <motion.p 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="text-primary text-xs font-heading uppercase tracking-wider bg-primary/10 px-4 py-2 rounded-full border border-primary/20"
+        >
+          {error}
+        </motion.p>
+      )}
+
+      <p className="text-[10px] text-center text-muted-foreground mt-6 leading-relaxed opacity-50 max-w-[250px]">
+        By continuing, you agree to our <a href="#" className="underline hover:text-white transition-colors">Terms of Service</a> and <a href="#" className="underline hover:text-white transition-colors">Privacy Policy</a>
+      </p>
+    </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
     <div className="min-h-screen w-full flex items-center justify-center relative overflow-hidden bg-black font-body">
       {/* Background with ring feel */}
       <div 
@@ -50,9 +89,9 @@ export default function LoginPage() {
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="z-10 w-full max-w-md p-10 glass-surface border border-white/10 rounded-[2.5rem] m-4 shadow-2xl"
+        className="z-10 w-full max-w-md p-10 glass-surface border border-white/10 rounded-[2.5rem] m-4 shadow-2xl flex flex-col items-center"
       >
-        <div className="flex flex-col items-center text-center mb-10">
+        <div className="flex flex-col items-center text-center mb-10 w-full">
           <motion.div
             animate={{ 
                 boxShadow: ["0 0 0px var(--primary)", "0 0 15px var(--primary)", "0 0 0px var(--primary)"] 
@@ -70,40 +109,14 @@ export default function LoginPage() {
           <p className="text-muted-foreground">Sign in to start your journey</p>
         </div>
 
-        <div className="flex flex-col items-center gap-6">
-           {isLoggingIn ? (
-                <div className="flex items-center gap-3 text-primary animate-pulse font-heading tracking-widest text-sm uppercase">
-                    <Loader2 className="animate-spin" />
-                    Authenticating...
-                </div>
-           ) : (
-                <div className="scale-110 hover:scale-[1.03] transition-transform duration-300">
-                    <GoogleLogin
-                        onSuccess={handleSuccess}
-                        onError={() => setError("Google Login Failed")}
-                        useOneTap
-                        theme="filled_black"
-                        shape="pill"
-                        size="large"
-                        width="300"
-                    />
-                </div>
-           )}
-           
-           {error && (
-             <motion.p 
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="text-primary text-xs font-heading uppercase tracking-wider bg-primary/10 px-4 py-2 rounded-full border border-primary/20"
-             >
-                {error}
-             </motion.p>
-           )}
-
-           <p className="text-[10px] text-center text-muted-foreground mt-6 leading-relaxed opacity-50 max-w-[250px]">
-             By continuing, you agree to our <a href="#" className="underline hover:text-white transition-colors">Terms of Service</a> and <a href="#" className="underline hover:text-white transition-colors">Privacy Policy</a>
-           </p>
-        </div>
+        <Suspense fallback={
+          <div className="flex items-center gap-3 text-primary animate-pulse font-heading tracking-widest text-sm uppercase">
+            <Loader2 className="animate-spin" />
+            Loading...
+          </div>
+        }>
+          <LoginContent />
+        </Suspense>
       </motion.div>
     </div>
   );
