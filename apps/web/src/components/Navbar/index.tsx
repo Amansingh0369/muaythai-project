@@ -13,7 +13,6 @@ const Navbar = () => {
   const { user, logout } = useAuth();
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
-  const { hidden } = useNavbarScroll();
 
   const navLinks = SITE_CONFIG.navigation;
   const leftLinks = navLinks.slice(0, Math.ceil(navLinks.length / 2));
@@ -31,11 +30,8 @@ const Navbar = () => {
 
   return (
     <>
-      <motion.nav
+      <nav
         className="fixed top-0 left-0 right-0 z-50 flex flex-col"
-        variants={{ visible: { y: 0 }, hidden: { y: `-${NAV_H + TOP_BAR_H}px` } }}
-        animate={hidden ? "hidden" : "visible"}
-        transition={{ duration: 0.4, ease: [0.76, 0, 0.24, 1] }}
       >
         {/* ── TOP UTILITY BAR (High-end technical strip) ── */}
         <div
@@ -184,7 +180,7 @@ const Navbar = () => {
             </div>
           </div>
         </div>
-      </motion.nav>
+      </nav>
 
       {/* ── MOBILE FULL-SCREEN OVERLAY ── */}
       <AnimatePresence>

@@ -1,7 +1,7 @@
 "use client";
 
-import { motion, useScroll, useTransform } from "motion/react";
-import { ReactNode } from "react";
+import { motion, useScroll, useTransform, useSpring } from "motion/react";
+import { ReactNode, useEffect, useState } from "react";
 import { FooterBackgroundGradient, TextHoverEffect } from "@/components/ui/hover-footer";
 import { SITE_CONFIG } from "@repo/utils";
 
@@ -11,15 +11,43 @@ interface PageWrapperProps {
 
 export default function PageWrapper({ children }: PageWrapperProps) {
   const { scrollYProgress } = useScroll();
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile(); // Check immediately on mount
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+
+  // Apply heavily damped, high-mass physics SPECIFICALLY for mobile
+  // so fast swiping doesn't cause snappy jumps.
+  const smoothProgress = useSpring(scrollYProgress, {
+    stiffness: isMobile ? 60 : 150,
+    damping: isMobile ? 40 : 35,
+    mass: isMobile ? 1.5 : 0.5,
+    restDelta: 0.001
+  });
 
   // Top of page: scale 0.96, rounded corners.
-  // Slightly scrolled (0.05): full screen, square corners.
-  // Near bottom (0.95): full screen, square corners.
-  // Very bottom (1.0): scale 0.96, rounded corners.
+  // Slightly scrolled: full screen, square corners.
+  // On mobile we completely remove the shrinking wrapper effect to maintain a standard 100% width layout
+  const scale = useTransform(
+    smoothProgress,
+    [0, 0.025, 0.97, 1],
+    isMobile ? [1, 1, 1, 1] : [0.96, 1, 1, 0.96]
+  );
 
-  const scale = useTransform(scrollYProgress, [0, 0.009, 0.96, 1], [0.97, 1, 1, 0.96]);
-  const borderRadius = useTransform(scrollYProgress, [0, 0.009, 0.96, 1], ["40px", "0px", "0px", "64px"]);
-  const originY = useTransform(scrollYProgress, [0, 1], [1, 0]);
+  // 60FPS Optimization: Animating border-radius on a wrapper with overflow-hidden forces
+  // layout mask repaints on mobile. We use STABLE rounded corners on mobile (no animating) 
+  // so it still looks like a floating wrapper without tanking FPS.
+  const borderRadius = useTransform(
+    smoothProgress,
+    [0, 0.025, 0.97, 1],
+    isMobile ? ["0px", "0px", "0px", "0px"] : ["40px", "0px", "0px", "64px"]
+  );
+
+  const originY = useTransform(smoothProgress, [0, 1], [1, 0]);
 
   return (
     <div className="bg-primary min-h-screen w-full select-none">
@@ -29,7 +57,7 @@ export default function PageWrapper({ children }: PageWrapperProps) {
       */}
       <motion.main
         style={{ scale, borderRadius, originY }}
-        className="bg-background min-h-screen w-full overflow-clip flex flex-col will-change-transform shadow-[0_0_100px_rgba(0,0,0,0.6)] border border-white/5 relative z-10"
+        className="bg-background min-h-screen w-full overflow-clip flex flex-col will-change-transform md:shadow-[0_0_100px_rgba(0,0,0,0.6)] border border-white/5 relative z-10"
       >
         {children}
       </motion.main>

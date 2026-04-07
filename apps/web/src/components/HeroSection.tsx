@@ -9,6 +9,24 @@ const HeroSection = () => {
   const [isVideoLoaded, setIsVideoLoaded] = useState(false);
   const [tick, setTick] = useState(0);
   const ref = useRef<HTMLElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  // Force video playback constraints specifically for strict mobile engines (iOS Safari / Low Power Mode)
+  useEffect(() => {
+    if (videoRef.current) {
+      videoRef.current.defaultMuted = true;
+      videoRef.current.muted = true;
+      videoRef.current.play().catch(e => {
+        console.log("Mobile browser blocked autoplay (likely Low Power Mode):", e);
+      });
+    }
+  }, []);
+
+  // Fallback to show the video/poster if the network or mobile battery saver blocks `onLoadedData`
+  useEffect(() => {
+    const timer = setTimeout(() => setIsVideoLoaded(true), 2000);
+    return () => clearTimeout(timer);
+  }, []);
 
   const { scrollYProgress } = useScroll({
     target: ref,
@@ -42,11 +60,13 @@ const HeroSection = () => {
         {/* Video */}
         <AnimatePresence>
           <motion.video
+            ref={videoRef}
             key="hero-video"
             autoPlay
             loop
-            muted
-            playsInline
+            muted={true}
+            playsInline={true}
+            preload="auto"
             onLoadedData={() => setIsVideoLoaded(true)}
             initial={{ opacity: 0 }}
             animate={{ opacity: isVideoLoaded ? 1 : 0 }}
