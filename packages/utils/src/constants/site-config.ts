@@ -13,10 +13,9 @@ export const SITE_CONFIG = {
   },
 
   navigation: [
-    { label: "About", href: "#about" },
-    { label: "Fight Camps", href: "#camps" },
-    { label: "Locations", href: "#locations" },
-    { label: "About Muay Thai", href: "#muaythai" },
+    { label: "Home", href: "/" },
+    { label: "About", href: "/about" },
+    { label: "Camps & Locations", href: "/locations" },
   ],
 
   socials: [

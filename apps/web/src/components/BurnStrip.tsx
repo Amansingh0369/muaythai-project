@@ -16,7 +16,7 @@ export default function BurnStrip() {
   const scale = useTransform(scrollYProgress, [0, 1], [0.95, 1.05]);
 
   return (
-    <section ref={ref} className="relative w-full overflow-hidden h-[80svh] min-h-[600px] flex items-center justify-center bg-[#2c0404] z-40">
+    <section ref={ref} className="relative w-full overflow-hidden h-[80svh] min-h-[600px] flex items-center justify-center bg-[#2c0404] z-10">
       {/* Dynamic Background that blends into the canvas unburned #2c0404 color */}
       <div className="absolute inset-0 bg-gradient-to-b from-orange-700 via-red-900 to-[#2c0404] opacity-90" />
 

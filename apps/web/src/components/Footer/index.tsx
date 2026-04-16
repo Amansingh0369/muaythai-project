@@ -6,7 +6,7 @@ const Footer = () => {
   return (
     <footer className="relative w-full overflow-hidden bg-primary z-0">
       {/* Front Solid Content Card */}
-      <div className="bg-card shadow-[0_20px_50px_rgba(0,0,0,0.8)] relative z-20 border border-border overflow-hidden">
+      <div className="bg-black relative z-20 border-b border-border overflow-hidden">
         <div className="max-w-7xl mx-auto p-8 md:p-14">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 md:gap-8 lg:gap-16 pb-12">
             {/* Brand section */}
@@ -94,10 +94,8 @@ const Footer = () => {
           </div>
         </div>
       </div>
-
     </footer>
   );
 };
 
 export default Footer;
-

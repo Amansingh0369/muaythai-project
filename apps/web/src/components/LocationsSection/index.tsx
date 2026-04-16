@@ -1,3 +1,5 @@
+"use client";
+
 import { motion, useInView, AnimatePresence, useScroll, useMotionValueEvent } from "motion/react";
 import { useRef, useState, useMemo } from "react";
 import { SITE_CONFIG } from "@repo/utils";
@@ -81,7 +83,7 @@ const LocationsSection = () => {
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               whileInView={{ opacity: 1, scale: 1, y: 0 }}
               transition={{ duration: 0.8 }}
-              className="glass-surface p-6 sm:p-8 md:p-10 lg:p-12 rounded-[2rem] md:rounded-[2.5rem] border border-white/10 shadow-2xl backdrop-blur-md md:col-span-12 overflow-hidden relative group"
+              className="glass-surface p-6 sm:p-8 md:p-10 lg:p-12 border border-white/10 shadow-2xl backdrop-blur-md md:col-span-12 overflow-hidden relative group"
             >
               <div
                 className="absolute top-0 left-0 w-full h-full opacity-0 group-hover:opacity-[0.03] transition-opacity duration-700 pointer-events-none"
@@ -115,7 +117,7 @@ const LocationsSection = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.1 }}
-              className="glass-surface p-6 sm:p-8 md:p-10 rounded-[2rem] md:rounded-[2.5rem] border border-white/10 shadow-xl backdrop-blur-md md:col-span-12 lg:col-span-6 flex flex-col justify-center relative group overflow-hidden"
+              className="glass-surface p-6 sm:p-8 md:p-10 border border-white/10 shadow-xl backdrop-blur-md md:col-span-12 lg:col-span-6 flex flex-col justify-center relative group overflow-hidden"
             >
               <div
                 className="absolute top-0 left-0 w-full h-full opacity-0 group-hover:opacity-[0.03] transition-opacity duration-700 pointer-events-none"
@@ -146,7 +148,7 @@ const LocationsSection = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.15 }}
-              className="glass-surface p-6 sm:p-8 md:p-10 rounded-[2rem] md:rounded-[2.5rem] border border-white/10 shadow-xl backdrop-blur-md md:col-span-6 lg:col-span-3 flex flex-col justify-center relative group overflow-hidden gap-4 md:gap-6"
+              className="glass-surface p-6 sm:p-8 md:p-10 border border-white/10 shadow-xl backdrop-blur-md md:col-span-6 lg:col-span-3 flex flex-col justify-center relative group overflow-hidden gap-4 md:gap-6"
             >
               <div
                 className="absolute top-0 left-0 w-full h-full opacity-0 group-hover:opacity-[0.03] transition-opacity duration-700 pointer-events-none"
@@ -173,7 +175,7 @@ const LocationsSection = () => {
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 1, delay: 0.2 }}
-              className="glass-surface p-6 sm:p-8 rounded-[2rem] md:rounded-[2.5rem] border border-white/10 shadow-lg transition-colors duration-500 backdrop-blur-sm md:col-span-6 lg:col-span-3 flex flex-col justify-center items-center group relative overflow-hidden text-center"
+              className="glass-surface p-6 sm:p-8 border border-white/10 shadow-lg transition-colors duration-500 backdrop-blur-sm md:col-span-6 lg:col-span-3 flex flex-col justify-center items-center group relative overflow-hidden text-center"
             >
               <div
                 className="absolute top-0 left-0 w-full h-full opacity-0 group-hover:opacity-[0.05] transition-opacity duration-700 pointer-events-none"
@@ -185,7 +187,7 @@ const LocationsSection = () => {
                 className="flex flex-col items-center gap-3 md:gap-4 w-full h-full justify-center relative z-10"
               >
                 <div
-                  className="h-12 w-12 md:h-16 md:w-16 lg:h-14 lg:w-14 xl:h-16 xl:w-16 rounded-full border flex items-center justify-center transition-all duration-[800ms] group-hover:scale-110 shadow-none group-hover:shadow-[0_0_20px_var(--loc-theme)]"
+                  className="h-12 w-12 md:h-16 md:w-16 lg:h-14 lg:w-14 xl:h-16 xl:w-16 border flex items-center justify-center transition-all duration-[800ms] group-hover:scale-110 shadow-none group-hover:shadow-[0_0_20px_var(--loc-theme)]"
                   style={{ borderColor: activeLocation.themeColor + "40" }}
                 >
                   <MapPin size={22} className="lg:w-6 lg:h-6 transition-colors duration-[800ms]" style={{ color: activeLocation.themeColor }} />

@@ -168,7 +168,7 @@ const HeroSection = () => {
             {/* CTA buttons */}
             <div className="flex items-center gap-4">
               <motion.a
-                href="#camps"
+                href="/locations"
                 className="group relative inline-flex items-center gap-3 bg-primary px-7 py-3.5 font-barlow font-black text-[12px] tracking-[0.25em] uppercase text-black overflow-hidden"
                 whileHover={{ scale: 1.03 }}
                 whileTap={{ scale: 0.97 }}
@@ -180,7 +180,7 @@ const HeroSection = () => {
               </motion.a>
 
               <a
-                href="#about"
+                href="/about"
                 className="font-grotesk text-[11px] tracking-[0.2em] uppercase text-white/40 hover:text-white transition-colors duration-300 border-b border-white/10 hover:border-white/40 pb-0.5"
               >
                 Our Story

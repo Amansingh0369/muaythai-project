@@ -3,6 +3,7 @@ import { Inter, Oswald, Bebas_Neue, Barlow_Condensed, Space_Grotesk } from "next
 import "./globals.css";
 import { Providers } from "@/components/Providers";
 import { SITE_CONFIG } from "@repo/utils";
+import StickyReveal from "@/components/StickyReveal";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const oswald = Oswald({ subsets: ["latin"], variable: "--font-oswald" });
@@ -46,8 +47,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="dark">
-      <body className={`${inter.variable} ${oswald.variable} ${bebasNeue.variable} ${barlowCondensed.variable} ${spaceGrotesk.variable} font-body antialiased`}>
-        <Providers>{children}</Providers>
+      <body className={`${inter.variable} ${oswald.variable} ${bebasNeue.variable} ${barlowCondensed.variable} ${spaceGrotesk.variable} font-body antialiased selection:bg-primary selection:text-black`}>
+        <Providers>
+          <StickyReveal>
+            {children}
+          </StickyReveal>
+        </Providers>
       </body>
     </html>
   );

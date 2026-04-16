@@ -235,7 +235,7 @@ export function BurnTransitionBottom({ height = 300 }: { height?: number }) {
   return (
     <div
       ref={containerRef}
-      className="absolute bottom-0 left-0 right-0 pointer-events-none z-50"
+      className="absolute bottom-0 left-0 right-0 pointer-events-none z-20"
       style={{ height, transform: "translateY(50%)" }}
     >
       <canvas ref={canvasRef} style={{ width: "100%", height: "100%", display: "block" }} />
@@ -305,7 +305,7 @@ export function BurnTransitionTop({ height = 500 }: { height?: number }) {
   return (
     <div
       ref={containerRef}
-      className="absolute top-0 left-0 right-0 pointer-events-none z-20 border border-green-500"
+      className="absolute top-0 left-0 right-0 pointer-events-none z-10"
       style={{ height, transform: "translateY(-50%)" }}
     >
       <canvas ref={canvasRef} style={{ width: "100%", height: "100%", display: "block" }} />

@@ -4,15 +4,9 @@ import { useState, useCallback } from "react";
 import IntroAnimation from "@/components/IntroAnimation";
 import Navbar from "@/components/Navbar";
 import HeroSection from "@/components/HeroSection";
-import AboutSection from "@/components/AboutSection";
-import HighlightsSection from "@/components/HighlightsSection";
-import FightCampsSection from "@/components/FightCampsSection";
-import LocationsSection from "@/components/LocationsSection";
-import MuayThaiSection from "@/components/MuayThaiSection";
-import Footer from "@/components/Footer";
+import DirectoryTiles from "@/components/DirectoryTiles";
 import BurnStrip from "@/components/BurnStrip";
-
-import PageWrapper from "@/components/PageWrapper";
+import Footer from "@/components/Footer";
 
 export default function Home() {
   const [showIntro, setShowIntro] = useState(true);
@@ -22,21 +16,17 @@ export default function Home() {
   }, []);
 
   return (
-    <>
+    <div className="bg-background min-h-screen">
       {showIntro && <IntroAnimation onComplete={handleIntroComplete} />}
       {!showIntro && (
-        <PageWrapper>
+        <main className="relative z-10">
           <Navbar />
           <HeroSection />
-          <AboutSection />
-          <HighlightsSection />
-          <LocationsSection />
+          <DirectoryTiles />
           <BurnStrip />
-          <FightCampsSection />
-          <MuayThaiSection />
           <Footer />
-        </PageWrapper>
+        </main>
       )}
-    </>
+    </div>
   );
 }
