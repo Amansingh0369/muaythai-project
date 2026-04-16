@@ -1,6 +1,8 @@
 "use client";
 
 import { motion } from "motion/react";
+import { TextScramble } from "@/components/ui/text-scramble";
+import { useState } from "react";
 import { ArrowUpRight, Info, MapPin, Sword, Users } from "lucide-react";
 import Link from "next/link";
 import aboutImg from "@/assets/training.jpg";
@@ -51,15 +53,20 @@ const DirectoryTiles = () => {
               Explore the <span className="text-primary italic">Muay Thai</span> Universe
             </motion.h2>
           </div>
-          <motion.p
+          <TextScramble
+            className="font-grotesk text-white/70 text-sm md:text-base max-w-sm leading-relaxed"
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
             transition={{ duration: 0.8, delay: 0.3 }}
-            className="font-grotesk text-white/40 text-sm md:text-base max-w-sm leading-relaxed"
+            duration={2.5}
+            speed={0.06}
+            scrambleClassName="text-primary"
           >
             Whether you're looking for professional training or seeking to understand the culture, start your experience here.
-          </motion.p>
+          </TextScramble>
         </div>
+
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 max-w-5xl mx-auto">
           {TILES.map((tile, idx) => (

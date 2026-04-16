@@ -1,6 +1,7 @@
 import React from "react";
 import { SITE_CONFIG } from "@repo/utils";
 import { footerLinks, contactInfo, socialIcons } from "./Footer.helpers";
+import { TextScramble } from "@/components/ui/text-scramble";
 
 const Footer = () => {
   return (
@@ -16,9 +17,13 @@ const Footer = () => {
                   {SITE_CONFIG.brand}
                 </span>
               </div>
-              <p className="text-sm font-body text-muted-foreground leading-relaxed">
+              <TextScramble
+                className="text-sm font-body text-muted-foreground leading-relaxed"
+                duration={2}
+                scrambleClassName="text-primary"
+              >
                 {SITE_CONFIG.taglines.heroDesc}
-              </p>
+              </TextScramble>
             </div>
 
             {/* Footer link sections */}
@@ -34,7 +39,9 @@ const Footer = () => {
                         href={link.href}
                         className="text-muted-foreground hover:text-primary transition-colors duration-300"
                       >
-                        {link.label}
+                        <TextScramble duration={1} speed={0.03} scrambleClassName="text-primary">
+                          {link.label}
+                        </TextScramble>
                       </a>
                       {link.pulse && (
                         <span className="absolute top-0 -right-4 w-2 h-2 rounded-full bg-primary animate-pulse" />
@@ -56,10 +63,16 @@ const Footer = () => {
                     {item.icon}
                     {item.href ? (
                       <a href={item.href} className="hover:text-primary transition-colors duration-300">
-                        {item.text}
+                        <TextScramble duration={1} scrambleClassName="text-primary">
+                          {item.text}
+                        </TextScramble>
                       </a>
                     ) : (
-                      <span className="hover:text-primary transition-colors duration-300">{item.text}</span>
+                      <span className="hover:text-primary transition-colors duration-300">
+                        <TextScramble duration={1} scrambleClassName="text-primary">
+                          {item.text}
+                        </TextScramble>
+                      </span>
                     )}
                   </li>
                 ))}

@@ -73,7 +73,7 @@ const HeroSection = () => {
             transition={{ duration: 1.4, ease: "easeOut" }}
             className="absolute inset-0 w-full h-full object-cover"
           >
-            <source src="/videos/hero.mp4" type="video/mp4" />
+            {/* <source src="/videos/hero.mp4" type="video/mp4" /> */}
           </motion.video>
         </AnimatePresence>
 

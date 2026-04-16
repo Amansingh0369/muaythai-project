@@ -99,11 +99,11 @@ const LocationsSection = () => {
                 <TextRotate
                   ref={textRotateRef}
                   texts={locations.map((l) => l.name)}
-                  mainClassName="font-barlow font-black italic text-4xl sm:text-5xl md:text-7xl lg:text-8xl xl:text-[9rem] text-white uppercase leading-[0.85] tracking-tighter break-words"
+                  mainClassName="font-barlow font-black italic text-4xl sm:text-5xl md:text-7xl lg:text-8xl xl:text-[9rem] text-white uppercase leading-[0.85] tracking-[0.4em] md:tracking-[0.5rem] break-words"
                   staggerDuration={0.03}
                   auto={false}
                   loop={false}
-                  transition={{ type: "spring", duration: 1.2, bounce: 0 }}
+                  transition={{ type: "spring", duration: 0.5, bounce: 0 }}
                   initial={{ opacity: 0, y: 60 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -60 }}
@@ -131,7 +131,7 @@ const LocationsSection = () => {
                   auto={false}
                   loop={false}
                   staggerDuration={0.01}
-                  transition={{ type: "spring", duration: 1 }}
+                  transition={{ type: "spring", duration: 0.5 }}
                   initial={{ opacity: 0, x: 20 }}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: -20 }}
@@ -147,7 +147,7 @@ const LocationsSection = () => {
               key={`details-${activeIndex}`}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.15 }}
+              transition={{ duration: 0.5, delay: 0.15 }}
               className="glass-surface p-6 sm:p-8 md:p-10 border border-white/10 shadow-xl backdrop-blur-md md:col-span-6 lg:col-span-3 flex flex-col justify-center relative group overflow-hidden gap-4 md:gap-6"
             >
               <div
@@ -223,17 +223,15 @@ const LocationsSection = () => {
               }}
             >
               <span
-                className={`font-barlow font-bold text-[11px] tracking-widest uppercase transition-all duration-[800ms] ${
-                  idx === activeIndex ? "opacity-100" : "text-white opacity-0 group-hover:opacity-40"
-                }`}
+                className={`font-barlow font-bold text-[11px] tracking-widest uppercase transition-all duration-[800ms] ${idx === activeIndex ? "opacity-100" : "text-white opacity-0 group-hover:opacity-40"
+                  }`}
                 style={idx === activeIndex ? { color: activeLocation.themeColor } : {}}
               >
                 {loc.name}
               </span>
               <div
-                className={`w-1 transition-all duration-[800ms] rounded-full ${
-                  idx === activeIndex ? "h-12 bg-primary" : "bg-white/20 h-6 group-hover:bg-white/40"
-                }`}
+                className={`w-1 transition-all duration-[800ms] rounded-full ${idx === activeIndex ? "h-12 bg-primary" : "bg-white/20 h-6 group-hover:bg-white/40"
+                  }`}
                 style={idx === activeIndex ? { backgroundColor: activeLocation.themeColor } : {}}
               />
             </motion.div>
