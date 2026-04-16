@@ -5,6 +5,7 @@ import LocationsSection from "@/components/LocationsSection";
 import FightCampsSection from "@/components/FightCampsSection";
 import BurnStrip from "@/components/BurnStrip";
 import PageHero from "@/components/PageHero";
+import heroImg from "@/assets/download.png";
 
 export const metadata: Metadata = {
   title: "Camps & Locations | This Is Muay Thai",
@@ -19,7 +20,7 @@ const ExperiencePage = () => {
         title="Training Hubs"
         label="Camps & Locations"
         subtitle="Intensive training across Thailand's most iconic destinations. From the heart of Bangkok to the beaches of Phuket."
-        image="https://images.unsplash.com/photo-1552072092-2374e2a143b4?q=80&w=2070&auto=format&fit=crop"
+        image={heroImg.src}
       />
 
       {/* Locations Explorer (Sticky Scroller) */}

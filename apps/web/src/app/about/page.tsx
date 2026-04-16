@@ -5,6 +5,7 @@ import AboutSection from "@/components/AboutSection";
 import MuayThaiSection from "@/components/MuayThaiSection";
 import HighlightsSection from "@/components/HighlightsSection";
 import PageHero from "@/components/PageHero";
+import about from "@/assets/about.jpg";
 
 export const metadata: Metadata = {
   title: "About Our Heritage & Muay Thai | This Is Muay Thai",
@@ -15,11 +16,11 @@ const AboutPage = () => {
   return (
     <main className="bg-background min-h-screen">
       <Navbar />
-      <PageHero 
+      <PageHero
         title="Our Heritage"
         label="About This Is Muay Thai"
         subtitle="Born in the heart of Thailand, built for the global warrior. We bring authentic training to those who seek more than just fitness."
-        image="https://images.unsplash.com/photo-1599058917233-57c0e620c29b?q=80&w=2070&auto=format&fit=crop"
+        image={about.src}
       />
       <AboutSection />
       <MuayThaiSection />

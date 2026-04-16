@@ -161,7 +161,7 @@ const HeroSection = () => {
             transition={{ delay: 1, duration: 0.7 }}
           >
             {/* Description */}
-            <p className="font-grotesk text-[13px] md:text-sm text-white/45 max-w-[320px] leading-relaxed">
+            <p className="font-grotesk text-[13px] md:text-sm text-white/70 max-w-[320px] leading-relaxed">
               Immersive Muay Thai training camps across Thailand's most iconic locations.
             </p>
 
@@ -198,7 +198,7 @@ const HeroSection = () => {
             {["Bangkok", "Phuket", "Chiang Mai", "Krabi", "Koh Samui"].map((loc) => (
               <span
                 key={loc}
-                className="font-grotesk text-[10px] tracking-[0.2em] uppercase text-white/30 border border-white/[0.08] px-3 py-1.5 hover:text-white/60 hover:border-white/20 transition-colors cursor-default"
+                className="font-grotesk text-[10px] tracking-[0.2em] uppercase text-white/50 border border-white/[0.1] px-3 py-1.5 hover:text-white/80 hover:border-white/50 transition-colors cursor-default"
               >
                 {loc}
               </span>

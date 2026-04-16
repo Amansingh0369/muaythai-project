@@ -22,7 +22,7 @@ const PageHero = ({ title, subtitle, image, label }: PageHeroProps) => {
           alt={title}
           className="h-full w-full object-cover"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-r from-black via-black/80 to-transparent" />
         <div className="absolute inset-0 bg-black/20" />
       </div>
 
@@ -46,7 +46,7 @@ const PageHero = ({ title, subtitle, image, label }: PageHeroProps) => {
             initial={{ y: "100%" }}
             animate={{ y: 0 }}
             transition={{ delay: 0.5, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-            className="font-barlow font-black italic text-5xl md:text-7xl lg:text-8xl text-white uppercase leading-[0.9] tracking-tighter"
+            className="font-barlow font-black italic text-5xl md:text-7xl lg:text-8xl text-white uppercase leading-[0.9] tracking-[-0.01em]"
           >
             {title}
           </motion.h1>
@@ -65,8 +65,7 @@ const PageHero = ({ title, subtitle, image, label }: PageHeroProps) => {
       </div>
 
       {/* Decorative Brand Strip */}
-      <div className="absolute bottom-0 left-0 right-0 h-px bg-white/10" />
-      <div className="absolute bottom-0 right-0 w-1/2 h-[2px] bg-primary/30" />
+      <div className="absolute bottom-0 left-0 right-0 h-px bg-primary/100" />
     </section>
   );
 };
