@@ -1,17 +1,16 @@
 "use client";
 
 import { motion, AnimatePresence } from "motion/react";
-import { AlertTriangle, X, Loader2 } from "lucide-react";
-import { Button } from "@repo/ui";
+import { AlertCircle, X, Loader2 } from "lucide-react";
 
 interface ConfirmModalProps {
   isOpen: boolean;
   onClose: () => void;
   onConfirm: () => void;
   title: string;
-  description: string;
-  confirmLabel?: string;
-  cancelLabel?: string;
+  message: string;
+  confirmText?: string;
+  isDestructive?: boolean;
   isLoading?: boolean;
 }
 
@@ -20,9 +19,9 @@ export function ConfirmModal({
   onClose,
   onConfirm,
   title,
-  description,
-  confirmLabel = "Delete",
-  cancelLabel = "Cancel",
+  message,
+  confirmText = "Confirm",
+  isDestructive = true,
   isLoading = false
 }: ConfirmModalProps) {
   return (
@@ -34,51 +33,55 @@ export function ConfirmModal({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="absolute inset-0 bg-black/80 backdrop-blur-md"
+            className="absolute inset-0 bg-black/90 backdrop-blur-md"
           />
           
           <motion.div
-            initial={{ scale: 0.95, opacity: 0 }}
+            initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0.95, opacity: 0 }}
-            className="relative w-full max-w-md bg-[#111] border border-white/10 rounded-[2.5rem] overflow-hidden shadow-2xl"
+            exit={{ scale: 0.9, opacity: 0 }}
+            className="relative w-full max-w-md bg-black border border-white/10 rounded-[2.5rem] p-8 shadow-2xl overflow-hidden"
           >
-            <div className="p-8">
-              <div className="flex flex-col items-center text-center">
-                <div className="w-16 h-16 rounded-3xl bg-red-500/10 flex items-center justify-center mb-6 border border-red-500/20">
-                  <AlertTriangle className="text-red-500 w-8 h-8" />
-                </div>
-                
-                <h3 className="text-2xl font-bold text-white uppercase tracking-tight mb-2">
-                  {title}
-                </h3>
-                <p className="text-white/40 text-sm leading-relaxed mb-8 px-4">
-                  {description}
-                </p>
+            {/* Background Glow */}
+            <div className={`absolute -top-24 -left-24 w-48 h-48 blur-[80px] opacity-20 ${isDestructive ? "bg-red-500" : "bg-primary"}`} />
 
-                <div className="grid grid-cols-2 gap-4 w-full">
-                  <button
-                    onClick={onClose}
-                    className="py-4 rounded-2xl border border-white/5 bg-white/5 text-white/60 font-bold uppercase tracking-wider text-xs hover:bg-white/10 transition-all"
-                  >
-                    {cancelLabel}
-                  </button>
-                  <button
-                    disabled={isLoading}
-                    onClick={onConfirm}
-                    className="py-4 rounded-2xl bg-red-500 hover:bg-red-600 text-white font-bold uppercase tracking-wider text-xs transition-all shadow-lg shadow-red-500/20 flex items-center justify-center gap-2"
-                  >
-                    {isLoading ? <Loader2 className="animate-spin w-4 h-4" /> : confirmLabel}
-                  </button>
-                </div>
+            <div className="relative z-10 text-center">
+              <div className={`mx-auto w-16 h-16 rounded-2xl flex items-center justify-center mb-6 border ${
+                isDestructive ? "bg-red-500/10 border-red-500/20 text-red-500" : "bg-primary/10 border-primary/20 text-primary"
+              }`}>
+                <AlertCircle className="w-8 h-8" />
+              </div>
+              
+              <h2 className="text-2xl font-bold text-white mb-2 uppercase tracking-tight">{title}</h2>
+              <p className="text-white/50 text-sm leading-relaxed mb-10">{message}</p>
+              
+              <div className="flex flex-col sm:flex-row gap-3">
+                <button
+                  onClick={onClose}
+                  className="flex-1 px-6 py-4 rounded-2xl bg-white/5 hover:bg-white/10 text-white font-bold text-xs uppercase tracking-widest transition-all"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={onConfirm}
+                  disabled={isLoading}
+                  className={`flex-1 px-6 py-4 rounded-2xl font-bold text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-2 ${
+                    isDestructive 
+                    ? "bg-red-600 hover:bg-red-700 text-white" 
+                    : "bg-primary hover:bg-orange-600 text-white"
+                  } disabled:opacity-50`}
+                >
+                  {isLoading && <Loader2 className="w-4 h-4 animate-spin" />}
+                  {confirmText}
+                </button>
               </div>
             </div>
 
             <button 
-                onClick={onClose}
-                className="absolute top-6 right-6 p-2 text-white/20 hover:text-white transition-colors"
+              onClick={onClose}
+              className="absolute top-6 right-6 text-white/20 hover:text-white transition-colors"
             >
-                <X className="w-5 h-5" />
+              <X className="w-5 h-5" />
             </button>
           </motion.div>
         </div>

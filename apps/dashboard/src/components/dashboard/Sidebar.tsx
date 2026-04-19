@@ -22,7 +22,7 @@ import { cn } from "@repo/utils";
 const menuItems = [
   { icon: LayoutDashboard, label: "Analytics", href: "/dashboard" },
   { icon: Users, label: "Students", href: "/dashboard/students" },
-  { icon: Calendar, label: "Fight Camps", href: "/dashboard/camps" },
+  { icon: Calendar, label: "Fight Camps", href: "/dashboard/packages" },
   { icon: MapPin, label: "Locations", href: "/dashboard/locations" },
   { icon: TrendingUp, label: "Performance", href: "/dashboard/performance" },
   { icon: CreditCard, label: "Financials", href: "/dashboard/financials" },

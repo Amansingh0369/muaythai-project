@@ -1,11 +1,13 @@
 "use client";
 
-import { motion, useInView } from "framer-motion";
-import { useRef } from "react";
+import { motion, useInView, AnimatePresence } from "framer-motion";
+import { useRef, useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import { SITE_CONFIG } from "@repo/utils";
-import { camps } from "./FightCampsSection.helpers";
+import { enrichPackages, EnrichedPackage } from "./FightCampsSection.helpers";
+import { packageService } from "@/services/package.service";
+import { Loader2, AlertCircle } from "lucide-react";
 
 const FightCampsSection = () => {
   const { user } = useAuth();
@@ -13,7 +15,29 @@ const FightCampsSection = () => {
   const ref = useRef<HTMLElement>(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
 
-  const handleBookClick = (e: React.MouseEvent, campId: string) => {
+  const [camps, setCamps] = useState<EnrichedPackage[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchCamps = async () => {
+      try {
+        setIsLoading(true);
+        const apiData = await packageService.getPackages();
+        const enriched = enrichPackages(apiData);
+        setCamps(enriched);
+        setError(null);
+      } catch (err) {
+        console.error("Error loading camps:", err);
+        setError("Failed to sync training camps");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchCamps();
+  }, []);
+
+  const handleBookClick = (e: React.MouseEvent, campId: string | number) => {
     if (!user) {
       e.preventDefault();
       router.push(`/login?redirect=/#camps`);
@@ -62,71 +86,114 @@ const FightCampsSection = () => {
         </motion.div>
 
         {/* ── CAMP CARDS ── */}
-        <div className="grid md:grid-cols-3 gap-6 lg:gap-8">
-          {camps.map((camp, index) => {
-            const Icon = camp.icon;
-            return (
-              <motion.div
-                key={camp.title}
-                className={`relative group cursor-pointer ${camp.featured ? "md:-mt-6 md:mb-6" : ""}`}
-                initial={{ opacity: 0, y: 50 }}
-                animate={isInView ? { opacity: 1, y: 0 } : {}}
-                transition={{ duration: 0.8, delay: index * 0.15, ease: [0.16, 1, 0.3, 1] }}
+        <div className="relative min-h-[400px]">
+          <AnimatePresence mode="wait">
+            {isLoading ? (
+              <motion.div 
+                key="loading"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="flex flex-col items-center justify-center py-20 gap-6"
               >
-                <div className={`flex flex-col h-full border border-white/[0.08] p-8 lg:p-10 transition-all duration-[600ms] group-hover:border-primary/40 group-hover:bg-white/[0.04] ${camp.featured ? "bg-white/[0.03] shadow-[0_0_50px_-20px_rgba(255,80,0,0.25)]" : "bg-black/40 backdrop-blur-sm"}`}>
-                  
-                  {/* Icon */}
-                  <div className={`w-14 h-14 bg-gradient-to-br ${camp.accent} flex items-center justify-center mb-8 shrink-0`}>
-                    <Icon className="w-7 h-7 text-black" />
-                  </div>
-
-                  {/* Header */}
-                  <p className="font-grotesk text-[10px] tracking-[0.4em] uppercase text-primary mb-3">
-                    {camp.subtitle}
-                  </p>
-                  <h3 className="font-barlow font-black italic text-3xl md:text-4xl lg:text-5xl text-white uppercase mb-3 leading-[0.85]">
-                    {camp.title}
-                  </h3>
-                  <p className="font-grotesk text-xs text-white/40 mb-10 pb-6 border-b border-white-[0.05]">
-                    {camp.duration} <span className="mx-2">·</span> <span className="text-white/70">{camp.idealFor}</span>
-                  </p>
-
-                  {/* Includes */}
-                  <ul className="space-y-4 mb-12 flex-1">
-                    {camp.includes.map((item) => (
-                      <li key={item} className="flex items-start gap-4">
-                        <span className="w-1.5 h-1.5 bg-primary/70 mt-2 shrink-0 group-hover:scale-125 transition-transform duration-300" />
-                        <span className="font-grotesk text-[13px] md:text-sm text-white/60 leading-relaxed group-hover:text-white/80 transition-colors">
-                          {item}
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-
-                  {/* Outcome */}
-                  <div className="border-t border-white/[0.08] pt-6 mb-8 mt-auto">
-                    <p className="font-grotesk text-[9px] tracking-[0.4em] uppercase text-white/30 mb-3">Outcome</p>
-                    <p className="text-sm font-grotesk text-white/80 leading-relaxed">{camp.outcome}</p>
-                  </div>
-
-                  {/* CTA */}
-                  <a
-                    href="#camps"
-                    onClick={(e) => handleBookClick(e, camp.id)}
-                    className={`block w-full text-center py-4 font-barlow font-black text-xs tracking-[0.3em] uppercase transition-all duration-500 overflow-hidden relative isolate ${
-                      camp.featured
-                        ? "bg-primary text-black hover:bg-white hover:scale-[1.02]"
-                        : "bg-transparent border border-white/20 text-white hover:border-primary hover:text-primary hover:bg-primary/5"
-                    }`}
-                  >
-                    <span className="relative z-10 transition-transform duration-500 group-hover:-translate-x-1 inline-block">Welcome,</span>
-                    <span className="relative z-10 mx-1">Fighter</span>
-                    <span className="relative z-10 transition-transform duration-500 translate-x-4 opacity-0 group-hover:translate-x-1 group-hover:opacity-100 inline-block font-sans">→</span>
-                  </a>
+                <div className="relative">
+                  <Loader2 className="animate-spin text-primary w-12 h-12" />
+                  <div className="absolute inset-0 blur-xl bg-primary/20 animate-pulse" />
                 </div>
+                <p className="font-grotesk text-[10px] tracking-[0.4em] uppercase text-white/30 animate-pulse">Syncing Camp Ledger...</p>
               </motion.div>
-            );
-          })}
+            ) : error ? (
+              <motion.div 
+                key="error"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="flex flex-col items-center justify-center py-20 gap-4 text-center"
+              >
+                <AlertCircle className="text-red-500/50 w-12 h-12 mb-2" />
+                <h3 className="text-white font-bold uppercase tracking-tighter text-xl">Sync Interrupted</h3>
+                <p className="text-white/40 text-sm max-w-xs">{error}</p>
+                <button 
+                  onClick={() => window.location.reload()}
+                  className="mt-4 px-8 py-3 bg-white/5 border border-white/10 rounded-full text-white text-xs font-bold uppercase tracking-widest hover:bg-white/10 transition-all font-grotesk"
+                >
+                  Retry Connection
+                </button>
+              </motion.div>
+            ) : (
+              <motion.div 
+                key="content"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="grid md:grid-cols-3 gap-6 lg:gap-8"
+              >
+                {camps.map((camp, index) => {
+                  const Icon = camp.icon;
+                  return (
+                    <motion.div
+                      key={camp.id}
+                      className={`relative group cursor-pointer ${camp.featured ? "md:-mt-6 md:mb-6" : ""}`}
+                      initial={{ opacity: 0, y: 50 }}
+                      animate={isInView ? { opacity: 1, y: 0 } : {}}
+                      transition={{ duration: 0.8, delay: index * 0.15, ease: [0.16, 1, 0.3, 1] }}
+                    >
+                      <div className={`flex flex-col h-full border border-white/[0.08] p-8 lg:p-10 transition-all duration-[600ms] group-hover:border-primary/40 group-hover:bg-white/[0.04] ${camp.featured ? "bg-white/[0.03] shadow-[0_0_50px_-20px_rgba(255,80,0,0.25)]" : "bg-black/40 backdrop-blur-sm"}`}>
+                        
+                        {/* Icon */}
+                        <div className={`w-14 h-14 bg-gradient-to-br ${camp.accent} flex items-center justify-center mb-8 shrink-0`}>
+                          <Icon className="w-7 h-7 text-black" />
+                        </div>
+
+                        {/* Header */}
+                        <p className="font-grotesk text-[10px] tracking-[0.4em] uppercase text-primary mb-3">
+                          {camp.subtitle}
+                        </p>
+                        <h3 className="font-barlow font-black italic text-3xl md:text-4xl lg:text-5xl text-white uppercase mb-3 leading-[0.85]">
+                          {camp.title}
+                        </h3>
+                        <p className="font-grotesk text-xs text-white/40 mb-10 pb-6 border-b border-white-[0.05]">
+                          {camp.duration} <span className="mx-2">·</span> <span className="text-white/70">{camp.idealFor}</span>
+                        </p>
+
+                        {/* Includes */}
+                        <ul className="space-y-4 mb-12 flex-1">
+                          {camp.includes.map((item) => (
+                            <li key={item} className="flex items-start gap-4">
+                              <span className="w-1.5 h-1.5 bg-primary/70 mt-2 shrink-0 group-hover:scale-125 transition-transform duration-300" />
+                              <span className="font-grotesk text-[13px] md:text-sm text-white/60 leading-relaxed group-hover:text-white/80 transition-colors">
+                                {item}
+                              </span>
+                            </li>
+                          ))}
+                        </ul>
+
+                        {/* Outcome */}
+                        <div className="border-t border-white/[0.08] pt-6 mb-8 mt-auto">
+                          <p className="font-grotesk text-[9px] tracking-[0.4em] uppercase text-white/30 mb-3">Outcome</p>
+                          <p className="text-sm font-grotesk text-white/80 leading-relaxed">{camp.outcome}</p>
+                        </div>
+
+                        {/* CTA */}
+                        <a
+                          href="#camps"
+                          onClick={(e) => handleBookClick(e, camp.id)}
+                          className={`block w-full text-center py-4 font-barlow font-black text-xs tracking-[0.3em] uppercase transition-all duration-500 overflow-hidden relative isolate ${
+                            camp.featured
+                              ? "bg-primary text-black hover:bg-white hover:scale-[1.02]"
+                              : "bg-transparent border border-white/20 text-white hover:border-primary hover:text-primary hover:bg-primary/5"
+                          }`}
+                        >
+                          <span className="relative z-10 transition-transform duration-500 group-hover:-translate-x-1 inline-block">Welcome,</span>
+                          <span className="relative z-10 mx-1">Fighter</span>
+                          <span className="relative z-10 transition-transform duration-500 translate-x-4 opacity-0 group-hover:translate-x-1 group-hover:opacity-100 inline-block font-sans">→</span>
+                        </a>
+                      </div>
+                    </motion.div>
+                  );
+                })}
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
 
         {/* ── UPCOMING BATCHES ── */}

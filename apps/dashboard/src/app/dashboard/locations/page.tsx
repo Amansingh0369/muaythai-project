@@ -127,9 +127,9 @@ export default function LocationsPage() {
         onClose={() => setIsDeleteModalOpen(false)}
         onConfirm={handleDelete}
         isLoading={isSubmitting}
-        title="Dismantle Center?"
-        description="Are you sure you want to remove this training center from the network? This operation is permanent and cannot be reversed."
-        confirmLabel="Decommission Center"
+        title="Shutdown Center?"
+        message="Are you sure you want to remove this training center from the network? This operation is permanent and cannot be reversed."
+        confirmText="Shutdown"
       />
     </div>
   );

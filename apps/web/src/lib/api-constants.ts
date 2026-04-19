@@ -11,4 +11,5 @@ export const API_ENDPOINTS = {
     ME: "/users/me/",
   },
   LOCATIONS: "/locations",
+  PACKAGES: "/packages",
 };
