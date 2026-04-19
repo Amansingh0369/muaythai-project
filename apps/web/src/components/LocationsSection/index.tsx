@@ -1,13 +1,14 @@
 "use client";
 
 import { motion, useInView, AnimatePresence, useScroll, useMotionValueEvent } from "motion/react";
-import { useRef, useState, useMemo } from "react";
+import { useRef, useState, useMemo, useEffect } from "react";
 import { SITE_CONFIG } from "@repo/utils";
 import { TextRotate, TextRotateRef } from "@/components/ui/text-rotate";
-import { MapPin, Clock, Star } from "lucide-react";
+import { MapPin, Clock, Star, Loader2, AlertCircle } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
-import { locations } from "./LocationsSection.helpers";
+import { locationService } from "@/services/location.service";
+import { enrichLocations, EnrichedLocation } from "./LocationsSection.helpers";
 
 const LocationsSection = () => {
   const { user } = useAuth();
@@ -15,6 +16,10 @@ const LocationsSection = () => {
   const sectionRef = useRef<HTMLElement>(null);
   const textRotateRef = useRef<TextRotateRef>(null);
   const vibeRotateRef = useRef<TextRotateRef>(null);
+  
+  const [locations, setLocations] = useState<EnrichedLocation[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [activeIndex, setActiveIndex] = useState(0);
 
   const { scrollYProgress } = useScroll({
@@ -29,7 +34,26 @@ const LocationsSection = () => {
     }
   };
 
+  useEffect(() => {
+    const fetchAndEnrich = async () => {
+      try {
+        setIsLoading(true);
+        const apiData = await locationService.getLocations();
+        const enriched = enrichLocations(apiData);
+        setLocations(enriched);
+        setError(null);
+      } catch (err) {
+        console.error("Error loading locations:", err);
+        setError("Failed to load locations");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchAndEnrich();
+  }, []);
+
   useMotionValueEvent(scrollYProgress, "change", (latest) => {
+    if (locations.length === 0) return;
     const sectionCount = locations.length;
     const newIndex = Math.min(Math.floor(latest * sectionCount), sectionCount - 1);
     if (newIndex !== activeIndex) {
@@ -40,40 +64,78 @@ const LocationsSection = () => {
   });
 
   const activeLocation = locations[activeIndex];
-  const totalHeight = useMemo(() => `${locations.length * 100}svh`, []);
+  const totalHeight = locations.length > 0 ? `${locations.length * 100}svh` : "100svh";
 
   return (
     <section
       id="locations"
       ref={sectionRef}
       className="relative bg-black transition-colors duration-1000"
-      style={{ height: totalHeight, "--loc-theme": activeLocation.themeColor } as React.CSSProperties}
+      style={{ height: totalHeight, "--loc-theme": activeLocation?.themeColor || "#ffffff" } as React.CSSProperties}
     >
       {/* Sticky Content Wrapper */}
       <div className="sticky top-0 h-[100dvh] w-full overflow-hidden">
+        {/* Loading / Error States */}
+        <AnimatePresence>
+          {isLoading && (
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 z-[100] bg-black flex flex-col items-center justify-center gap-6"
+            >
+              <div className="relative">
+                <Loader2 className="animate-spin text-primary w-12 h-12" />
+                <div className="absolute inset-0 blur-lg bg-primary/20 animate-pulse" />
+              </div>
+              <span className="text-white/20 font-black uppercase tracking-[0.4em] text-[10px] animate-pulse">Establishing Connection...</span>
+            </motion.div>
+          )}
+
+          {error && !isLoading && (
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 z-[100] bg-black flex flex-col items-center justify-center gap-4 text-center px-6"
+            >
+              <AlertCircle className="text-red-500 w-12 h-12 mb-2" />
+              <h3 className="text-white font-bold text-xl uppercase tracking-tighter">Connection Failed</h3>
+              <p className="text-white/40 text-sm max-w-xs">{error}</p>
+              <button 
+                onClick={() => window.location.reload()}
+                className="mt-4 px-8 py-3 bg-white/5 border border-white/10 rounded-full text-white text-xs font-bold uppercase tracking-widest hover:bg-white/10 transition-all"
+              >
+                Retry Sync
+              </button>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Immersive Background Images */}
-        <div className="absolute inset-0 z-0">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={activeLocation.name}
-              initial={{ opacity: 0, scale: 1.1 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 1 }}
-              transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
-              className="absolute inset-0 w-full h-full"
-            >
-              <img
-                src={activeLocation.image.src}
-                alt={activeLocation.name}
-                className="w-full h-full object-cover"
-              />
-              <div className="absolute inset-0 bg-black/40" />
-              <div className="absolute inset-0 bg-gradient-to-l from-transparent via-black/20 to-black/80" />
-              <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black/30" />
-            </motion.div>
-          </AnimatePresence>
-        </div>
+        {locations.length > 0 && (
+          <div className="absolute inset-0 z-0">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={activeLocation.name}
+                initial={{ opacity: 0, scale: 1.1 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 1 }}
+                transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
+                className="absolute inset-0 w-full h-full"
+              >
+                <img
+                  src={activeLocation.image.src}
+                  alt={activeLocation.name}
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute inset-0 bg-black/40" />
+                <div className="absolute inset-0 bg-gradient-to-l from-transparent via-black/20 to-black/80" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black/30" />
+              </motion.div>
+            </AnimatePresence>
+          </div>
+        )}
 
         <div className="relative z-10 max-w-7xl mx-auto flex flex-col justify-center h-full px-4 sm:px-6 md:px-12 lg:px-20 pt-28 md:pt-32 pb-12">
           <div className="w-full md:w-4/5 lg:w-[80%] grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-6 lg:gap-8 mt-10 md:mt-0 mr-auto">
@@ -87,27 +149,29 @@ const LocationsSection = () => {
             >
               <div
                 className="absolute top-0 left-0 w-full h-full opacity-0 group-hover:opacity-[0.03] transition-opacity duration-700 pointer-events-none"
-                style={{ backgroundColor: activeLocation.themeColor }}
+                style={{ backgroundColor: activeLocation?.themeColor }}
               />
               <span
                 className="font-grotesk text-[10px] md:text-xs tracking-[0.4em] md:tracking-[0.5rem] uppercase mb-4 md:mb-6 block transition-colors duration-1000 font-bold"
-                style={{ color: activeLocation.themeColor }}
+                style={{ color: activeLocation?.themeColor }}
               >
                 EXPERIENCE REALITY
               </span>
               <div className="flex items-end overflow-hidden w-full">
-                <TextRotate
-                  ref={textRotateRef}
-                  texts={locations.map((l) => l.name)}
-                  mainClassName="font-barlow font-black italic text-4xl sm:text-5xl md:text-7xl lg:text-8xl xl:text-[9rem] text-white uppercase leading-[0.85] tracking-[0.4em] md:tracking-[0.5rem] break-words"
-                  staggerDuration={0.03}
-                  auto={false}
-                  loop={false}
-                  transition={{ type: "spring", duration: 0.5, bounce: 0 }}
-                  initial={{ opacity: 0, y: 60 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -60 }}
-                />
+                {locations.length > 0 && (
+                  <TextRotate
+                    ref={textRotateRef}
+                    texts={locations.map((l) => l.name)}
+                    mainClassName="font-barlow font-black italic text-4xl sm:text-5xl md:text-7xl lg:text-8xl xl:text-[9rem] text-white uppercase leading-[0.85] tracking-[0.4em] md:tracking-[0.5rem] break-words"
+                    staggerDuration={0.03}
+                    auto={false}
+                    loop={false}
+                    transition={{ type: "spring", duration: 0.5, bounce: 0 }}
+                    initial={{ opacity: 0, y: 60 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -60 }}
+                  />
+                )}
               </div>
             </motion.div>
 
@@ -121,9 +185,9 @@ const LocationsSection = () => {
             >
               <div
                 className="absolute top-0 left-0 w-full h-full opacity-0 group-hover:opacity-[0.03] transition-opacity duration-700 pointer-events-none"
-                style={{ backgroundColor: activeLocation.themeColor }}
+                style={{ backgroundColor: activeLocation?.themeColor }}
               />
-              <div className="mb-4 md:mb-6 transition-colors duration-1000" style={{ color: activeLocation.themeColor }}>
+              <div className="mb-4 md:mb-6 transition-colors duration-1000" style={{ color: activeLocation?.themeColor }}>
                 <TextRotate
                   ref={vibeRotateRef}
                   texts={locations.map((l) => l.vibe)}
@@ -138,7 +202,7 @@ const LocationsSection = () => {
                 />
               </div>
               <p className="font-grotesk text-white/70 text-xs sm:text-sm md:text-base leading-relaxed">
-                {activeLocation.description}
+                {activeLocation?.description}
               </p>
             </motion.div>
 
@@ -152,21 +216,21 @@ const LocationsSection = () => {
             >
               <div
                 className="absolute top-0 left-0 w-full h-full opacity-0 group-hover:opacity-[0.03] transition-opacity duration-700 pointer-events-none"
-                style={{ backgroundColor: activeLocation.themeColor }}
+                style={{ backgroundColor: activeLocation?.themeColor }}
               />
               <div className="space-y-1 md:space-y-2 relative z-10">
-                <div className="flex items-center gap-2 transition-colors duration-1000" style={{ color: activeLocation.themeColor }}>
+                <div className="flex items-center gap-2 transition-colors duration-1000" style={{ color: activeLocation?.themeColor }}>
                   <Star size={14} className="fill-current" />
-                  <span className="font-grotesk font-bold text-[9px] md:text-[10px] tracking-[0.3em] uppercase text-white/60">Target Goal</span>
+                  <span className="font-grotesk font-bold text-[9px] md:text-[10px] tracking-[0.3em] uppercase text-white/60">Located In</span>
                 </div>
-                <p className="font-barlow font-bold text-xs md:text-sm text-white uppercase italic">{activeLocation.bestFor}</p>
+                <p className="font-barlow font-bold text-xs md:text-sm text-white uppercase italic">{activeLocation?.city}</p>
               </div>
               <div className="space-y-1 md:space-y-2 relative z-10">
-                <div className="flex items-center gap-2 transition-colors duration-1000" style={{ color: activeLocation.themeColor }}>
-                  <Clock size={14} />
-                  <span className="font-grotesk font-bold text-[9px] md:text-[10px] tracking-[0.3em] uppercase text-white/60">Sessions</span>
+                <div className="flex items-center gap-2 transition-colors duration-1000" style={{ color: activeLocation?.themeColor }}>
+                  <MapPin size={14} />
+                  <span className="font-grotesk font-bold text-[9px] md:text-[10px] tracking-[0.3em] uppercase text-white/60">Address</span>
                 </div>
-                <p className="font-barlow font-bold text-xs md:text-sm text-white uppercase italic">{activeLocation.schedule}</p>
+                <p className="font-barlow font-bold text-[10px] md:text-[11px] text-white/50 uppercase italic leading-tight">{activeLocation?.address}</p>
               </div>
             </motion.div>
 
@@ -179,7 +243,7 @@ const LocationsSection = () => {
             >
               <div
                 className="absolute top-0 left-0 w-full h-full opacity-0 group-hover:opacity-[0.05] transition-opacity duration-700 pointer-events-none"
-                style={{ backgroundColor: activeLocation.themeColor }}
+                style={{ backgroundColor: activeLocation?.themeColor }}
               />
               <a
                 href="#camps"
@@ -188,9 +252,9 @@ const LocationsSection = () => {
               >
                 <div
                   className="h-12 w-12 md:h-16 md:w-16 lg:h-14 lg:w-14 xl:h-16 xl:w-16 border flex items-center justify-center transition-all duration-[800ms] group-hover:scale-110 shadow-none group-hover:shadow-[0_0_20px_var(--loc-theme)]"
-                  style={{ borderColor: activeLocation.themeColor + "40" }}
+                  style={{ borderColor: (activeLocation?.themeColor || "#ffffff") + "40" }}
                 >
-                  <MapPin size={22} className="lg:w-6 lg:h-6 transition-colors duration-[800ms]" style={{ color: activeLocation.themeColor }} />
+                  <MapPin size={22} className="lg:w-6 lg:h-6 transition-colors duration-[800ms]" style={{ color: activeLocation?.themeColor }} />
                 </div>
                 <div className="px-2">
                   <span className="font-grotesk font-bold text-[9px] sm:text-[10px] md:text-xs lg:text-[10px] xl:text-xs tracking-[0.3em] md:tracking-[0.4em] uppercase text-white block transition-colors duration-[800ms] mb-1 md:mb-2 group-hover:text-[var(--loc-theme)]">
@@ -198,9 +262,9 @@ const LocationsSection = () => {
                   </span>
                   <span
                     className="font-barlow font-bold text-[8px] sm:text-[9px] md:text-[10px] uppercase tracking-[0.2em] leading-tight block break-words max-w-[120px] mx-auto transition-colors duration-[800ms] italic"
-                    style={{ color: activeLocation.themeColor + "99" }}
+                    style={{ color: (activeLocation?.themeColor || "#ffffff") + "99" }}
                   >
-                    {activeLocation.name} · TH
+                    {activeLocation?.name} · {activeLocation?.city.toUpperCase()}
                   </span>
                 </div>
               </a>
@@ -225,14 +289,14 @@ const LocationsSection = () => {
               <span
                 className={`font-barlow font-bold text-[11px] tracking-widest uppercase transition-all duration-[800ms] ${idx === activeIndex ? "opacity-100" : "text-white opacity-0 group-hover:opacity-40"
                   }`}
-                style={idx === activeIndex ? { color: activeLocation.themeColor } : {}}
+                style={idx === activeIndex && activeLocation ? { color: activeLocation.themeColor } : {}}
               >
                 {loc.name}
               </span>
               <div
                 className={`w-1 transition-all duration-[800ms] rounded-full ${idx === activeIndex ? "h-12 bg-primary" : "bg-white/20 h-6 group-hover:bg-white/40"
                   }`}
-                style={idx === activeIndex ? { backgroundColor: activeLocation.themeColor } : {}}
+                style={idx === activeIndex && activeLocation ? { backgroundColor: activeLocation.themeColor } : {}}
               />
             </motion.div>
           ))}
@@ -242,7 +306,7 @@ const LocationsSection = () => {
         <div className="absolute bottom-0 left-0 w-full h-1 bg-white/5 z-20">
           <motion.div
             className="h-full origin-left transition-colors duration-[800ms]"
-            style={{ scaleX: scrollYProgress, backgroundColor: activeLocation.themeColor }}
+            style={{ scaleX: scrollYProgress, backgroundColor: activeLocation?.themeColor || "#ffffff" }}
           />
         </div>
       </div>

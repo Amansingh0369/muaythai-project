@@ -10,4 +10,5 @@ export const API_ENDPOINTS = {
     LOGOUT: "/auth/logout/",
     ME: "/users/me/",
   },
+  LOCATIONS: "/locations",
 };
