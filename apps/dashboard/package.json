@@ -12,6 +12,14 @@
   "dependencies": {
     "@repo/ui": "workspace:*",
     "@repo/utils": "workspace:*",
+    "lucide-react": "^0.462.0",
+    "framer-motion": "^12.38.0",
+    "motion": "^12.38.0",
+    "recharts": "^2.15.4",
+    "@react-oauth/google": "^0.13.4",
+    "clsx": "^2.1.1",
+    "tailwind-merge": "^2.6.0",
+    "tailwindcss-animate": "^1.0.7",
     "next": "^14.0.0",
     "react": "^18.0.0",
     "react-dom": "^18.0.0"
