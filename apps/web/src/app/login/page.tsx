@@ -5,8 +5,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState, Suspense } from "react";
 import { motion } from "motion/react";
-import { Loader2 } from "lucide-react";
-import logo from "@/assets/logo.png";
+import { Loader2, ShieldCheck, Lock } from "lucide-react";
 import { extractCredential, getRedirectPath } from "./login.helpers";
 
 function LoginContent() {
@@ -26,8 +25,8 @@ function LoginContent() {
         await login(credential);
         router.push(redirect);
       }
-    } catch (err) {
-      setError("Authentication failed. Please try again.");
+    } catch (err: any) {
+      setError(err.message || "Authentication failed.");
       console.error(err);
     } finally {
       setIsLoggingIn(false);
@@ -37,36 +36,41 @@ function LoginContent() {
   return (
     <div className="flex flex-col items-center gap-6 w-full">
       {isLoggingIn ? (
-        <div className="flex items-center gap-3 text-primary animate-pulse font-heading tracking-widest text-sm uppercase">
-            <Loader2 className="animate-spin" />
-            Authenticating...
+        <div className="flex items-center gap-3 text-primary animate-pulse font-bold tracking-widest text-sm uppercase">
+          <Loader2 className="animate-spin" />
+          Verifying Identity...
         </div>
       ) : (
-        <div className="scale-110 hover:scale-[1.03] transition-transform duration-300">
-            <GoogleLogin
-                onSuccess={handleSuccess}
-                onError={() => setError("Google Login Failed")}
-                useOneTap
-                theme="filled_black"
-                shape="pill"
-                size="large"
-                width="300"
-            />
+        <div id="google-auth-container" className=" hover:scale-[1.03] transition-transform duration-300 rounded-full overflow-hidden flex items-center justify-center">
+          <GoogleLogin
+            onSuccess={handleSuccess}
+            onError={() => setError("Google Authentication Failed")}
+            useOneTap
+            theme="filled_black"
+            shape="pill"
+            size="large"
+            width="310"
+          />
         </div>
       )}
-      
+
       {error && (
-        <motion.p 
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="text-primary text-xs font-heading uppercase tracking-wider bg-primary/10 px-4 py-2 rounded-full border border-primary/20"
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-red-500/10 border border-red-500/20 px-6 py-3 rounded-2xl flex items-start gap-3 max-w-sm"
         >
-          {error}
-        </motion.p>
+          <div className="w-5 h-5 rounded-full bg-red-500 flex items-center justify-center shrink-0 mt-0.5">
+            <Lock className="text-white w-3 h-3" />
+          </div>
+          <p className="text-red-400 text-xs font-bold uppercase tracking-wider leading-relaxed">
+            {error}
+          </p>
+        </motion.div>
       )}
 
-      <p className="text-[10px] text-center text-muted-foreground mt-6 leading-relaxed opacity-50 max-w-[250px]">
-        By continuing, you agree to our <a href="#" className="underline hover:text-white transition-colors">Terms of Service</a> and <a href="#" className="underline hover:text-white transition-colors">Privacy Policy</a>
+      <p className="text-[10px] text-center text-white/30 mt-6 leading-relaxed uppercase tracking-[0.2em] font-black max-w-[280px]">
+        Forge Your Legacy • Secure Authentication
       </p>
     </div>
   );
@@ -74,45 +78,46 @@ function LoginContent() {
 
 export default function LoginPage() {
   return (
-    <div className="min-h-screen w-full flex items-center justify-center relative overflow-hidden bg-black font-body">
+    <div className="min-h-screen w-full flex items-center justify-center relative overflow-hidden bg-black font-sans">
       {/* Background with ring feel */}
-      <div 
+      <div
         className="absolute inset-0 z-0 opacity-40 pointer-events-none"
         style={{
           backgroundImage: "radial-gradient(circle at 50% 50%, rgba(239, 68, 68, 0.2) 0%, transparent 60%)",
         }}
       />
-      <div 
-        className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1549719386-74dfcbf7dbed?q=80&w=2070&auto=format&fit=crop')] bg-cover bg-center brightness-[0.25] z-[-1] pointer-events-none" 
+      <div
+        className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1549719386-74dfcbf7dbed?q=80&w=2070&auto=format&fit=crop')] bg-cover bg-center brightness-[0.25] z-[-1] pointer-events-none"
       />
-      
-      <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="z-10 w-full max-w-md p-10 glass-surface border border-white/10 rounded-[2.5rem] m-4 shadow-2xl flex flex-col items-center"
+
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className="z-10 w-full max-w-md p-10 glass-surface rounded-[3rem] m-4 shadow-2xl flex flex-col items-center bg-black/40 backdrop-blur-2xl"
       >
         <div className="flex flex-col items-center text-center mb-10 w-full">
           <motion.div
-            animate={{ 
-                boxShadow: ["0 0 0px var(--primary)", "0 0 15px var(--primary)", "0 0 0px var(--primary)"] 
+            animate={{
+              boxShadow: ["0 0 0px var(--primary)", "0 0 20px var(--primary)", "0 0 0px var(--primary)"]
             }}
-            transition={{ duration: 3, repeat: Infinity }}
-            className="rounded-full p-1 border-2 border-primary/30 mb-6"
+            transition={{ duration: 4, repeat: Infinity }}
+            className="rounded-3xl p-4 bg-gradient-to-br from-primary via-orange-600 to-red-600 mb-8 border border-white/20"
           >
-            <img 
-              src={logo.src} 
-              alt="Logo" 
-              className="w-20 h-20 rounded-full"
-            />
+            <ShieldCheck className="text-white w-12 h-12" />
           </motion.div>
-          <h1 className="font-display text-4xl tracking-tight text-white mb-3">Forge Your Legacy</h1>
-          <p className="text-muted-foreground">Sign in to start your journey</p>
+
+          <div className="flex flex-col gap-1">
+            <span className="text-[10px] text-primary font-black uppercase tracking-[0.5em] mb-2">Secure Gateway</span>
+            <h1 className="text-4xl font-bold tracking-tighter text-white uppercase italic">Forge Your <span className="text-white/40">Legacy</span></h1>
+          </div>
+
+          <div className="w-12 h-1 bg-primary/30 rounded-full mt-6 mb-2" />
         </div>
 
         <Suspense fallback={
-          <div className="flex items-center gap-3 text-primary animate-pulse font-heading tracking-widest text-sm uppercase">
+          <div className="flex items-center gap-3 text-primary animate-pulse font-bold tracking-widest text-sm uppercase">
             <Loader2 className="animate-spin" />
-            Loading...
+            Loading Portal...
           </div>
         }>
           <LoginContent />

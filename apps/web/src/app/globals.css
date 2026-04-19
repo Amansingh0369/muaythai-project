@@ -124,3 +124,25 @@
     @apply px-6 md:px-12 lg:px-20 py-20 md:py-32;
   }
 }
+
+/* ── GOOGLE AUTH WHITE SPACE FIX ── */
+/* This targets the iframe container injected by the Google Identity Services library */
+/* and forces it to be transparent and adhere to the dark color scheme. */
+
+iframe[src*="accounts.google.com"] {
+  background: transparent !important;
+  color-scheme: dark !important;
+  border-radius: 9999px !important; /* Forces internal rounding for pill buttons */
+}
+
+/* Target the wrapper div that library often creates */
+div[style*="background-color: rgb(255, 255, 255)"],
+div[style*="background-color: #ffffff"],
+div[style*="background-color: white"] {
+  background-color: transparent !important;
+}
+
+/* Ensure the Google button container in our login page is rock solid */
+#google-auth-container {
+  background-color: transparent !important;
+}
