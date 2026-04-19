@@ -88,7 +88,7 @@ export function useLocations() {
   };
 
   const handleDelete = async () => {
-    if (!locationToDelete) return;
+    if (locationToDelete === null) return;
     setIsSubmitting(true);
     try {
       await locationService.deleteLocation(locationToDelete);

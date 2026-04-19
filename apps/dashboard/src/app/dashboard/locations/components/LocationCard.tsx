@@ -67,17 +67,23 @@ export function LocationCard({ location, index, onEdit, onDelete }: LocationCard
       <div className="flex items-center gap-4 shrink-0">
         <div className="h-10 w-px bg-white/5 mx-2 hidden md:block" />
         
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 relative z-20">
             <button 
-                onClick={() => onEdit(location)}
-                className="w-12 h-12 rounded-xl border border-white/5 bg-white/5 flex items-center justify-center text-white/40 hover:text-white hover:border-primary/50 hover:bg-primary/10 transition-all active:scale-95"
+                onClick={(e) => {
+                    e.stopPropagation();
+                    onEdit(location);
+                }}
+                className="w-12 h-12 rounded-xl border border-white/5 bg-white/5 flex items-center justify-center text-white/40 hover:text-white hover:border-primary/50 hover:bg-primary/10 transition-all active:scale-95 pointer-events-auto"
                 title="Edit Location"
             >
                 <Edit2 className="w-5 h-5" />
             </button>
             <button 
-                onClick={() => onDelete(location.id)}
-                className="w-12 h-12 rounded-xl border border-white/5 bg-white/5 flex items-center justify-center text-white/40 hover:text-red-400 hover:border-red-500/50 hover:bg-red-500/10 transition-all active:scale-95"
+                onClick={(e) => {
+                    e.stopPropagation();
+                    onDelete(location.id);
+                }}
+                className="w-12 h-12 rounded-xl border border-white/5 bg-white/5 flex items-center justify-center text-white/40 hover:text-red-400 hover:border-red-500/50 hover:bg-red-500/10 transition-all active:scale-95 pointer-events-auto"
                 title="Delete Location"
             >
                 <Trash2 className="w-5 h-5" />

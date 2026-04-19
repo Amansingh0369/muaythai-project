@@ -6,7 +6,9 @@ import {
   MapPin, 
   Plus, 
   Loader2,
-  AlertCircle
+  AlertCircle,
+  RefreshCcw,
+  Map
 } from "lucide-react";
 import { useLocations } from "./hooks/useLocations";
 import { LocationCard } from "./components/LocationCard";
@@ -36,28 +38,62 @@ export default function LocationsPage() {
   } = useLocations();
 
   return (
-    <div className="p-8 max-w-7xl mx-auto space-y-10">
+    <div className="min-h-screen bg-black text-white p-6 md:p-12 pb-32">
       {/* Header Section */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 border-b border-white/5 pb-8">
-        <div>
-          <h1 className="text-4xl font-bold tracking-tight text-white flex items-center gap-4">
-            <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center border border-primary/20">
-                <MapPin className="text-primary w-6 h-6" />
+      <div className="max-w-7xl mx-auto mb-16">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8">
+          <div>
+            <div className="flex items-center gap-3 mb-2">
+                <div className="w-8 h-px bg-primary" />
+                <span className="text-primary font-black uppercase tracking-[0.4em] text-[10px]">Global Operations</span>
             </div>
-            Training Centers
-          </h1>
-          <p className="text-white/40 text-[10px] font-black uppercase tracking-[0.3em] mt-3 ml-16">
-            Global Infrastructure Management
-          </p>
+            <h1 className="text-5xl md:text-7xl font-black uppercase tracking-tighter italic">
+                Training <span className="text-primary">Centers</span>
+            </h1>
+            <p className="text-white/40 mt-4 text-sm md:text-base max-w-lg leading-relaxed">
+                Manage your physical infrastructure and regional hubs. Registered centers can be linked to specific training packages immediately.
+            </p>
+          </div>
+
+          <div className="flex items-center gap-4">
+              <button 
+                onClick={fetchLocations}
+                disabled={isRefreshing}
+                className="w-14 h-14 rounded-2xl border border-white/10 bg-white/5 flex items-center justify-center text-white/40 hover:text-white transition-all active:rotate-180 duration-500 disabled:opacity-50"
+              >
+                <RefreshCcw className={`w-6 h-6 ${isRefreshing ? "animate-spin" : ""}`} />
+              </button>
+              <button 
+                onClick={handleOpenAdd}
+                className="flex items-center gap-3 bg-white text-black px-8 py-4 rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-primary hover:text-white transition-all shadow-xl shadow-white/5 active:scale-95 group"
+              >
+                <Plus className="w-4 h-4 group-hover:rotate-90 transition-transform" />
+                Register Center
+              </button>
+          </div>
         </div>
 
-        <button 
-          onClick={handleOpenAdd}
-          className="bg-primary hover:bg-orange-600 text-white px-8 py-4 rounded-2xl font-black uppercase tracking-widest text-xs flex items-center gap-3 transition-all shadow-xl shadow-primary/20 group h-fit self-end md:self-center"
-        >
-          <Plus className="w-5 h-5 group-hover:rotate-90 transition-transform" />
-          Register New Center
-        </button>
+        {/* Stats Bar */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-12">
+            <div className="glass-surface p-6 rounded-3xl border border-white/5 flex items-center gap-5">
+                <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
+                    <MapPin className="w-6 h-6" />
+                </div>
+                <div>
+                    <p className="text-[10px] text-white/40 font-black uppercase tracking-widest">Active Network</p>
+                    <p className="text-2xl font-bold">{locations.length} Hubs</p>
+                </div>
+            </div>
+            <div className="glass-surface p-6 rounded-3xl border border-white/5 flex items-center gap-5">
+                <div className="w-12 h-12 rounded-xl bg-green-500/10 flex items-center justify-center text-green-500">
+                    <Map className="w-6 h-6" />
+                </div>
+                <div>
+                    <p className="text-[10px] text-white/40 font-black uppercase tracking-widest">Global Coverage</p>
+                    <p className="text-2xl font-bold">{Array.from(new Set(locations.map(l => l.city))).length} Cities</p>
+                </div>
+            </div>
+        </div>
       </div>
 
       {/* Main Content Area */}

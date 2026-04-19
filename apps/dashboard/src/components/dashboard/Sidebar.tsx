@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "motion/react";
+import { motion, AnimatePresence } from "motion/react";
 import { 
   LayoutDashboard, 
   Users, 
@@ -29,32 +29,41 @@ const menuItems = [
 ];
 
 export default function Sidebar() {
-  const [collapsed, setCollapsed] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
   const pathname = usePathname();
+  
+  const collapsed = !isHovered;
 
   return (
     <motion.aside 
       initial={false}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
       animate={{ width: collapsed ? 80 : 280 }}
-      className="h-screen sticky top-0 bg-black border-r border-white/5 flex flex-col z-50 overflow-hidden"
+      transition={{ 
+        type: "tween",
+        duration: 0.3,
+        ease: [0.23, 1, 0.32, 1] // Custom ease-out-quart for smooth feel
+      }}
+      className="h-screen sticky top-0 bg-black border-r border-white/5 flex flex-col z-50 overflow-hidden group/sidebar will-change-[width]"
     >
       {/* Brand Header */}
-      <div className={cn(
-        "p-6 flex items-center gap-4 border-b border-white/5 h-20",
-        collapsed && "justify-center px-0"
-      )}>
+      <div className="p-6 flex items-center gap-4 border-b border-white/5 h-20 overflow-hidden">
         <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center shrink-0 shadow-lg shadow-primary/20">
           <Trophy className="text-white w-6 h-6" />
         </div>
-        {!collapsed && (
-          <motion.span 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="font-bold text-lg tracking-tight text-white whitespace-nowrap"
-          >
-            ADMIN <span className="text-primary">PORTAL</span>
-          </motion.span>
-        )}
+        <AnimatePresence>
+          {!collapsed && (
+            <motion.span 
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -10 }}
+              className="font-bold text-lg tracking-tight text-white whitespace-nowrap"
+            >
+              ADMIN <span className="text-primary">PORTAL</span>
+            </motion.span>
+          )}
+        </AnimatePresence>
       </div>
 
       {/* Navigation Links */}
@@ -69,14 +78,22 @@ export default function Sidebar() {
                 "flex items-center gap-4 p-3 rounded-xl transition-all group relative overflow-hidden",
                 isActive 
                   ? "bg-primary/10 text-primary border border-primary/20" 
-                  : "text-white/40 hover:text-white hover:bg-white/5 border border-transparent",
-                collapsed && "justify-center"
+                  : "text-white/40 hover:text-white hover:bg-white/5 border border-transparent"
               )}
             >
-              <item.icon className={cn("w-5 h-5 shrink-0", isActive && "text-primary")} />
-              {!collapsed && (
-                <span className="font-semibold text-sm whitespace-nowrap">{item.label}</span>
-              )}
+              <item.icon className={cn("w-5 h-5 shrink-0 ml-1.5", isActive && "text-primary")} />
+              <AnimatePresence>
+                {!collapsed && (
+                  <motion.span 
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -10 }}
+                    className="font-semibold text-sm whitespace-nowrap"
+                  >
+                    {item.label}
+                  </motion.span>
+                )}
+              </AnimatePresence>
               {isActive && !collapsed && (
                 <motion.div 
                   layoutId="sidebar-active"
@@ -90,29 +107,25 @@ export default function Sidebar() {
 
       {/* Footer Actions */}
       <div className="px-4 py-6 border-t border-white/5 space-y-2">
-        <button 
-          onClick={() => setCollapsed(!collapsed)}
-          className={cn(
-            "w-full flex items-center gap-4 p-3 text-white/40 hover:text-white transition-all",
-            collapsed && "justify-center"
-          )}
-        >
-          {collapsed ? <ChevronRight className="w-5 h-5" /> : (
-            <>
-              <ChevronLeft className="w-5 h-5" />
-              <span className="font-semibold text-sm">Collapse Menu</span>
-            </>
-          )}
-        </button>
         <Link 
           href="/login"
           className={cn(
-            "w-full flex items-center gap-4 p-3 text-red-400 hover:bg-red-500/10 rounded-xl transition-all",
-            collapsed && "justify-center"
+            "w-full flex items-center gap-4 p-3 text-red-400 hover:bg-red-500/10 rounded-xl transition-all"
           )}
         >
-          <LogOut className="w-5 h-5" />
-          {!collapsed && <span className="font-semibold text-sm">Logout</span>}
+          <LogOut className="w-5 h-5 shrink-0 ml-1.5" />
+          <AnimatePresence>
+            {!collapsed && (
+              <motion.span 
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -10 }}
+                className="font-semibold text-sm whitespace-nowrap"
+              >
+                Logout
+              </motion.span>
+            )}
+          </AnimatePresence>
         </Link>
       </div>
 

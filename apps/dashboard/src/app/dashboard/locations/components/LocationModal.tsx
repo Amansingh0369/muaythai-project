@@ -39,9 +39,9 @@ export function LocationModal({
             initial={{ scale: 0.9, opacity: 0, y: 20 }}
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ scale: 0.9, opacity: 0, y: 20 }}
-            className="relative w-full max-w-2xl bg-black border border-white/10 rounded-[3rem] overflow-hidden shadow-2xl"
+            className="relative w-full max-w-2xl bg-black border border-white/10 rounded-[3rem] overflow-hidden shadow-2xl flex flex-col max-h-[min(90vh,840px)]"
           >
-            <div className="p-10">
+            <div className="p-10 overflow-y-auto custom-scrollbar">
               <div className="flex justify-between items-center mb-10">
                 <div>
                   <h2 className="text-3xl font-bold text-white uppercase tracking-tighter">
