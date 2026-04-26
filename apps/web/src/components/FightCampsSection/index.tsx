@@ -120,6 +120,35 @@ const FightCampsSection = () => {
                   Retry Connection
                 </button>
               </motion.div>
+            ) : camps.length === 0 ? (
+              <motion.div 
+                key="empty"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="absolute inset-0 z-[100] bg-black flex flex-col items-center justify-center gap-6 text-center px-6"
+              >
+                <div className="relative">
+                  <AlertCircle className="text-white/20 w-16 h-16 mb-2" />
+                  <motion.div 
+                    initial={{ width: 0 }}
+                    animate={{ width: "100%" }}
+                    className="absolute top-1/2 left-0 h-[2px] bg-red-500/50 -rotate-45"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <h3 className="text-white font-black text-2xl md:text-3xl uppercase tracking-tighter">No Camps Available</h3>
+                  <p className="text-white/40 text-sm max-w-sm mx-auto font-grotesk tracking-wide">
+                    Our training camp roster is currently being curated. Please check back soon for upcoming experiences.
+                  </p>
+                </div>
+                <button 
+                  onClick={() => window.location.reload()}
+                  className="mt-4 px-10 py-4 bg-white/5 border border-white/10 rounded-full text-white text-[10px] font-black uppercase tracking-[0.3em] hover:bg-white/10 transition-all hover:scale-105 active:scale-95"
+                >
+                  Refresh Intel
+                </button>
+              </motion.div>
             ) : (
               <motion.div 
                 key="content"

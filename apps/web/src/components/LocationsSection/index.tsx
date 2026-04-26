@@ -16,7 +16,7 @@ const LocationsSection = () => {
   const sectionRef = useRef<HTMLElement>(null);
   const textRotateRef = useRef<TextRotateRef>(null);
   const vibeRotateRef = useRef<TextRotateRef>(null);
-  
+
   const [locations, setLocations] = useState<EnrichedLocation[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -78,7 +78,7 @@ const LocationsSection = () => {
         {/* Loading / Error States */}
         <AnimatePresence>
           {isLoading && (
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
@@ -93,7 +93,7 @@ const LocationsSection = () => {
           )}
 
           {error && !isLoading && (
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
@@ -102,11 +102,41 @@ const LocationsSection = () => {
               <AlertCircle className="text-red-500 w-12 h-12 mb-2" />
               <h3 className="text-white font-bold text-xl uppercase tracking-tighter">Connection Failed</h3>
               <p className="text-white/40 text-sm max-w-xs">{error}</p>
-              <button 
+              <button
                 onClick={() => window.location.reload()}
                 className="mt-4 px-8 py-3 bg-white/5 border border-white/10 rounded-full text-white text-xs font-bold uppercase tracking-widest hover:bg-white/10 transition-all"
               >
                 Retry Sync
+              </button>
+            </motion.div>
+          )}
+
+          {!isLoading && !error && locations.length === 0 && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 z-[100] bg-black flex flex-col items-center justify-center gap-6 text-center px-6"
+            >
+              <div className="relative">
+                <MapPin className="text-white/20 w-16 h-16 mb-2" />
+                <motion.div
+                  initial={{ width: 0 }}
+                  animate={{ width: "100%" }}
+                  className="absolute top-1/2 left-0 h-[2px] bg-red-500/50 -rotate-45"
+                />
+              </div>
+              <div className="space-y-2">
+                <h3 className="text-white font-black text-2xl md:text-3xl uppercase tracking-tighter">No Arenas Found</h3>
+                <p className="text-white/40 text-sm max-w-sm mx-auto font-grotesk tracking-wide">
+                  Our scouts are currently identifying new training grounds. Check back soon for the next wave of camps.
+                </p>
+              </div>
+              <button
+                onClick={() => window.location.reload()}
+                className="mt-4 px-10 py-4 bg-white/5 border border-white/10 rounded-full text-white text-[10px] font-black uppercase tracking-[0.3em] hover:bg-white/10 transition-all hover:scale-105 active:scale-95"
+              >
+                Refresh
               </button>
             </motion.div>
           )}
@@ -138,138 +168,144 @@ const LocationsSection = () => {
         )}
 
         <div className="relative z-10 max-w-7xl mx-auto flex flex-col justify-center h-full px-4 sm:px-6 md:px-12 lg:px-20 pt-28 md:pt-32 pb-12">
-          <div className="w-full md:w-4/5 lg:w-[80%] grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-6 lg:gap-8 mt-10 md:mt-0 mr-auto">
+          {locations.length > 0 ? (
+            <div className="w-full md:w-4/5 lg:w-[80%] grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-6 lg:gap-8 mt-10 md:mt-0 mr-auto">
 
-            {/* Tile 1: Location Name */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 20 }}
-              whileInView={{ opacity: 1, scale: 1, y: 0 }}
-              transition={{ duration: 0.8 }}
-              className="glass-surface p-6 sm:p-8 md:p-10 lg:p-12 border border-white/10 shadow-2xl backdrop-blur-md md:col-span-12 overflow-hidden relative group"
-            >
-              <div
-                className="absolute top-0 left-0 w-full h-full opacity-0 group-hover:opacity-[0.03] transition-opacity duration-700 pointer-events-none"
-                style={{ backgroundColor: activeLocation?.themeColor }}
-              />
-              <span
-                className="font-grotesk text-[10px] md:text-xs tracking-[0.4em] md:tracking-[0.5rem] uppercase mb-4 md:mb-6 block transition-colors duration-1000 font-bold"
-                style={{ color: activeLocation?.themeColor }}
-              >
-                EXPERIENCE REALITY
-              </span>
-              <div className="flex items-end overflow-hidden w-full">
-                {locations.length > 0 && (
-                  <TextRotate
-                    ref={textRotateRef}
-                    texts={locations.map((l) => l.name)}
-                    mainClassName="font-barlow font-black italic text-4xl sm:text-5xl md:text-7xl lg:text-8xl xl:text-[9rem] text-white uppercase leading-[0.85] tracking-[0.4em] md:tracking-[0.5rem] break-words"
-                    staggerDuration={0.03}
-                    auto={false}
-                    loop={false}
-                    transition={{ type: "spring", duration: 0.5, bounce: 0 }}
-                    initial={{ opacity: 0, y: 60 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -60 }}
-                  />
-                )}
-              </div>
-            </motion.div>
-
-            {/* Tile 2: Vibe & Description */}
-            <motion.div
-              key={activeIndex}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.1 }}
-              className="glass-surface p-6 sm:p-8 md:p-10 border border-white/10 shadow-xl backdrop-blur-md md:col-span-12 lg:col-span-6 flex flex-col justify-center relative group overflow-hidden"
-            >
-              <div
-                className="absolute top-0 left-0 w-full h-full opacity-0 group-hover:opacity-[0.03] transition-opacity duration-700 pointer-events-none"
-                style={{ backgroundColor: activeLocation?.themeColor }}
-              />
-              <div className="mb-4 md:mb-6 transition-colors duration-1000" style={{ color: activeLocation?.themeColor }}>
-                <TextRotate
-                  ref={vibeRotateRef}
-                  texts={locations.map((l) => l.vibe)}
-                  mainClassName="font-barlow font-bold text-[10px] sm:text-xs md:text-sm lg:text-base tracking-[0.2em] md:tracking-[0.3em] uppercase italic line-clamp-2"
-                  auto={false}
-                  loop={false}
-                  staggerDuration={0.01}
-                  transition={{ type: "spring", duration: 0.5 }}
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -20 }}
-                />
-              </div>
-              <p className="font-grotesk text-white/70 text-xs sm:text-sm md:text-base leading-relaxed">
-                {activeLocation?.description}
-              </p>
-            </motion.div>
-
-            {/* Tile 3: Schedule & Goals */}
-            <motion.div
-              key={`details-${activeIndex}`}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.15 }}
-              className="glass-surface p-6 sm:p-8 md:p-10 border border-white/10 shadow-xl backdrop-blur-md md:col-span-6 lg:col-span-3 flex flex-col justify-center relative group overflow-hidden gap-4 md:gap-6"
-            >
-              <div
-                className="absolute top-0 left-0 w-full h-full opacity-0 group-hover:opacity-[0.03] transition-opacity duration-700 pointer-events-none"
-                style={{ backgroundColor: activeLocation?.themeColor }}
-              />
-              <div className="space-y-1 md:space-y-2 relative z-10">
-                <div className="flex items-center gap-2 transition-colors duration-1000" style={{ color: activeLocation?.themeColor }}>
-                  <Star size={14} className="fill-current" />
-                  <span className="font-grotesk font-bold text-[9px] md:text-[10px] tracking-[0.3em] uppercase text-white/60">Located In</span>
-                </div>
-                <p className="font-barlow font-bold text-xs md:text-sm text-white uppercase italic">{activeLocation?.city}</p>
-              </div>
-              <div className="space-y-1 md:space-y-2 relative z-10">
-                <div className="flex items-center gap-2 transition-colors duration-1000" style={{ color: activeLocation?.themeColor }}>
-                  <MapPin size={14} />
-                  <span className="font-grotesk font-bold text-[9px] md:text-[10px] tracking-[0.3em] uppercase text-white/60">Address</span>
-                </div>
-                <p className="font-barlow font-bold text-[10px] md:text-[11px] text-white/50 uppercase italic leading-tight">{activeLocation?.address}</p>
-              </div>
-            </motion.div>
-
-            {/* Tile 4: Call to Action */}
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 1, delay: 0.2 }}
-              className="glass-surface p-6 sm:p-8 border border-white/10 shadow-lg transition-colors duration-500 backdrop-blur-sm md:col-span-6 lg:col-span-3 flex flex-col justify-center items-center group relative overflow-hidden text-center"
-            >
-              <div
-                className="absolute top-0 left-0 w-full h-full opacity-0 group-hover:opacity-[0.05] transition-opacity duration-700 pointer-events-none"
-                style={{ backgroundColor: activeLocation?.themeColor }}
-              />
-              <a
-                href="#camps"
-                onClick={handleSecureSpotClick}
-                className="flex flex-col items-center gap-3 md:gap-4 w-full h-full justify-center relative z-10"
+              {/* Tile 1: Location Name */}
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                whileInView={{ opacity: 1, scale: 1, y: 0 }}
+                transition={{ duration: 0.8 }}
+                className="glass-surface p-6 sm:p-8 md:p-10 lg:p-12 border border-white/10 shadow-2xl backdrop-blur-md md:col-span-12 overflow-hidden relative group"
               >
                 <div
-                  className="h-12 w-12 md:h-16 md:w-16 lg:h-14 lg:w-14 xl:h-16 xl:w-16 border flex items-center justify-center transition-all duration-[800ms] group-hover:scale-110 shadow-none group-hover:shadow-[0_0_20px_var(--loc-theme)]"
-                  style={{ borderColor: (activeLocation?.themeColor || "#ffffff") + "40" }}
+                  className="absolute top-0 left-0 w-full h-full opacity-0 group-hover:opacity-[0.03] transition-opacity duration-700 pointer-events-none"
+                  style={{ backgroundColor: activeLocation?.themeColor }}
+                />
+                <span
+                  className="font-grotesk text-[10px] md:text-xs tracking-[0.4em] md:tracking-[0.5rem] uppercase mb-4 md:mb-6 block transition-colors duration-1000 font-bold"
+                  style={{ color: activeLocation?.themeColor }}
                 >
-                  <MapPin size={22} className="lg:w-6 lg:h-6 transition-colors duration-[800ms]" style={{ color: activeLocation?.themeColor }} />
+                  EXPERIENCE REALITY
+                </span>
+                <div className="flex items-end overflow-hidden w-full">
+                  {locations.length > 0 && (
+                    <TextRotate
+                      ref={textRotateRef}
+                      texts={locations.map((l) => l.name)}
+                      mainClassName="font-barlow font-black italic text-4xl sm:text-5xl md:text-7xl lg:text-8xl xl:text-[9rem] text-white uppercase leading-[0.85] tracking-[0.4em] md:tracking-[0.5rem] break-words"
+                      staggerDuration={0.03}
+                      auto={false}
+                      loop={false}
+                      transition={{ type: "spring", duration: 0.5, bounce: 0 }}
+                      initial={{ opacity: 0, y: 60 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -60 }}
+                    />
+                  )}
                 </div>
-                <div className="px-2">
-                  <span className="font-grotesk font-bold text-[9px] sm:text-[10px] md:text-xs lg:text-[10px] xl:text-xs tracking-[0.3em] md:tracking-[0.4em] uppercase text-white block transition-colors duration-[800ms] mb-1 md:mb-2 group-hover:text-[var(--loc-theme)]">
-                    Secure Spot
-                  </span>
-                  <span
-                    className="font-barlow font-bold text-[8px] sm:text-[9px] md:text-[10px] uppercase tracking-[0.2em] leading-tight block break-words max-w-[120px] mx-auto transition-colors duration-[800ms] italic"
-                    style={{ color: (activeLocation?.themeColor || "#ffffff") + "99" }}
+              </motion.div>
+
+              {/* Tile 2: Vibe & Description */}
+              <motion.div
+                key={activeIndex}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.1 }}
+                className="glass-surface p-6 sm:p-8 md:p-10 border border-white/10 shadow-xl backdrop-blur-md md:col-span-12 lg:col-span-6 flex flex-col justify-center relative group overflow-hidden"
+              >
+                <div
+                  className="absolute top-0 left-0 w-full h-full opacity-0 group-hover:opacity-[0.03] transition-opacity duration-700 pointer-events-none"
+                  style={{ backgroundColor: activeLocation?.themeColor }}
+                />
+                <div className="mb-4 md:mb-6 transition-colors duration-1000" style={{ color: activeLocation?.themeColor }}>
+                  <TextRotate
+                    ref={vibeRotateRef}
+                    texts={locations.map((l) => l.vibe)}
+                    mainClassName="font-barlow font-bold text-[10px] sm:text-xs md:text-sm lg:text-base tracking-[0.2em] md:tracking-[0.3em] uppercase italic line-clamp-2"
+                    auto={false}
+                    loop={false}
+                    staggerDuration={0.01}
+                    transition={{ type: "spring", duration: 0.5 }}
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                  />
+                </div>
+                <p className="font-grotesk text-white/70 text-xs sm:text-sm md:text-base leading-relaxed">
+                  {activeLocation?.description}
+                </p>
+              </motion.div>
+
+              {/* Tile 3: Schedule & Goals */}
+              <motion.div
+                key={`details-${activeIndex}`}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.15 }}
+                className="glass-surface p-6 sm:p-8 md:p-10 border border-white/10 shadow-xl backdrop-blur-md md:col-span-6 lg:col-span-3 flex flex-col justify-center relative group overflow-hidden gap-4 md:gap-6"
+              >
+                <div
+                  className="absolute top-0 left-0 w-full h-full opacity-0 group-hover:opacity-[0.03] transition-opacity duration-700 pointer-events-none"
+                  style={{ backgroundColor: activeLocation?.themeColor }}
+                />
+                <div className="space-y-1 md:space-y-2 relative z-10">
+                  <div className="flex items-center gap-2 transition-colors duration-1000" style={{ color: activeLocation?.themeColor }}>
+                    <Star size={14} className="fill-current" />
+                    <span className="font-grotesk font-bold text-[9px] md:text-[10px] tracking-[0.3em] uppercase text-white/60">Located In</span>
+                  </div>
+                  <p className="font-barlow font-bold text-xs md:text-sm text-white uppercase italic">{activeLocation?.city}</p>
+                </div>
+                <div className="space-y-1 md:space-y-2 relative z-10">
+                  <div className="flex items-center gap-2 transition-colors duration-1000" style={{ color: activeLocation?.themeColor }}>
+                    <MapPin size={14} />
+                    <span className="font-grotesk font-bold text-[9px] md:text-[10px] tracking-[0.3em] uppercase text-white/60">Address</span>
+                  </div>
+                  <p className="font-barlow font-bold text-[10px] md:text-[11px] text-white/50 uppercase italic leading-tight">{activeLocation?.address}</p>
+                </div>
+              </motion.div>
+
+              {/* Tile 4: Call to Action */}
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 1, delay: 0.2 }}
+                className="glass-surface p-6 sm:p-8 border border-white/10 shadow-lg transition-colors duration-500 backdrop-blur-sm md:col-span-6 lg:col-span-3 flex flex-col justify-center items-center group relative overflow-hidden text-center"
+              >
+                <div
+                  className="absolute top-0 left-0 w-full h-full opacity-0 group-hover:opacity-[0.05] transition-opacity duration-700 pointer-events-none"
+                  style={{ backgroundColor: activeLocation?.themeColor }}
+                />
+                <a
+                  href="#camps"
+                  onClick={handleSecureSpotClick}
+                  className="flex flex-col items-center gap-3 md:gap-4 w-full h-full justify-center relative z-10"
+                >
+                  <div
+                    className="h-12 w-12 md:h-16 md:w-16 lg:h-14 lg:w-14 xl:h-16 xl:w-16 border flex items-center justify-center transition-all duration-[800ms] group-hover:scale-110 shadow-none group-hover:shadow-[0_0_20px_var(--loc-theme)]"
+                    style={{ borderColor: (activeLocation?.themeColor || "#ffffff") + "40" }}
                   >
-                    {activeLocation?.name} · {activeLocation?.city.toUpperCase()}
-                  </span>
-                </div>
-              </a>
-            </motion.div>
-          </div>
+                    <MapPin size={22} className="lg:w-6 lg:h-6 transition-colors duration-[800ms]" style={{ color: activeLocation?.themeColor }} />
+                  </div>
+                  <div className="px-2">
+                    <span className="font-grotesk font-bold text-[9px] sm:text-[10px] md:text-xs lg:text-[10px] xl:text-xs tracking-[0.3em] md:tracking-[0.4em] uppercase text-white block transition-colors duration-[800ms] mb-1 md:mb-2 group-hover:text-[var(--loc-theme)]">
+                      Secure Spot
+                    </span>
+                    <span
+                      className="font-barlow font-bold text-[8px] sm:text-[9px] md:text-[10px] uppercase tracking-[0.2em] leading-tight block break-words max-w-[120px] mx-auto transition-colors duration-[800ms] italic"
+                      style={{ color: (activeLocation?.themeColor || "#ffffff") + "99" }}
+                    >
+                      {activeLocation?.name} · {activeLocation?.city.toUpperCase()}
+                    </span>
+                  </div>
+                </a>
+              </motion.div>
+            </div>
+          ) : (
+            <div className="w-full h-full flex items-center justify-center">
+              {/* This space is occupied by the empty state absolute div above */}
+            </div>
+          )}
         </div>
 
         {/* Dynamic Nav Indicator (Right) */}

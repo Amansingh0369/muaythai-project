@@ -27,6 +27,7 @@ export interface EnrichedLocation extends Location {
  * Enriches API location data with static visual assets and themes
  */
 export function enrichLocations(apiLocations: Location[]): EnrichedLocation[] {
+  if (!Array.isArray(apiLocations)) return [];
   return apiLocations.map((apiLoc) => {
     // Attempt to find a match in SITE_CONFIG by name
     const staticData = SITE_CONFIG.locations.find(

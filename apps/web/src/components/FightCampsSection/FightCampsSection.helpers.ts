@@ -25,16 +25,13 @@ export interface EnrichedPackage extends Package {
 /**
  * Enriches API package data with static visual assets and descriptions
  */
-export function enrichPackages(apiPackages: Package[]): EnrichedPackage[] {
-  return apiPackages.map((apiPkg) => {
-    // Attempt to find a match in SITE_CONFIG by name (case-insensitive)
+export function enrichPackages(apiPackages: Package[] | undefined | null): EnrichedPackage[] {
+  const safePackages = apiPackages ?? [];
+  return safePackages.map((apiPkg) => {
     const staticData = SITE_CONFIG.camps.find(
       (camp) => camp.title.toLowerCase() === apiPkg.name.toLowerCase()
     );
-
-    // Default to 'beginner' assets if no match is found for a new camp type
     const baseTemplate = staticData || SITE_CONFIG.camps[0];
-
     return {
       ...apiPkg,
       title: apiPkg.name,
