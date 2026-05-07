@@ -166,7 +166,7 @@ const FightCampsSection = () => {
                       animate={isInView ? { opacity: 1, y: 0 } : {}}
                       transition={{ duration: 0.8, delay: index * 0.15, ease: [0.16, 1, 0.3, 1] }}
                     >
-                      <div className={`flex flex-col h-full border border-white/[0.08] p-8 lg:p-10 transition-all duration-[600ms] group-hover:border-primary/40 group-hover:bg-white/[0.04] ${camp.featured ? "bg-white/[0.03] shadow-[0_0_50px_-20px_rgba(255,80,0,0.25)]" : "bg-black/40 backdrop-blur-sm"}`}>
+                      <div className={`flex flex-col h-full border border-white/[0.08] p-8 lg:p-10 transition-all [transition-duration:600ms] group-hover:border-primary/40 group-hover:bg-white/[0.04] ${camp.featured ? "bg-white/[0.03] shadow-[0_0_50px_-20px_rgba(255,80,0,0.25)]" : "bg-black/40 backdrop-blur-sm"}`}>
                         
                         {/* Icon */}
                         <div className={`w-14 h-14 bg-gradient-to-br ${camp.accent} flex items-center justify-center mb-8 shrink-0`}>

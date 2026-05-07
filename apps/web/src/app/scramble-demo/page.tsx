@@ -4,7 +4,7 @@ import * as React from "react"
 import { useState } from "react"
 import { TextScramble } from "@/components/ui/text-scramble"
 
-export function BasicDemo() {
+function BasicDemo() {
   return (
     <div className="flex justify-center">
       <TextScramble className="font-mono text-sm uppercase">
@@ -14,7 +14,7 @@ export function BasicDemo() {
   )
 }
 
-export function CustomTriggerDemo() {
+function CustomTriggerDemo() {
   const [isTrigger, setIsTrigger] = useState(false)
 
   return (
@@ -38,7 +38,7 @@ export function CustomTriggerDemo() {
   )
 }
 
-export function CustomCharacterDemo() {
+function CustomCharacterDemo() {
   return (
     <div className="flex justify-center">
       <TextScramble
