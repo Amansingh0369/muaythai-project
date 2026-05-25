@@ -2,8 +2,7 @@
 
 import { motion } from "motion/react";
 import { TextScramble } from "@/components/ui/text-scramble";
-import { useState } from "react";
-import { ArrowUpRight, Info, MapPin, Sword, Users } from "lucide-react";
+import { ArrowUpRight, Info, MapPin } from "lucide-react";
 import Link from "next/link";
 import aboutImg from "@/assets/training.jpg";
 import locationsImg from "@/assets/download.png";
@@ -13,7 +12,7 @@ const TILES = [
     title: "About Us",
     description: "Our philosophy, our heritage, and why we do what we do.",
     href: "/about",
-    icon: <Info size={24} />,
+    icon: <Info size={20} />,
     image: aboutImg.src,
     accent: "from-blue-500/20 to-transparent",
   },
@@ -21,7 +20,7 @@ const TILES = [
     title: "Camps & Locations",
     description: "Intensive training camps across Thailand's most iconic locations.",
     href: "/locations",
-    icon: <MapPin size={24} />,
+    icon: <MapPin size={20} />,
     image: locationsImg.src,
     accent: "from-primary/20 to-transparent",
   },
@@ -29,9 +28,11 @@ const TILES = [
 
 const DirectoryTiles = () => {
   return (
-    <section className="py-24 md:py-32 px-6 md:px-12 lg:px-20 bg-black overflow-hidden">
+    <section className="py-16 md:py-24 px-6 md:px-12 lg:px-20 bg-black overflow-hidden">
       <div className="max-w-7xl mx-auto">
-        <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 md:mb-16 gap-6">
+
+        {/* Header */}
+        <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 md:mb-14 gap-6">
           <div className="max-w-2xl">
             <motion.div
               initial={{ opacity: 0, x: -20 }}
@@ -67,58 +68,73 @@ const DirectoryTiles = () => {
           </TextScramble>
         </div>
 
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 max-w-5xl mx-auto">
+        {/* Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-8 max-w-5xl mx-auto">
           {TILES.map((tile, idx) => (
             <motion.div
               key={tile.title}
-              initial={{ opacity: 0, y: 30 }}
+              initial={{ opacity: 0, y: 24 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: idx * 0.1 }}
               viewport={{ once: true }}
             >
               <Link
                 href={tile.href}
-                className="group relative block aspect-[3/4] overflow-hidden border border-white/10 bg-white/[0.03] backdrop-blur-sm transition-all duration-500 hover:border-primary/50 hover:shadow-[0_0_40px_rgba(var(--primary-rgb),0.15)]"
+                className="group relative flex overflow-hidden border border-white/10
+                           bg-white/[0.03] backdrop-blur-sm h-[220px] sm:h-[260px] md:h-[280px]
+                           transition-all duration-500
+                           hover:border-primary/50 hover:shadow-[0_0_40px_rgba(255,100,0,0.12)]"
               >
-                {/* Background Image with Overlay */}
+                {/* Background image */}
                 <div className="absolute inset-0 z-0">
                   <img
                     src={tile.image}
                     alt={tile.title}
-                    className="h-full w-full object-cover transition-transform duration-700 opacity-40 group-hover:opacity-60"
+                    className="h-full w-full object-cover transition-transform duration-700
+                               scale-100 group-hover:scale-105 opacity-35 group-hover:opacity-55"
                   />
-                  <div className={`absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent opacity-80`} />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-black/10" />
                   <div className={`absolute inset-0 bg-gradient-to-br ${tile.accent} opacity-0 group-hover:opacity-100 transition-opacity duration-700`} />
                 </div>
 
+                {/* Index watermark — top right */}
+                <div className="absolute top-5 right-6 font-barlow font-black italic text-5xl text-white/[0.04] tracking-tighter group-hover:text-primary/10 transition-colors z-10 select-none">
+                  0{idx + 1}
+                </div>
+
                 {/* Content */}
-                <div className="relative z-10 h-full flex flex-col justify-end p-8">
-                  <div className="mb-6 h-12 w-12 bg-white/5 border border-white/10 flex items-center justify-center text-white/60 group-hover:text-primary group-hover:scale-110 transition-all duration-500">
+                <div className="relative z-10 flex flex-col justify-between w-full p-6 md:p-8">
+                  {/* Icon */}
+                  <div className="w-10 h-10 bg-white/5 border border-white/10 flex items-center justify-center
+                                  text-white/50 group-hover:text-primary group-hover:border-primary/30
+                                  transition-all duration-500 shrink-0">
                     {tile.icon}
                   </div>
 
-                  <h3 className="font-barlow font-black italic text-2xl md:text-3xl text-white uppercase mb-2 tracking-wide group-hover:text-primary transition-colors">
-                    {tile.title}
-                  </h3>
-
-                  <p className="font-grotesk text-xs md:text-sm text-white/50 leading-relaxed mb-6 line-clamp-2 md:translate-y-4 md:opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500">
-                    {tile.description}
-                  </p>
-
-                  <div className="flex items-center gap-2 font-barlow font-bold text-[10px] tracking-[0.2em] uppercase text-primary opacity-0 -translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-500">
-                    Discover More <ArrowUpRight size={14} />
-                  </div>
-
-                  {/* Top Right Index */}
-                  <div className="absolute top-8 right-8 font-barlow font-black italic text-4xl text-white/5 tracking-tighter group-hover:text-primary/10 transition-colors">
-                    0{idx + 1}
+                  {/* Bottom text */}
+                  <div>
+                    <h3 className="font-barlow font-black italic text-2xl md:text-3xl text-white uppercase
+                                   mb-1.5 tracking-wide group-hover:text-primary transition-colors duration-300">
+                      {tile.title}
+                    </h3>
+                    <p className="font-grotesk text-xs md:text-sm text-white/45 leading-relaxed mb-4
+                                  translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100
+                                  transition-all duration-500">
+                      {tile.description}
+                    </p>
+                    <div className="flex items-center gap-2 font-barlow font-bold text-[10px] tracking-[0.2em]
+                                    uppercase text-primary opacity-0 -translate-x-3
+                                    group-hover:opacity-100 group-hover:translate-x-0
+                                    transition-all duration-500">
+                      Discover More <ArrowUpRight size={13} />
+                    </div>
                   </div>
                 </div>
               </Link>
             </motion.div>
           ))}
         </div>
+
       </div>
     </section>
   );
