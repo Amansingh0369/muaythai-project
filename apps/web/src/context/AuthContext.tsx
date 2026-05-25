@@ -8,6 +8,8 @@ interface AuthContextType {
   accessToken: string | null;
   isLoading: boolean;
   login: (idToken: string) => Promise<void>;
+  loginWithEmail: (email: string, password: string) => Promise<void>;
+  register: (fullName: string, email: string, phone: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
   checkAuth: () => Promise<void>;
 }
@@ -62,6 +64,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const loginWithEmail = async (email: string, password: string) => {
+    try {
+      const data = await authService.loginWithEmail(email, password);
+      localStorage.setItem("access_token", data.access);
+      setAccessToken(data.access);
+      setUser(data.user);
+    } catch (error) {
+      console.error("Email Login Error:", error);
+      throw error;
+    }
+  };
+
+  const register = async (fullName: string, email: string, phone: string, password: string) => {
+    try {
+      const data = await authService.register(fullName, email, phone, password);
+      localStorage.setItem("access_token", data.access);
+      setAccessToken(data.access);
+      setUser(data.user);
+    } catch (error) {
+      console.error("Register Error:", error);
+      throw error;
+    }
+  };
+
   const logout = async () => {
     try {
       await authService.logout();
@@ -75,7 +101,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, accessToken, isLoading, login, logout, checkAuth }}>
+    <AuthContext.Provider value={{ user, accessToken, isLoading, login, loginWithEmail, register, logout, checkAuth }}>
       {children}
     </AuthContext.Provider>
   );

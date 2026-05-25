@@ -21,6 +21,38 @@ export interface AuthResponse {
 
 export const authService = {
   /**
+   * Log in with email + password
+   */
+  async loginWithEmail(email: string, password: string): Promise<AuthResponse> {
+    const response = await fetch(`${API_CONFIG.BASE_URL}${API_ENDPOINTS.AUTH.LOGIN}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({ email, password }),
+    });
+    let data: any;
+    try { data = await response.json(); } catch { data = {}; }
+    if (!response.ok) throw new Error(data.detail || data.message || "Login failed");
+    return data as AuthResponse;
+  },
+
+  /**
+   * Register a new user with email + password
+   */
+  async register(fullName: string, email: string, phone: string, password: string): Promise<AuthResponse> {
+    const response = await fetch(`${API_CONFIG.BASE_URL}${API_ENDPOINTS.AUTH.REGISTER}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({ full_name: fullName, email, phone_no: phone, password }),
+    });
+    let data: any;
+    try { data = await response.json(); } catch { data = {}; }
+    if (!response.ok) throw new Error(data.detail || data.message || "Registration failed");
+    return data as AuthResponse;
+  },
+
+  /**
    * Log in with a Google ID Token
    */
   async loginWithGoogle(idToken: string): Promise<AuthResponse> {

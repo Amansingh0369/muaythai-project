@@ -6,21 +6,12 @@ import { Menu, X, LogOut, User as UserIcon, ArrowUpRight } from "lucide-react";
 import logo from "@/assets/logo.png";
 import { SITE_CONFIG } from "@repo/utils";
 import { useAuth } from "@/context/AuthContext";
-import { useRouter } from "next/navigation";
 
 const Navbar = () => {
   const { user, logout } = useAuth();
-  const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
 
   const navLinks = SITE_CONFIG.navigation;
-
-  const handleBookClick = (e: React.MouseEvent) => {
-    if (!user) {
-      e.preventDefault();
-      router.push("/login?redirect=/locations");
-    }
-  };
 
   const TOP_BAR_H = 34;
   const NAV_H = 64;
@@ -135,17 +126,26 @@ const Navbar = () => {
                     </button>
                   </div>
                 ) : (
-                  <motion.a
-                    href="/locations"
-                    onClick={handleBookClick}
-                    className="group relative overflow-hidden flex items-center justify-center gap-2.5 px-8 h-11 font-barlow font-black text-[12.5px] tracking-[0.2em] uppercase text-black bg-primary border-none shadow-[0_0_20px_hsl(var(--primary)/0.25)] hover:shadow-[0_0_35px_hsl(var(--primary)/0.45)] transition-all duration-300"
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.97 }}
-                  >
-                    <span className="relative z-10">Login</span>
-                    <ArrowUpRight size={14} className="relative z-10 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform duration-300" />
-                    <span className="absolute inset-0 bg-white/30 translate-x-[-110%] group-hover:translate-x-[110%] transition-transform duration-500 skew-x-12 pointer-events-none" />
-                  </motion.a>
+                  <div className="flex items-center gap-3">
+                    <motion.a
+                      href="/login"
+                      className="flex items-center justify-center px-6 h-9 font-barlow font-black text-[12px] tracking-[0.2em] uppercase text-white/70 border border-white/15 hover:border-primary/60 hover:text-primary transition-all duration-300"
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.97 }}
+                    >
+                      Log In
+                    </motion.a>
+                    <motion.a
+                      href="/login?tab=signup"
+                      className="group relative overflow-hidden flex items-center justify-center gap-2 px-6 h-9 font-barlow font-black text-[12px] tracking-[0.2em] uppercase text-black bg-primary shadow-[0_0_20px_hsl(var(--primary)/0.25)] hover:shadow-[0_0_35px_hsl(var(--primary)/0.4)] transition-all duration-300"
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.97 }}
+                    >
+                      <span className="relative z-10">Sign Up</span>
+                      <ArrowUpRight size={13} className="relative z-10 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform duration-200" />
+                      <span className="absolute inset-0 bg-white/25 translate-x-[-110%] group-hover:translate-x-[110%] transition-transform duration-500 skew-x-12 pointer-events-none" />
+                    </motion.a>
+                  </div>
                 )}
               </div>
             </div>
@@ -206,15 +206,24 @@ const Navbar = () => {
                     <LogOut size={20} /> Logout
                   </button>
                 ) : (
-                  <a
-                    href="/locations"
-                    onClick={(e) => { setIsOpen(false); handleBookClick(e); }}
-                    className="group relative overflow-hidden flex items-center justify-center gap-3 w-full py-5 font-barlow font-black text-[14px] tracking-[0.3em] uppercase text-black bg-primary"
-                  >
-                    Login
-                    <ArrowUpRight size={18} />
-                    <span className="absolute inset-0 bg-white/30 translate-x-[-110%] group-hover:translate-x-[110%] transition-transform duration-500 skew-x-12 pointer-events-none" />
-                  </a>
+                  <div className="flex flex-col gap-3">
+                    <a
+                      href="/login?tab=signup"
+                      onClick={() => setIsOpen(false)}
+                      className="group relative overflow-hidden flex items-center justify-center gap-3 w-full py-4 font-barlow font-black text-[14px] tracking-[0.3em] uppercase text-black bg-primary"
+                    >
+                      Sign Up
+                      <ArrowUpRight size={18} />
+                      <span className="absolute inset-0 bg-white/30 translate-x-[-110%] group-hover:translate-x-[110%] transition-transform duration-500 skew-x-12 pointer-events-none" />
+                    </a>
+                    <a
+                      href="/login"
+                      onClick={() => setIsOpen(false)}
+                      className="flex items-center justify-center w-full py-4 font-barlow font-black text-[14px] tracking-[0.3em] uppercase text-white/60 border border-white/15 hover:border-primary/50 hover:text-primary transition-all duration-300"
+                    >
+                      Log In
+                    </a>
+                  </div>
                 )}
               </div>
             </div>
