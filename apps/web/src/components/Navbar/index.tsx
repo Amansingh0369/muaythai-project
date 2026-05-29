@@ -118,7 +118,7 @@ const Navbar = () => {
                         <UserIcon size={12} className="text-primary" />
                       </div>
                       <span className="font-barlow font-bold text-[11px] text-white/50 tracking-[0.15em] uppercase truncate max-w-[100px]">
-                        {user.full_name.split(" ")[0]}
+                        {user.full_name?.split(" ")[0] ?? user.email}
                       </span>
                     </div>
                     <button onClick={() => logout()} className="text-white/30 hover:text-primary transition-colors hover:scale-110 duration-200">
