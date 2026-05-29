@@ -1,0 +1,350 @@
+{
+	"info": {
+		"_postman_id": "8bb5ea07-4279-4efb-8664-df8b1cb3b65a",
+		"name": "Muay Thai Platform - Authentication APIs",
+		"description": "Comprehensive Postman collection to test the secure authentication system, including user registration, email verification, Google OAuth, token rotation, password resets, and session logouts.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "1. Signup / Register User",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"email\": \"testuser@example.com\",\n    \"password\": \"MuayThaiSecurePass2026!\",\n    \"full_name\": \"Buakaw Banchamek\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/api/auth/register/",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"auth",
+						"register",
+						""
+					]
+				},
+				"description": "Registers a new user account. On success, the user is created active, but unverified (is_email_verified = False). Check your running Django server terminal/console for the verification link output."
+			},
+			"response": []
+		},
+		{
+			"name": "2. Resend Email Verification Link",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"email\": \"testuser@example.com\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/api/auth/verify-email/resend/",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"auth",
+						"verify-email",
+						"resend",
+						""
+					]
+				},
+				"description": "Resends the email verification link. Useful if the initial token expired."
+			},
+			"response": []
+		},
+		{
+			"name": "3. Verify Email Address",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"uid\": \"PLACEHOLDER_UID_FROM_CONSOLE_EMAIL\",\n    \"token\": \"PLACEHOLDER_TOKEN_FROM_CONSOLE_EMAIL\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/api/auth/verify-email/",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"auth",
+						"verify-email",
+						""
+					]
+				},
+				"description": "Submits the uid and token printed to the terminal console during registration to mark the email address as verified."
+			},
+			"response": []
+		},
+		{
+			"name": "4. Login User",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"if (pm.response.code === 200) {",
+							"    var jsonData = pm.response.json();",
+							"    pm.environment.set(\"access_token\", jsonData.access);",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"email\": \"testuser@example.com\",\n    \"password\": \"MuayThaiSecurePass2026!\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/api/auth/login/",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"auth",
+						"login",
+						""
+					]
+				},
+				"description": "Logs in a verified user. If the email is not verified, returns a 403 Forbidden. On success, returns an access token and sets the refresh token HTTP-only cookie, and saves the access token in Postman environment variables."
+			},
+			"response": []
+		},
+		{
+			"name": "5. Login with Google OAuth",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"id_token\": \"YOUR_GOOGLE_ID_TOKEN\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/api/auth/google/",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"auth",
+						"google",
+						""
+					]
+				},
+				"description": "Logs in or signs up a user using a Google OAuth ID Token. Accounts authenticated via Google are automatically verified."
+			},
+			"response": []
+		},
+		{
+			"name": "6. Request Password Reset Link",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"email\": \"testuser@example.com\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/api/auth/password-reset/",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"auth",
+						"password-reset",
+						""
+					]
+				},
+				"description": "Sends a secure, 10-minute time-bound password reset link to the email. The link parameters (uid, token) are printed to the Django terminal console."
+			},
+			"response": []
+		},
+		{
+			"name": "7. Confirm Password Reset",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"uid\": \"PLACEHOLDER_UID_FROM_CONSOLE_EMAIL\",\n    \"token\": \"PLACEHOLDER_TOKEN_FROM_CONSOLE_EMAIL\",\n    \"new_password\": \"BrandNewSuperPass2026!\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/api/auth/password-reset-confirm/",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"auth",
+						"password-reset-confirm",
+						""
+					]
+				},
+				"description": "Confirm password reset using the token from the email. Code must be submitted within 10 minutes of requesting."
+			},
+			"response": []
+		},
+		{
+			"name": "8. Retrieve Current User Profile (Me)",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{access_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/users/me/",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"users",
+						"me",
+						""
+					]
+				},
+				"description": "Tests an authenticated endpoint using the JWT bearer token retrieved from the 'Login User' request."
+			},
+			"response": []
+		},
+		{
+			"name": "9. Refresh Token Rotation (Cookie-based)",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"url": {
+					"raw": "{{base_url}}/api/auth/refresh/",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"auth",
+						"refresh",
+						""
+					]
+				},
+				"description": "Uses the refresh_token stored in the HTTP-only cookie to rotate tokens, returning a brand new access token."
+			},
+			"response": []
+		},
+		{
+			"name": "10. Logout User",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{access_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/auth/logout/",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"auth",
+						"logout",
+						""
+					]
+				},
+				"description": "Logs out the user, blacklisting their refresh token and deleting the HTTP-only cookie."
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://127.0.0.1:8000",
+			"type": "string"
+		}
+	]
+}

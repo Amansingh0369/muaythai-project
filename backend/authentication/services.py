@@ -31,7 +31,9 @@ class GoogleAuthService:
             email=email,
             defaults={
                 'google_id': google_id,
-                'full_name': name
+                'full_name': name,
+                'is_email_verified': True,
+                'is_active': True
             }
         )
         
@@ -42,6 +44,12 @@ class GoogleAuthService:
             updated = True
         if not user.full_name and name:
             user.full_name = name
+            updated = True
+        if not user.is_email_verified:
+            user.is_email_verified = True
+            updated = True
+        if not user.is_active:
+            user.is_active = True
             updated = True
         
         if updated:

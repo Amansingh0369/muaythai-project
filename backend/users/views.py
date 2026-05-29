@@ -36,7 +36,7 @@ class UserAdminViewSet(viewsets.ModelViewSet):
         user = self.get_object()
         role = request.data.get('role')
         if not role:
-            return response.Response({'error': 'Role project is required'}, status=status.HTTP_400_BAD_REQUEST)
+            return response.Response({'error': 'Role field is required'}, status=status.HTTP_400_BAD_REQUEST)
         
         user.role = role
         user.save()
