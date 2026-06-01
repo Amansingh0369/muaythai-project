@@ -72,22 +72,6 @@ const Navbar = () => {
                 </div>
               </motion.a>
 
-              {/* Home Badge */}
-              <motion.a
-                href="/"
-                className="relative h-full flex items-center justify-center bg-black/40 hover:bg-black/60 border-l border-white/5 transition-colors px-12 -ml-5 group z-10"
-                style={{
-                  clipPath: "polygon(20px 0%, 100% 0%, calc(100% - 20px) 100%, 0% 100%)"
-                }}
-                initial={{ x: -20, opacity: 0 }}
-                animate={{ x: 0, opacity: 1 }}
-                transition={{ delay: 0.1, duration: 0.5 }}
-              >
-                <span className="font-barlow font-bold text-[13px] tracking-[0.25em] uppercase text-white/50 group-hover:text-primary transition-all duration-300 italic pl-2">
-                  Home
-                </span>
-                <div className="absolute inset-0 bg-gradient-to-r from-primary/0 via-primary/5 to-primary/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-              </motion.a>
 
               <div className="absolute top-1/2 left-0 -translate-y-1/2 w-48 h-20 bg-primary/20 blur-3xl rounded-full -z-10" />
             </div>
@@ -113,14 +97,14 @@ const Navbar = () => {
               <div className="h-full flex items-center px-10 border-l border-white/[0.1]">
                 {user ? (
                   <div className="flex items-center gap-5">
-                    <div className="flex items-center gap-3">
-                      <div className="w-7 h-7 rounded-full bg-primary/20 border border-primary/40 flex items-center justify-center">
+                    <a href="/profile" className="flex items-center gap-3 group">
+                      <div className="w-7 h-7 rounded-full bg-primary/20 border border-primary/40 flex items-center justify-center group-hover:bg-primary/30 group-hover:border-primary/60 transition-colors">
                         <UserIcon size={12} className="text-primary" />
                       </div>
-                      <span className="font-barlow font-bold text-[11px] text-white/50 tracking-[0.15em] uppercase truncate max-w-[100px]">
-                        {user.full_name.split(" ")[0]}
+                      <span className="font-barlow font-bold text-[11px] text-white/50 tracking-[0.15em] uppercase truncate max-w-[100px] group-hover:text-white/80 transition-colors">
+                        {user.full_name?.split(" ")[0] ?? user.email}
                       </span>
-                    </div>
+                    </a>
                     <button onClick={() => logout()} className="text-white/30 hover:text-primary transition-colors hover:scale-110 duration-200">
                       <LogOut size={15} />
                     </button>
@@ -185,7 +169,7 @@ const Navbar = () => {
           >
             <div className="h-[3px] bg-primary w-full" />
             <div className="flex flex-col px-8 pt-6 pb-10 flex-1 overflow-auto">
-              {navLinks.map((item, i) => (
+              {navLinks.filter(item => item.label !== "Home").map((item, i) => (
                 <motion.a
                   key={item.label}
                   href={item.href}
@@ -202,9 +186,18 @@ const Navbar = () => {
 
               <div className="pt-12">
                 {user ? (
-                  <button onClick={() => { logout(); setIsOpen(false); }} className="flex items-center gap-3 text-white/40 font-barlow font-bold uppercase tracking-widest">
-                    <LogOut size={20} /> Logout
-                  </button>
+                  <div className="flex flex-col gap-4">
+                    <a
+                      href="/profile"
+                      onClick={() => setIsOpen(false)}
+                      className="flex items-center gap-3 text-white/60 font-barlow font-bold uppercase tracking-widest hover:text-white transition-colors"
+                    >
+                      <UserIcon size={20} /> My Profile
+                    </a>
+                    <button onClick={() => { logout(); setIsOpen(false); }} className="flex items-center gap-3 text-white/40 font-barlow font-bold uppercase tracking-widest hover:text-primary transition-colors">
+                      <LogOut size={20} /> Logout
+                    </button>
+                  </div>
                 ) : (
                   <div className="flex flex-col gap-3">
                     <a
