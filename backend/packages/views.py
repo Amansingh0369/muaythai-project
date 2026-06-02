@@ -14,10 +14,23 @@ class PackageViewSet(viewsets.ModelViewSet):
     serializer_class = PackageSerializer
 
     def get_queryset(self):
+        queryset = self.queryset
+        
+        # Filter by location ID
+        location_id = self.request.query_params.get('location')
+        if location_id:
+            queryset = queryset.filter(location_id=location_id)
+            
+        # Filter by type (case-insensitive)
+        package_type = self.request.query_params.get('type')
+        if package_type:
+            queryset = queryset.filter(type__iexact=package_type)
+            
         # Non-admins only see active packages
         if not (self.request.user and self.request.user.is_authenticated and self.request.user.role == 'ADMIN'):
-            return self.queryset.filter(is_active=True)
-        return self.queryset
+            queryset = queryset.filter(is_active=True)
+            
+        return queryset
 
     def get_permissions(self):
         if self.action in ['list', 'retrieve', 'reviews']:

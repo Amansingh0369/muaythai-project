@@ -1,0 +1,239 @@
+{
+  "info": {
+    "name": "Muay Thai - Locations, Packages & Profile API",
+    "description": "Postman collection for testing the updated Locations, Packages, and Profile API endpoints.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Locations API",
+      "item": [
+        {
+          "name": "1. Get All Locations",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "https://muaythai-test.duckdns.org/api/locations/",
+              "protocol": "https",
+              "host": ["muaythai-test", "duckdns", "org"],
+              "path": ["api", "locations", ""]
+            }
+          }
+        },
+        {
+          "name": "2. Create Location (Admin)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Main Muay Thai Center\",\n    \"address\": \"123 Combat Street\",\n    \"city\": \"Bangkok\",\n    \"latitude\": \"13.7563\",\n    \"longitude\": \"100.5018\"\n}"
+            },
+            "url": {
+              "raw": "https://muaythai-test.duckdns.org/api/locations/",
+              "protocol": "https",
+              "host": ["muaythai-test", "duckdns", "org"],
+              "path": ["api", "locations", ""]
+            }
+          }
+        },
+        {
+          "name": "3. Update Location (Admin)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"city\": \"Chiang Mai\"\n}"
+            },
+            "url": {
+              "raw": "https://muaythai-test.duckdns.org/api/locations/1/",
+              "protocol": "https",
+              "host": ["muaythai-test", "duckdns", "org"],
+              "path": ["api", "locations", "1", ""]
+            }
+          }
+        },
+        {
+          "name": "4. Delete Location (Admin)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "https://muaythai-test.duckdns.org/api/locations/1/",
+              "protocol": "https",
+              "host": ["muaythai-test", "duckdns", "org"],
+              "path": ["api", "locations", "1", ""]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Packages API",
+      "item": [
+        {
+          "name": "1. Get All Packages",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "https://muaythai-test.duckdns.org/api/packages/",
+              "protocol": "https",
+              "host": ["muaythai-test", "duckdns", "org"],
+              "path": ["api", "packages", ""]
+            }
+          }
+        },
+        {
+          "name": "2. Filter Packages",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "https://muaythai-test.duckdns.org/api/packages/?location=1&type=BEGINNER",
+              "protocol": "https",
+              "host": ["muaythai-test", "duckdns", "org"],
+              "path": ["api", "packages", ""],
+              "query": [
+                {"key": "location", "value": "1"},
+                {"key": "type", "value": "BEGINNER"}
+              ]
+            }
+          }
+        },
+        {
+          "name": "3. Create Package (Admin)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Beginner Thai Boxing\",\n    \"type\": \"BEGINNER\",\n    \"description\": \"Perfect for newcomers.\",\n    \"price\": \"150.00\",\n    \"start_date\": \"2026-07-01\",\n    \"location\": 1,\n    \"is_active\": true\n}"
+            },
+            "url": {
+              "raw": "https://muaythai-test.duckdns.org/api/packages/",
+              "protocol": "https",
+              "host": ["muaythai-test", "duckdns", "org"],
+              "path": ["api", "packages", ""]
+            }
+          }
+        },
+        {
+          "name": "4. Update Package (Admin)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"price\": \"140.00\"\n}"
+            },
+            "url": {
+              "raw": "https://muaythai-test.duckdns.org/api/packages/1/",
+              "protocol": "https",
+              "host": ["muaythai-test", "duckdns", "org"],
+              "path": ["api", "packages", "1", ""]
+            }
+          }
+        },
+        {
+          "name": "5. Delete Package (Admin)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "https://muaythai-test.duckdns.org/api/packages/1/",
+              "protocol": "https",
+              "host": ["muaythai-test", "duckdns", "org"],
+              "path": ["api", "packages", "1", ""]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Profile API",
+      "item": [
+        {
+          "name": "1. Update Profile (Flat Fields)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"full_name\": \"Sanket Mishra\",\n    \"phone\": \"1234567890\",\n    \"age\": 25,\n    \"gender\": \"MALE\",\n    \"bio\": \"fgfgf6767\",\n    \"experience\": \"BEGINNER\",\n    \"weight\": 75.50,\n    \"height\": 180.00,\n    \"emergency_contact_name\": \"Jane Doe\",\n    \"emergency_contact_phone\": \"0987654321\",\n    \"passport\": \"A1234567\"\n}"
+            },
+            "url": {
+              "raw": "https://muaythai-test.duckdns.org/api/users/me/",
+              "protocol": "https",
+              "host": ["muaythai-test", "duckdns", "org"],
+              "path": ["api", "users", "me", ""]
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "access_token",
+      "value": "YOUR_TOKEN_HERE"
+    }
+  ]
+}
