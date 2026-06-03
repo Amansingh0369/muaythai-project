@@ -1,8 +1,8 @@
 "use client";
 
 import { motion, AnimatePresence } from "motion/react";
-import { X, Loader2, MapPin, Calendar, DollarSign, Activity } from "lucide-react";
-import { Package, CreatePackageInput } from "@/services/package.service";
+import { X, Loader2, MapPin, Calendar, DollarSign, Activity, Layers } from "lucide-react";
+import { Package, CreatePackageInput, PackageType } from "@/services/package.service";
 import { Location } from "@/services/location.service";
 
 interface PackageModalProps {
@@ -150,6 +150,37 @@ export function PackageModal({
                     >
                         {formData.is_active ? "Live / Active" : "Draft / Hidden"}
                     </button>
+                  </div>
+                </div>
+
+                {/* Package Type & Start Date */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <label className="text-[10px] text-white/40 font-black uppercase tracking-widest ml-1 flex items-center gap-2">
+                      <Layers className="w-3 h-3 text-primary" /> Package Type
+                    </label>
+                    <select
+                      required
+                      className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 text-white focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all appearance-none"
+                      value={formData.type}
+                      onChange={(e) => setFormData({ ...formData, type: e.target.value as PackageType })}
+                    >
+                      <option value="BEGINNER" className="bg-black text-white">BEGINNER</option>
+                      <option value="INTERMEDIATE" className="bg-black text-white">INTERMEDIATE</option>
+                      <option value="ADVANCED" className="bg-black text-white">ADVANCED</option>
+                    </select>
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] text-white/40 font-black uppercase tracking-widest ml-1 flex items-center gap-2">
+                      <Calendar className="w-3 h-3 text-primary" /> Start Date
+                    </label>
+                    <input
+                      required
+                      type="date"
+                      className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 text-white focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all [color-scheme:dark]"
+                      value={formData.start_date ? formData.start_date.slice(0, 10) : ""}
+                      onChange={(e) => setFormData({ ...formData, start_date: e.target.value })}
+                    />
                   </div>
                 </div>
 

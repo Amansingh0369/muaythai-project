@@ -25,6 +25,8 @@ export function usePackages() {
     duration_days: 7,
     location: 0,
     is_active: true,
+    type: "BEGINNER",
+    start_date: "",
   });
 
   const fetchData = useCallback(async () => {
@@ -59,6 +61,8 @@ export function usePackages() {
       duration_days: 7,
       location: locations[0]?.id || 0,
       is_active: true,
+      type: "BEGINNER",
+      start_date: "",
     });
     setIsModalOpen(true);
   };
@@ -73,6 +77,8 @@ export function usePackages() {
       duration_days: pkg.duration_days,
       location: pkg.location,
       is_active: pkg.is_active,
+      type: pkg.type ?? "BEGINNER",
+      start_date: pkg.start_date ? pkg.start_date.slice(0, 10) : "",
     });
     setIsModalOpen(true);
   };
