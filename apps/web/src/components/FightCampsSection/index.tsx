@@ -1,55 +1,86 @@
 "use client";
 
-import { motion, useInView, AnimatePresence } from "framer-motion";
-import { useRef, useState, useEffect } from "react";
-import { useAuth } from "@/context/AuthContext";
+import { motion, useInView } from "framer-motion";
+import { useRef } from "react";
 import { useRouter } from "next/navigation";
+import { Flame, Swords, Crown } from "lucide-react";
 import { SITE_CONFIG } from "@repo/utils";
-import { enrichPackages, EnrichedPackage } from "./FightCampsSection.helpers";
-import { packageService } from "@/services/package.service";
-import { Loader2, AlertCircle } from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
+
+const HARDCODED_CAMPS = [
+  {
+    type: "BEGINNER",
+    icon: Flame,
+    title: "Beginner Experience",
+    subtitle: "Your First Fight Camp",
+    duration: "7 Days",
+    idealFor: "First-timers / Fitness Enthusiasts",
+    includes: [
+      "2 training sessions per day",
+      "Basic Muay Thai techniques",
+      "Pad work & conditioning",
+      "Beginner-friendly coaching",
+      "Full gym access",
+    ],
+    outcome: "Learn fundamentals + experience real training",
+    accent: "from-primary to-orange-deep",
+    featured: false,
+  },
+  {
+    type: "INTERMEDIATE",
+    icon: Swords,
+    title: "Intermediate Training",
+    subtitle: "Level Up Your Game",
+    duration: "14 Days",
+    idealFor: "Regular Trainees / Returning Participants",
+    includes: [
+      "Advanced techniques & combinations",
+      "Sparring sessions",
+      "Clinch training",
+      "Conditioning & endurance work",
+      "Trainer feedback & correction",
+    ],
+    outcome: "Improved technique + fight understanding",
+    accent: "from-blue-electric to-blue-deep",
+    featured: true,
+  },
+  {
+    type: "ADVANCED",
+    icon: Crown,
+    title: "Fighter Camp",
+    subtitle: "Intensive. Relentless.",
+    duration: "21 Days",
+    idealFor: "Serious Trainees / Fighters",
+    includes: [
+      "High-intensity training (2 daily sessions)",
+      "Sparring + clinch-heavy sessions",
+      "Fight conditioning programs",
+      "Optional fight preparation",
+      "Personalized guidance",
+    ],
+    outcome: "Peak conditioning + real fight readiness",
+    accent: "from-primary to-orange-glow",
+    featured: false,
+  },
+];
 
 const FightCampsSection = () => {
-  const { user } = useAuth();
   const router = useRouter();
+  const { user } = useAuth();
   const ref = useRef<HTMLElement>(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
 
-  const [camps, setCamps] = useState<EnrichedPackage[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    const fetchCamps = async () => {
-      try {
-        setIsLoading(true);
-        const apiData = await packageService.getPackages();
-        const enriched = enrichPackages(apiData);
-        setCamps(enriched);
-        setError(null);
-      } catch (err) {
-        console.error("Error loading camps:", err);
-        setError("Failed to sync training camps");
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetchCamps();
-  }, []);
-
-  const handleBookClick = (e: React.MouseEvent, campId: string | number) => {
+  const handleCampSelect = (type: string) => {
     if (!user) {
-      e.preventDefault();
-      router.push(`/login?redirect=/#camps`);
+      router.push(`/login?redirect=/packages/${type}`);
     } else {
-      console.log(`Booking camp: ${campId}`);
+      router.push(`/packages/${type}`);
     }
   };
 
   return (
     <section id="camps" ref={ref} className="relative bg-[#050505] py-24 md:py-36 pb-32">
 
-      {/* Burn overlay background texture */}
       <div
         className="absolute inset-0 z-[1] opacity-[0.03] pointer-events-none"
         style={{
@@ -60,13 +91,13 @@ const FightCampsSection = () => {
       <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-[#050505] to-black z-[2]" />
 
       <div className="relative z-10 max-w-7xl mx-auto px-6 md:px-12 lg:px-20">
-        
+
         {/* ── HEADER ── */}
         <motion.div
-           className="text-center mb-20"
-           initial={{ opacity: 0, y: 40 }}
-           animate={isInView ? { opacity: 1, y: 0 } : {}}
-           transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+          className="text-center mb-20"
+          initial={{ opacity: 0, y: 40 }}
+          animate={isInView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
         >
           <div className="flex justify-center items-center gap-3 mb-6">
             <span className="inline-block w-8 h-[2px] bg-primary" />
@@ -75,165 +106,91 @@ const FightCampsSection = () => {
             </span>
             <span className="inline-block w-8 h-[2px] bg-primary" />
           </div>
-          
+
           <h2 className="font-barlow font-black italic text-[14vw] sm:text-[10vw] md:text-[8vw] lg:text-[7vw] leading-[0.85] tracking-[-0.02em] text-white uppercase mix-blend-plus-lighter">
             FIGHT <span className="text-gradient-fire">CAMPS</span>
           </h2>
-          
+
           <p className="font-grotesk text-sm md:text-base text-white/50 mt-6 max-w-2xl mx-auto leading-relaxed">
             These aren't packages. They're experiences. No matter your level, your camp is waiting for you.
           </p>
         </motion.div>
 
         {/* ── CAMP CARDS ── */}
-        <div className="relative min-h-[400px]">
-          <AnimatePresence mode="wait">
-            {isLoading ? (
-              <motion.div 
-                key="loading"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="flex flex-col items-center justify-center py-20 gap-6"
+        <motion.div
+          className="grid md:grid-cols-3 gap-6 lg:gap-8"
+          initial={{ opacity: 0 }}
+          animate={isInView ? { opacity: 1 } : {}}
+        >
+          {HARDCODED_CAMPS.map((camp, index) => {
+            const Icon = camp.icon;
+            return (
+              <motion.div
+                key={camp.type}
+                className={`relative group cursor-pointer ${camp.featured ? "md:-mt-6 md:mb-6" : ""}`}
+                initial={{ opacity: 0, y: 50 }}
+                animate={isInView ? { opacity: 1, y: 0 } : {}}
+                transition={{ duration: 0.8, delay: index * 0.15, ease: [0.16, 1, 0.3, 1] }}
+                onClick={() => handleCampSelect(camp.type)}
               >
-                <div className="relative">
-                  <Loader2 className="animate-spin text-primary w-12 h-12" />
-                  <div className="absolute inset-0 blur-xl bg-primary/20 animate-pulse" />
-                </div>
-                <p className="font-grotesk text-[10px] tracking-[0.4em] uppercase text-white/30 animate-pulse">Syncing Camp Ledger...</p>
-              </motion.div>
-            ) : error ? (
-              <motion.div 
-                key="error"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="flex flex-col items-center justify-center py-20 gap-4 text-center"
-              >
-                <AlertCircle className="text-red-500/50 w-12 h-12 mb-2" />
-                <h3 className="text-white font-bold uppercase tracking-tighter text-xl">Sync Interrupted</h3>
-                <p className="text-white/40 text-sm max-w-xs">{error}</p>
-                <button 
-                  onClick={() => window.location.reload()}
-                  className="mt-4 px-8 py-3 bg-white/5 border border-white/10 rounded-full text-white text-xs font-bold uppercase tracking-widest hover:bg-white/10 transition-all font-grotesk"
-                >
-                  Retry Connection
-                </button>
-              </motion.div>
-            ) : camps.length === 0 ? (
-              <motion.div 
-                key="empty"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="absolute inset-0 z-[100] bg-black flex flex-col items-center justify-center gap-6 text-center px-6"
-              >
-                <div className="relative">
-                  <AlertCircle className="text-white/20 w-16 h-16 mb-2" />
-                  <motion.div 
-                    initial={{ width: 0 }}
-                    animate={{ width: "100%" }}
-                    className="absolute top-1/2 left-0 h-[2px] bg-red-500/50 -rotate-45"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <h3 className="text-white font-black text-2xl md:text-3xl uppercase tracking-tighter">No Camps Available</h3>
-                  <p className="text-white/40 text-sm max-w-sm mx-auto font-grotesk tracking-wide">
-                    Our training camp roster is currently being curated. Please check back soon for upcoming experiences.
+                <div className={`flex flex-col h-full border border-white/[0.08] p-8 lg:p-10 transition-all [transition-duration:600ms] group-hover:border-primary/40 group-hover:bg-white/[0.04] ${camp.featured ? "bg-white/[0.03] shadow-[0_0_50px_-20px_rgba(255,80,0,0.25)]" : "bg-black/40 backdrop-blur-sm"}`}>
+
+                  <div className={`w-14 h-14 bg-gradient-to-br ${camp.accent} flex items-center justify-center mb-8 shrink-0`}>
+                    <Icon className="w-7 h-7 text-black" />
+                  </div>
+
+                  <p className="font-grotesk text-[10px] tracking-[0.4em] uppercase text-primary mb-3">
+                    {camp.subtitle}
                   </p>
+                  <h3 className="font-barlow font-black italic text-3xl md:text-4xl lg:text-5xl text-white uppercase mb-3 leading-[0.85]">
+                    {camp.title}
+                  </h3>
+                  <p className="font-grotesk text-xs text-white/40 mb-10 pb-6 border-b border-white/[0.05]">
+                    {camp.duration} <span className="mx-2">·</span> <span className="text-white/70">{camp.idealFor}</span>
+                  </p>
+
+                  <ul className="space-y-4 mb-12 flex-1">
+                    {camp.includes.map((item) => (
+                      <li key={item} className="flex items-start gap-4">
+                        <span className="w-1.5 h-1.5 bg-primary/70 mt-2 shrink-0 group-hover:scale-125 transition-transform duration-300" />
+                        <span className="font-grotesk text-[13px] md:text-sm text-white/60 leading-relaxed group-hover:text-white/80 transition-colors">
+                          {item}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+
+                  <div className="border-t border-white/[0.08] pt-6 mb-8 mt-auto">
+                    <p className="font-grotesk text-[9px] tracking-[0.4em] uppercase text-white/30 mb-3">Outcome</p>
+                    <p className="text-sm font-grotesk text-white/80 leading-relaxed">{camp.outcome}</p>
+                  </div>
+
+                  <div
+                    className={`block w-full text-center py-4 font-barlow font-black text-xs tracking-[0.3em] uppercase transition-all duration-500 overflow-hidden relative isolate ${
+                      camp.featured
+                        ? "bg-primary text-black hover:bg-white hover:scale-[1.02]"
+                        : "bg-transparent border border-white/20 text-white hover:border-primary hover:text-primary hover:bg-primary/5"
+                    }`}
+                  >
+                    <span className="relative z-10 transition-transform duration-500 group-hover:-translate-x-1 inline-block">Select</span>
+                    <span className="relative z-10 mx-1">Camp</span>
+                    <span className="relative z-10 transition-transform duration-500 translate-x-4 opacity-0 group-hover:translate-x-1 group-hover:opacity-100 inline-block font-sans">→</span>
+                  </div>
                 </div>
-                <button 
-                  onClick={() => window.location.reload()}
-                  className="mt-4 px-10 py-4 bg-white/5 border border-white/10 rounded-full text-white text-[10px] font-black uppercase tracking-[0.3em] hover:bg-white/10 transition-all hover:scale-105 active:scale-95"
-                >
-                  Refresh Intel
-                </button>
               </motion.div>
-            ) : (
-              <motion.div 
-                key="content"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="grid md:grid-cols-3 gap-6 lg:gap-8"
-              >
-                {camps.map((camp, index) => {
-                  const Icon = camp.icon;
-                  return (
-                    <motion.div
-                      key={camp.id}
-                      className={`relative group cursor-pointer ${camp.featured ? "md:-mt-6 md:mb-6" : ""}`}
-                      initial={{ opacity: 0, y: 50 }}
-                      animate={isInView ? { opacity: 1, y: 0 } : {}}
-                      transition={{ duration: 0.8, delay: index * 0.15, ease: [0.16, 1, 0.3, 1] }}
-                    >
-                      <div className={`flex flex-col h-full border border-white/[0.08] p-8 lg:p-10 transition-all [transition-duration:600ms] group-hover:border-primary/40 group-hover:bg-white/[0.04] ${camp.featured ? "bg-white/[0.03] shadow-[0_0_50px_-20px_rgba(255,80,0,0.25)]" : "bg-black/40 backdrop-blur-sm"}`}>
-                        
-                        {/* Icon */}
-                        <div className={`w-14 h-14 bg-gradient-to-br ${camp.accent} flex items-center justify-center mb-8 shrink-0`}>
-                          <Icon className="w-7 h-7 text-black" />
-                        </div>
-
-                        {/* Header */}
-                        <p className="font-grotesk text-[10px] tracking-[0.4em] uppercase text-primary mb-3">
-                          {camp.subtitle}
-                        </p>
-                        <h3 className="font-barlow font-black italic text-3xl md:text-4xl lg:text-5xl text-white uppercase mb-3 leading-[0.85]">
-                          {camp.title}
-                        </h3>
-                        <p className="font-grotesk text-xs text-white/40 mb-10 pb-6 border-b border-white-[0.05]">
-                          {camp.duration} <span className="mx-2">·</span> <span className="text-white/70">{camp.idealFor}</span>
-                        </p>
-
-                        {/* Includes */}
-                        <ul className="space-y-4 mb-12 flex-1">
-                          {camp.includes.map((item) => (
-                            <li key={item} className="flex items-start gap-4">
-                              <span className="w-1.5 h-1.5 bg-primary/70 mt-2 shrink-0 group-hover:scale-125 transition-transform duration-300" />
-                              <span className="font-grotesk text-[13px] md:text-sm text-white/60 leading-relaxed group-hover:text-white/80 transition-colors">
-                                {item}
-                              </span>
-                            </li>
-                          ))}
-                        </ul>
-
-                        {/* Outcome */}
-                        <div className="border-t border-white/[0.08] pt-6 mb-8 mt-auto">
-                          <p className="font-grotesk text-[9px] tracking-[0.4em] uppercase text-white/30 mb-3">Outcome</p>
-                          <p className="text-sm font-grotesk text-white/80 leading-relaxed">{camp.outcome}</p>
-                        </div>
-
-                        {/* CTA */}
-                        <a
-                          href="#camps"
-                          onClick={(e) => handleBookClick(e, camp.id)}
-                          className={`block w-full text-center py-4 font-barlow font-black text-xs tracking-[0.3em] uppercase transition-all duration-500 overflow-hidden relative isolate ${
-                            camp.featured
-                              ? "bg-primary text-black hover:bg-white hover:scale-[1.02]"
-                              : "bg-transparent border border-white/20 text-white hover:border-primary hover:text-primary hover:bg-primary/5"
-                          }`}
-                        >
-                          <span className="relative z-10 transition-transform duration-500 group-hover:-translate-x-1 inline-block">Welcome,</span>
-                          <span className="relative z-10 mx-1">Fighter</span>
-                          <span className="relative z-10 transition-transform duration-500 translate-x-4 opacity-0 group-hover:translate-x-1 group-hover:opacity-100 inline-block font-sans">→</span>
-                        </a>
-                      </div>
-                    </motion.div>
-                  );
-                })}
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
+            );
+          })}
+        </motion.div>
 
         {/* ── UPCOMING BATCHES ── */}
         <motion.div
-           className="mt-32 border border-white/[0.08] bg-white/[0.02] backdrop-blur-xl rounded-sm p-8 md:p-12 lg:p-16 relative overflow-hidden"
-           initial={{ opacity: 0, y: 40 }}
-           animate={isInView ? { opacity: 1, y: 0 } : {}}
-           transition={{ delay: 0.6, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+          className="mt-32 border border-white/[0.08] bg-white/[0.02] backdrop-blur-xl rounded-sm p-8 md:p-12 lg:p-16 relative overflow-hidden"
+          initial={{ opacity: 0, y: 40 }}
+          animate={isInView ? { opacity: 1, y: 0 } : {}}
+          transition={{ delay: 0.6, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
         >
           <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-primary/5 to-transparent pointer-events-none" />
-          
+
           <div className="flex flex-col xl:flex-row xl:items-center xl:justify-between gap-12 relative z-10">
             <div className="max-w-xl">
               <div className="flex items-center gap-3 mb-5">
@@ -247,7 +204,7 @@ const FightCampsSection = () => {
                 Join our premium Muay Thai clinics in Thailand. Each intensive batch is rigorously restricted in size to enforce highly personalized coaching and an authentically immersive journey.
               </p>
             </div>
-            
+
             <div className="flex flex-col sm:flex-row gap-5">
               {SITE_CONFIG.batches.map((batch) => (
                 <div key={batch.location} className="border border-white/10 bg-black/60 p-6 md:p-8 text-center min-w-[210px] hover:border-primary/40 transition-colors duration-500 group flex flex-col justify-center">
@@ -261,7 +218,7 @@ const FightCampsSection = () => {
             </div>
           </div>
         </motion.div>
-        
+
       </div>
     </section>
   );

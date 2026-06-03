@@ -18,4 +18,5 @@ export const API_ENDPOINTS = {
   },
   LOCATIONS: "/locations",
   PACKAGES: "/packages",
+  ORDERS: "/orders",
 };

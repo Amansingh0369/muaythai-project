@@ -2,6 +2,8 @@ import { API_ENDPOINTS } from "@/lib/api-constants";
 import { fetchWithAuth } from "@/lib/api";
 import { Location } from "./location.service";
 
+export type PackageType = 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED';
+
 export interface Package {
   id: number;
   name: string;
@@ -11,6 +13,8 @@ export interface Package {
   location: number;
   location_details: Location;
   is_active: boolean;
+  type: PackageType;
+  start_date: string;
   created_at: string;
   updated_at: string;
 }

@@ -22,6 +22,27 @@ export interface AuthResponse {
 }
 
 export const authService = {
+  async loginWithEmail(email: string, password: string): Promise<AuthResponse> {
+    const response = await fetch(`${API_CONFIG.BASE_URL}${API_ENDPOINTS.AUTH.LOGIN}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({ email, password }),
+    });
+
+    if (!response.ok) {
+      let errorData;
+      try { errorData = await response.json(); } catch { errorData = {}; }
+      const nonFieldErr =
+        (Array.isArray(errorData.data?.non_field_errors) && errorData.data.non_field_errors[0]) ||
+        (Array.isArray(errorData.non_field_errors) && errorData.non_field_errors[0]) ||
+        null;
+      throw new Error(nonFieldErr || errorData.detail || "Invalid email or password.");
+    }
+
+    return response.json();
+  },
+
   /**
    * Log in with a Google ID Token
    */

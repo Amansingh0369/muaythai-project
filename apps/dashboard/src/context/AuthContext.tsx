@@ -7,7 +7,7 @@ interface AuthContextType {
   user: User | null;
   accessToken: string | null;
   isLoading: boolean;
-  login: (idToken: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
   checkAuth: () => Promise<void>;
 }
@@ -57,16 +57,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => window.removeEventListener('auth_logout', handleLogoutEvent);
   }, [checkAuth]);
 
-  const login = async (idToken: string) => {
+  const login = async (email: string, password: string) => {
     try {
-      const data = await authService.loginWithGoogle(idToken);
-      
-      // ADMIN ACCESS CHECK
+      const data = await authService.loginWithEmail(email, password);
+
       const userRole = data.user.role?.toLowerCase();
       const isAdmin = userRole === 'admin' || data.user.is_staff || data.user.is_superuser;
-      
+
       if (!isAdmin) {
-          throw new Error("ACCESS DENIED: Administrative privileges are required to enter the dashboard.");
+        throw new Error("ACCESS DENIED: Administrative privileges are required to enter the dashboard.");
       }
 
       localStorage.setItem("access_token", data.access);

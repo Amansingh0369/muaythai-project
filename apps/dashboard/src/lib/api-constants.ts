@@ -5,6 +5,7 @@ export const API_CONFIG = {
 
 export const API_ENDPOINTS = {
   AUTH: {
+    LOGIN: "/auth/login/",
     GOOGLE: "/auth/google/",
     REFRESH: "/auth/refresh/",
     LOGOUT: "/auth/logout/",
