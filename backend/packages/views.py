@@ -10,14 +10,27 @@ class PackageViewSet(viewsets.ModelViewSet):
     """
     Package View: Browse packages (Public), Manage packages (Admin)
     """
-    queryset = Package.objects.all().order_by('price')
+    queryset = Package.objects.all()
     serializer_class = PackageSerializer
 
     def get_queryset(self):
+        queryset = Package.objects.all().order_by('price', 'id')
+        
+        # Filter by location ID
+        location_id = self.request.query_params.get('location')
+        if location_id:
+            queryset = queryset.filter(location_id=location_id)
+            
+        # Filter by type (case-insensitive)
+        package_type = self.request.query_params.get('type')
+        if package_type:
+            queryset = queryset.filter(type__iexact=package_type)
+            
         # Non-admins only see active packages
         if not (self.request.user and self.request.user.is_authenticated and self.request.user.role == 'ADMIN'):
-            return self.queryset.filter(is_active=True)
-        return self.queryset
+            queryset = queryset.filter(is_active=True)
+            
+        return queryset
 
     def get_permissions(self):
         if self.action in ['list', 'retrieve', 'reviews']:
@@ -27,9 +40,7 @@ class PackageViewSet(viewsets.ModelViewSet):
         return [IsAdmin()]
 
     def perform_destroy(self, instance):
-        # Soft delete: Deactivate the package
-        instance.is_active = False
-        instance.save()
+        instance.delete()
 
     @action(detail=True, methods=['get'])
     def reviews(self, request, pk=None):

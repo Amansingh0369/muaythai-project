@@ -1,0 +1,12 @@
+1- packages api
+    bug - response sometimes with 1 package comes sometimes doesnt
+
+pakcage:
+     name
+    type- beginner intermediate advanced
+    location
+    desc
+    price
+    start date
+    num of days(7,14,28) for beginner,intermediate,advanced respectively
+    active

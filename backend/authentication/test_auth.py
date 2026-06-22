@@ -180,6 +180,25 @@ def test_password_reset_flow(api_client, created_verified_user):
     token = default_token_generator.make_token(created_verified_user)
     uid = urlsafe_base64_encode(force_bytes(created_verified_user.pk))
     
+    # 1.5 Validate token first (using new endpoint)
+    validate_url = reverse('password_reset_validate')
+    validate_payload = {
+        'uid': uid,
+        'token': token
+    }
+    validate_response = api_client.post(validate_url, validate_payload, format='json')
+    assert validate_response.status_code == status.HTTP_200_OK
+    assert validate_response.data['message'] == 'Token is valid.'
+
+    # Test invalid token validation
+    invalid_validate_payload = {
+        'uid': uid,
+        'token': 'invalid-token'
+    }
+    invalid_validate_response = api_client.post(validate_url, invalid_validate_payload, format='json')
+    assert invalid_validate_response.status_code == status.HTTP_400_BAD_REQUEST
+    assert 'Invalid or expired token' in invalid_validate_response.data['error']
+    
     # 2. Confirm Reset
     confirm_url = reverse('password_reset_confirm')
     confirm_payload = {

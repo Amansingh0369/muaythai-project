@@ -2,7 +2,7 @@ from django.urls import path
 from .views import (
     GoogleLoginView, CookieTokenRefreshView, LogoutView,
     RegisterView, VerifyEmailView, ResendVerificationEmailView, LoginView,
-    PasswordResetRequestView, PasswordResetConfirmView
+    PasswordResetRequestView, PasswordResetConfirmView, PasswordResetTokenValidateView
 )
 
 urlpatterns = [
@@ -12,6 +12,7 @@ urlpatterns = [
     path('verify-email/resend/', ResendVerificationEmailView.as_view(), name='verify_email_resend'),
     path('login/', LoginView.as_view(), name='login'),
     path('password-reset/', PasswordResetRequestView.as_view(), name='password_reset'),
+    path('password-reset/validate/', PasswordResetTokenValidateView.as_view(), name='password_reset_validate'),
     path('password-reset-confirm/', PasswordResetConfirmView.as_view(), name='password_reset_confirm'),
     path('refresh/', CookieTokenRefreshView.as_view(), name='token_refresh'),
     path('logout/', LogoutView.as_view(), name='logout'),

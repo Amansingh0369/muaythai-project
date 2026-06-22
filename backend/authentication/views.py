@@ -13,7 +13,7 @@ from .services import GoogleAuthService
 from .serializers import (
     GoogleLoginSerializer, RegisterSerializer, LoginSerializer,
     ResendVerificationSerializer, PasswordResetRequestSerializer,
-    PasswordResetConfirmSerializer
+    PasswordResetConfirmSerializer, PasswordResetTokenValidateSerializer
 )
 
 class GoogleLoginView(views.APIView):
@@ -286,5 +286,26 @@ class PasswordResetConfirmView(views.APIView):
             user.set_password(new_password)
             user.save()
             return response.Response({'message': 'Password has been reset successfully.'}, status=status.HTTP_200_OK)
+        else:
+            return response.Response({'error': 'Invalid or expired token'}, status=status.HTTP_400_BAD_REQUEST)
+
+class PasswordResetTokenValidateView(views.APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request):
+        serializer = PasswordResetTokenValidateSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        
+        uidb64 = serializer.validated_data['uid']
+        token = serializer.validated_data['token']
+        
+        try:
+            uid = force_str(urlsafe_base64_decode(uidb64))
+            user = User.objects.get(pk=uid)
+        except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+            return response.Response({'error': 'Invalid link'}, status=status.HTTP_400_BAD_REQUEST)
+
+        if default_token_generator.check_token(user, token):
+            return response.Response({'message': 'Token is valid.'}, status=status.HTTP_200_OK)
         else:
             return response.Response({'error': 'Invalid or expired token'}, status=status.HTTP_400_BAD_REQUEST)
