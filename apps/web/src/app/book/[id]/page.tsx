@@ -5,13 +5,15 @@ import { useRouter, useParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   ArrowLeft, MapPin, Clock, AlertCircle, Loader2,
-  User, Phone, Plane, Heart, Check,
+  User, Phone, Plane, Heart, Check, Lock,
   ShieldAlert, BadgeCheck, ChevronRight,
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { packageService, Package } from "@/services/package.service";
 import { userService, FullUser } from "@/services/user.service";
-import { orderService } from "@/services/order.service";
+import { orderService, Order } from "@/services/order.service";
+import { paymentService, CreateRazorpayOrderResponse } from "@/services/payment.service";
+import { loadRazorpayScript } from "@/lib/razorpay";
 import { enrichPackages, EnrichedPackage } from "@/components/FightCampsSection/FightCampsSection.helpers";
 import Navbar from "@/components/Navbar";
 
@@ -168,6 +170,51 @@ export default function BookingPage() {
     return Object.keys(e).length === 0;
   };
 
+  // Open Razorpay Checkout and resolve only after the backend verifies the signature
+  const startRazorpayPayment = (
+    order: Order,
+    rzp: CreateRazorpayOrderResponse,
+  ): Promise<void> => {
+    return new Promise<void>((resolve, reject) => {
+      const options: RazorpayOptions = {
+        key: rzp.razorpay_key_id || process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || "",
+        amount: rzp.amount, // paise, from the backend
+        currency: rzp.currency, // "INR"
+        name: "This Is Muay Thai",
+        description: pkg?.title ?? "Fight Camp Booking",
+        order_id: rzp.razorpay_order_id,
+        prefill: {
+          name: fullName,
+          email: user?.email,
+          contact: phone,
+        },
+        notes: { django_order_id: String(order.id) },
+        theme: { color: "#ff5a1f" },
+        handler: async (resp) => {
+          try {
+            await paymentService.verifyPayment({
+              razorpay_payment_id: resp.razorpay_payment_id,
+              razorpay_order_id: resp.razorpay_order_id,
+              razorpay_signature: resp.razorpay_signature,
+            });
+            resolve(); // verified on the backend → safe to show success
+          } catch (err) {
+            reject(err);
+          }
+        },
+        modal: {
+          ondismiss: () => reject(new Error("Payment cancelled. Your spot is not booked yet — you can retry anytime.")),
+        },
+      };
+
+      const instance = new window.Razorpay(options);
+      instance.on("payment.failed", (resp: any) => {
+        reject(new Error(resp?.error?.description || "Payment failed. Please try again."));
+      });
+      instance.open();
+    });
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validate() || !pkg) return;
@@ -175,7 +222,7 @@ export default function BookingPage() {
     setSubmitting(true);
     setSubmitError(null);
     try {
-      // Save any profile changes first
+      // 1. Save any profile changes first
       await userService.updateProfile({
         full_name: fullName || undefined,
         profile: {
@@ -190,8 +237,20 @@ export default function BookingPage() {
         },
       });
 
-      // Create the booking
-      await orderService.createOrder({ package: pkg.id });
+      // 2. Create the Django order (PENDING)
+      const order = await orderService.createOrder({ package: pkg.id });
+
+      // 3. Make sure the Razorpay SDK is present
+      const ok = await loadRazorpayScript();
+      if (!ok) throw new Error("Could not load payment gateway. Check your connection.");
+
+      // 4. Create the Razorpay order on the backend (amount derived server-side)
+      const rzp = await paymentService.createRazorpayOrder(order.id);
+
+      // 5. Open checkout and wait for backend-verified success
+      await startRazorpayPayment(order, rzp);
+
+      // 6. Verified → show success
       setSuccess(true);
       setTimeout(() => router.push("/profile"), 2500);
     } catch (err: any) {
@@ -293,7 +352,7 @@ export default function BookingPage() {
             <span className="inline-block w-6 h-[2px] bg-primary" />
             <span className="font-grotesk text-[10px] tracking-[0.45em] uppercase text-primary font-medium">Fight Camp Booking</span>
           </div>
-          <h1 className="font-barlow font-black italic text-5xl md:text-6xl lg:text-7xl text-white uppercase leading-[0.88] tracking-tight">
+          <h1 className="font-barlow font-black italic text-4xl sm:text-5xl md:text-6xl lg:text-7xl text-white uppercase leading-[0.88] tracking-tight">
             SECURE YOUR <span className="text-gradient-fire">SPOT</span>
           </h1>
         </div>
@@ -403,7 +462,7 @@ export default function BookingPage() {
             <form onSubmit={handleSubmit} className="flex-1 min-w-0 flex flex-col gap-6">
 
               {/* ── Personal Details ── */}
-              <div className="border border-white/[0.08] bg-white/[0.015] p-6 md:p-8">
+              <div className="border border-white/[0.08] bg-white/[0.015] p-5 sm:p-6 md:p-8">
                 <SectionHeader icon={<User size={14} />} title="Personal Details" complete={sectionComplete.personal} />
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <FormField label="Full Name" required error={errors.fullName}>
@@ -444,7 +503,7 @@ export default function BookingPage() {
               </div>
 
               {/* ── Emergency Contact ── */}
-              <div className="border border-white/[0.08] bg-white/[0.015] p-6 md:p-8">
+              <div className="border border-white/[0.08] bg-white/[0.015] p-5 sm:p-6 md:p-8">
                 <SectionHeader icon={<Phone size={14} />} title="Emergency Contact" complete={sectionComplete.emergency} />
                 <p className="font-grotesk text-[11px] text-white/35 mb-5">Required for all camp participants — someone we can reach if needed.</p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -468,7 +527,7 @@ export default function BookingPage() {
               </div>
 
               {/* ── Travel & Health ── */}
-              <div className="border border-white/[0.08] bg-white/[0.015] p-6 md:p-8">
+              <div className="border border-white/[0.08] bg-white/[0.015] p-5 sm:p-6 md:p-8">
                 <SectionHeader icon={<Plane size={14} />} title="Travel & Health" complete={sectionComplete.travel} />
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <FormField label="Passport Number" required error={errors.passport}>
@@ -499,7 +558,7 @@ export default function BookingPage() {
               </div>
 
               {/* ── Order Summary + CTA ── */}
-              <div className="border border-white/[0.08] bg-white/[0.015] p-6 md:p-8">
+              <div className="border border-white/[0.08] bg-white/[0.015] p-5 sm:p-6 md:p-8">
                 <SectionHeader icon={<ChevronRight size={14} />} title="Order Summary" />
 
                 <div className="space-y-3 mb-6">
@@ -539,24 +598,27 @@ export default function BookingPage() {
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="group relative w-full overflow-hidden py-4 px-8 font-barlow font-black text-sm tracking-[0.3em] uppercase bg-primary text-black hover:shadow-[0_0_40px_hsl(var(--primary)/0.4)] disabled:opacity-60 disabled:cursor-not-allowed transition-all duration-500 flex items-center justify-center gap-3"
+                  className="group relative w-full overflow-hidden py-4 px-6 sm:px-8 font-barlow font-black text-[13px] sm:text-sm tracking-[0.2em] sm:tracking-[0.3em] uppercase bg-primary text-black hover:shadow-[0_0_40px_hsl(var(--primary)/0.4)] disabled:opacity-60 disabled:cursor-not-allowed transition-all duration-500 flex items-center justify-center gap-3"
                 >
                   {submitting ? (
                     <>
                       <Loader2 size={16} className="animate-spin" />
-                      Processing…
+                      Opening Payment…
                     </>
                   ) : (
                     <>
-                      Secure Your Spot
+                      Secure Your Spot · {fmt(pkg.price)}
                       <span className="transition-transform duration-300 group-hover:translate-x-1">→</span>
                     </>
                   )}
                 </button>
 
-                <p className="font-grotesk text-[10px] text-white/25 text-center mt-4 leading-relaxed">
-                  Your profile details will be saved automatically when you book. A confirmation will appear upon success.
-                </p>
+                <div className="flex items-center justify-center gap-1.5 mt-4">
+                  <Lock size={11} className="text-white/30" />
+                  <p className="font-grotesk text-[10px] text-white/30 text-center leading-relaxed">
+                    Secured by Razorpay · Your spot is confirmed only after payment succeeds.
+                  </p>
+                </div>
               </div>
 
             </form>

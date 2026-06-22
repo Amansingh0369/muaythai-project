@@ -19,4 +19,9 @@ export const API_ENDPOINTS = {
   LOCATIONS: "/locations",
   PACKAGES: "/packages",
   ORDERS: "/orders",
+  PAYMENTS: {
+    CREATE_ORDER: "/payments/create-order/",
+    VERIFY: "/payments/verify/",
+    HISTORY: "/payments/history/",
+  },
 };

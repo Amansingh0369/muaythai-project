@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, forwardRef } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { motion, AnimatePresence } from "motion/react";
@@ -40,12 +40,15 @@ function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
 }
 
-const STATUS_COLORS: Record<string, string> = {
-  PENDING: "text-yellow-400 bg-yellow-400/10 border-yellow-400/20",
-  CONFIRMED: "text-primary bg-primary/10 border-primary/20",
-  COMPLETED: "text-green-400 bg-green-400/10 border-green-400/20",
-  CANCELLED: "text-red-400 bg-red-400/10 border-red-400/20",
+// Each booking is a full-color card — a diagonal gradient fill keyed to its status.
+type StatusMeta = { label: string; tone: string; dot: string; card: string };
+const STATUS_META: Record<string, StatusMeta> = {
+  PENDING:   { label: "Awaiting Payment", tone: "text-amber-200",   dot: "bg-amber-300",   card: "border-amber-400/30 bg-gradient-to-br from-amber-500/25 to-amber-500/[0.07] hover:from-amber-500/30 hover:to-amber-500/10" },
+  PAID:      { label: "Paid",             tone: "text-emerald-200", dot: "bg-emerald-300", card: "border-emerald-400/30 bg-gradient-to-br from-emerald-500/25 to-emerald-500/[0.07] hover:from-emerald-500/30 hover:to-emerald-500/10" },
+  COMPLETED: { label: "Completed",        tone: "text-sky-200",     dot: "bg-sky-300",     card: "border-sky-400/30 bg-gradient-to-br from-sky-500/25 to-sky-500/[0.07] hover:from-sky-500/30 hover:to-sky-500/10" },
+  CANCELLED: { label: "Cancelled",        tone: "text-rose-200",    dot: "bg-rose-300",    card: "border-rose-400/30 bg-gradient-to-br from-rose-500/25 to-rose-500/[0.07] hover:from-rose-500/30 hover:to-rose-500/10" },
 };
+const STATUS_FALLBACK: StatusMeta = { label: "—", tone: "text-white/60", dot: "bg-white/50", card: "border-white/15 bg-white/[0.05] hover:bg-white/[0.08]" };
 
 // ── Sub-components ────────────────────────────────────────────────────────────
 
@@ -70,33 +73,39 @@ function FieldRow({ label, value }: { label: string; value: string | null }) {
   );
 }
 
-function EditInput({ label, error, ...props }: React.InputHTMLAttributes<HTMLInputElement> & { label: string; error?: string }) {
-  return (
-    <div className="flex flex-col gap-1.5">
-      <label className="font-grotesk text-[9px] uppercase tracking-[0.3em] text-white/60 font-bold">{label}</label>
-      <input
-        className={`w-full bg-white/[0.08] border px-3 py-2.5 text-sm font-grotesk text-white placeholder:text-white/30 outline-none focus:bg-white/[0.12] transition-colors duration-200 ${error ? "border-red-500/50" : "border-white/15 focus:border-primary/60"}`}
-        {...props}
-      />
-      {error && <p className="font-grotesk text-[10px] text-red-400">{error}</p>}
-    </div>
-  );
-}
+const EditInput = forwardRef<HTMLInputElement, React.InputHTMLAttributes<HTMLInputElement> & { label: string; error?: string }>(
+  function EditInput({ label, error, ...props }, ref) {
+    return (
+      <div className="flex flex-col gap-1.5">
+        <label className="font-grotesk text-[9px] uppercase tracking-[0.3em] text-white/60 font-bold">{label}</label>
+        <input
+          ref={ref}
+          className={`w-full bg-white/[0.08] border px-3 py-2.5 text-sm font-grotesk text-white placeholder:text-white/30 outline-none focus:bg-white/[0.12] transition-colors duration-200 ${error ? "border-red-500/50" : "border-white/15 focus:border-primary/60"}`}
+          {...props}
+        />
+        {error && <p className="font-grotesk text-[10px] text-red-400">{error}</p>}
+      </div>
+    );
+  }
+);
 
-function EditSelect({ label, children, error, ...props }: React.SelectHTMLAttributes<HTMLSelectElement> & { label: string; error?: string }) {
-  return (
-    <div className="flex flex-col gap-1.5">
-      <label className="font-grotesk text-[9px] uppercase tracking-[0.3em] text-white/60 font-bold">{label}</label>
-      <select
-        className="w-full bg-white/[0.08] border border-white/15 px-3 py-2.5 text-sm font-grotesk text-white outline-none focus:border-primary/60 transition-colors duration-200 appearance-none"
-        {...props}
-      >
-        {children}
-      </select>
-      {error && <p className="font-grotesk text-[10px] text-red-400">{error}</p>}
-    </div>
-  );
-}
+const EditSelect = forwardRef<HTMLSelectElement, React.SelectHTMLAttributes<HTMLSelectElement> & { label: string; error?: string }>(
+  function EditSelect({ label, children, error, ...props }, ref) {
+    return (
+      <div className="flex flex-col gap-1.5">
+        <label className="font-grotesk text-[9px] uppercase tracking-[0.3em] text-white/60 font-bold">{label}</label>
+        <select
+          ref={ref}
+          className="w-full bg-white/[0.08] border border-white/15 px-3 py-2.5 text-sm font-grotesk text-white outline-none focus:border-primary/60 transition-colors duration-200 appearance-none"
+          {...props}
+        >
+          {children}
+        </select>
+        {error && <p className="font-grotesk text-[10px] text-red-400">{error}</p>}
+      </div>
+    );
+  }
+);
 
 // ── Main Page ─────────────────────────────────────────────────────────────────
 
@@ -454,20 +463,30 @@ export default function ProfilePage() {
                   </div>
                 ) : (
                   <div className="flex flex-col gap-3">
-                    {fullUser.orders.map((order: UserOrder) => (
-                      <div key={order.id} className="flex items-start justify-between gap-3 p-3 border border-white/[0.06] hover:border-white/[0.1] transition-colors">
-                        <div className="min-w-0">
-                          <p className="font-barlow font-bold text-sm text-white truncate">{order.package_name}</p>
-                          <p className="font-grotesk text-[10px] text-white/50 mt-0.5">{formatDate(order.created_at)}</p>
+                    {fullUser.orders.map((order: UserOrder) => {
+                      const meta = STATUS_META[order.status] ?? STATUS_FALLBACK;
+                      return (
+                        <div
+                          key={order.id}
+                          className={`group relative overflow-hidden border p-4 transition-all duration-300 ${meta.card}`}
+                        >
+                          {/* status + date */}
+                          <div className="flex items-center justify-between mb-2.5">
+                            <span className="inline-flex items-center gap-1.5">
+                              <span className={`w-1.5 h-1.5 rounded-full ${meta.dot}`} />
+                              <span className={`font-grotesk text-[9px] font-bold uppercase tracking-[0.28em] ${meta.tone}`}>{meta.label}</span>
+                            </span>
+                            <span className="font-grotesk text-[10px] text-white/45 tracking-wide">{formatDate(order.created_at)}</span>
+                          </div>
+
+                          {/* name + price */}
+                          <div className="flex items-end justify-between gap-3">
+                            <p className="font-barlow font-black italic text-xl uppercase text-white truncate leading-[0.95]">{order.package_name}</p>
+                            <span className="font-barlow font-black text-base text-white shrink-0 tabular-nums">₹{Number(order.total_amount).toLocaleString("en-IN")}</span>
+                          </div>
                         </div>
-                        <div className="flex flex-col items-end gap-1 shrink-0">
-                          <span className={`font-grotesk text-[9px] uppercase tracking-[0.2em] px-2 py-0.5 border ${STATUS_COLORS[order.status] ?? "text-white/40 bg-white/5 border-white/10"}`}>
-                            {order.status}
-                          </span>
-                          <span className="font-barlow font-bold text-xs text-white/60">₹{Number(order.total_amount).toLocaleString("en-IN")}</span>
-                        </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 )}
               </div>
