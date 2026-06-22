@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, forwardRef } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { motion, AnimatePresence } from "motion/react";
@@ -70,33 +70,39 @@ function FieldRow({ label, value }: { label: string; value: string | null }) {
   );
 }
 
-function EditInput({ label, error, ...props }: React.InputHTMLAttributes<HTMLInputElement> & { label: string; error?: string }) {
-  return (
-    <div className="flex flex-col gap-1.5">
-      <label className="font-grotesk text-[9px] uppercase tracking-[0.3em] text-white/60 font-bold">{label}</label>
-      <input
-        className={`w-full bg-white/[0.08] border px-3 py-2.5 text-sm font-grotesk text-white placeholder:text-white/30 outline-none focus:bg-white/[0.12] transition-colors duration-200 ${error ? "border-red-500/50" : "border-white/15 focus:border-primary/60"}`}
-        {...props}
-      />
-      {error && <p className="font-grotesk text-[10px] text-red-400">{error}</p>}
-    </div>
-  );
-}
+const EditInput = forwardRef<HTMLInputElement, React.InputHTMLAttributes<HTMLInputElement> & { label: string; error?: string }>(
+  function EditInput({ label, error, ...props }, ref) {
+    return (
+      <div className="flex flex-col gap-1.5">
+        <label className="font-grotesk text-[9px] uppercase tracking-[0.3em] text-white/60 font-bold">{label}</label>
+        <input
+          ref={ref}
+          className={`w-full bg-white/[0.08] border px-3 py-2.5 text-sm font-grotesk text-white placeholder:text-white/30 outline-none focus:bg-white/[0.12] transition-colors duration-200 ${error ? "border-red-500/50" : "border-white/15 focus:border-primary/60"}`}
+          {...props}
+        />
+        {error && <p className="font-grotesk text-[10px] text-red-400">{error}</p>}
+      </div>
+    );
+  }
+);
 
-function EditSelect({ label, children, error, ...props }: React.SelectHTMLAttributes<HTMLSelectElement> & { label: string; error?: string }) {
-  return (
-    <div className="flex flex-col gap-1.5">
-      <label className="font-grotesk text-[9px] uppercase tracking-[0.3em] text-white/60 font-bold">{label}</label>
-      <select
-        className="w-full bg-white/[0.08] border border-white/15 px-3 py-2.5 text-sm font-grotesk text-white outline-none focus:border-primary/60 transition-colors duration-200 appearance-none"
-        {...props}
-      >
-        {children}
-      </select>
-      {error && <p className="font-grotesk text-[10px] text-red-400">{error}</p>}
-    </div>
-  );
-}
+const EditSelect = forwardRef<HTMLSelectElement, React.SelectHTMLAttributes<HTMLSelectElement> & { label: string; error?: string }>(
+  function EditSelect({ label, children, error, ...props }, ref) {
+    return (
+      <div className="flex flex-col gap-1.5">
+        <label className="font-grotesk text-[9px] uppercase tracking-[0.3em] text-white/60 font-bold">{label}</label>
+        <select
+          ref={ref}
+          className="w-full bg-white/[0.08] border border-white/15 px-3 py-2.5 text-sm font-grotesk text-white outline-none focus:border-primary/60 transition-colors duration-200 appearance-none"
+          {...props}
+        >
+          {children}
+        </select>
+        {error && <p className="font-grotesk text-[10px] text-red-400">{error}</p>}
+      </div>
+    );
+  }
+);
 
 // ── Main Page ─────────────────────────────────────────────────────────────────
 
