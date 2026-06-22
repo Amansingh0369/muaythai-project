@@ -3,7 +3,7 @@ import { API_ENDPOINTS } from "@/lib/api-constants";
 
 export interface CreateOrderPayload {
   package: number;
-  start_date: string;
+  start_date?: string;
 }
 
 export interface Order {

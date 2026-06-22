@@ -5,7 +5,7 @@ import { useRouter, useParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   ArrowLeft, MapPin, Clock, AlertCircle, Loader2,
-  User, Phone, Plane, Heart, Check, CalendarDays,
+  User, Phone, Plane, Heart, Check,
   ShieldAlert, BadgeCheck, ChevronRight,
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
@@ -19,18 +19,6 @@ import Navbar from "@/components/Navbar";
 
 function fmt(price: string | number) {
   return `₹${Number(price).toLocaleString("en-IN")}`;
-}
-
-function addDays(dateStr: string, days: number): string {
-  const d = new Date(dateStr);
-  d.setDate(d.getDate() + days);
-  return d.toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
-}
-
-function minBookingDate(): string {
-  const d = new Date();
-  d.setDate(d.getDate() + 7);
-  return d.toISOString().split("T")[0];
 }
 
 // ── Sub-components ────────────────────────────────────────────────────────────
@@ -121,7 +109,6 @@ export default function BookingPage() {
   const [passport, setPassport] = useState("");
   const [medical, setMedical] = useState("");
   const [allergies, setAllergies] = useState("");
-  const [startDate, setStartDate] = useState("");
 
   const [errors, setErrors] = useState<FormErrors>({});
   const [submitting, setSubmitting] = useState(false);
@@ -177,7 +164,6 @@ export default function BookingPage() {
     if (!emergencyName.trim()) e.emergencyName = "Emergency contact name is required";
     if (!emergencyPhone.trim()) e.emergencyPhone = "Emergency contact phone is required";
     if (!passport.trim()) e.passport = "Passport number is required for international travel";
-    if (!startDate) e.startDate = "Please select a start date";
     setErrors(e);
     return Object.keys(e).length === 0;
   };
@@ -205,7 +191,7 @@ export default function BookingPage() {
       });
 
       // Create the booking
-      await orderService.createOrder({ package: pkg.id, start_date: startDate });
+      await orderService.createOrder({ package: pkg.id });
       setSuccess(true);
       setTimeout(() => router.push("/profile"), 2500);
     } catch (err: any) {
@@ -258,7 +244,6 @@ export default function BookingPage() {
 
   const Icon = pkg.icon;
   const locationName = pkg.location_details?.city || pkg.location_details?.name || "Thailand";
-  const endDate = startDate ? addDays(startDate, pkg.duration_days) : null;
 
   return (
     <div className="min-h-screen bg-[#050505]">
@@ -408,12 +393,6 @@ export default function BookingPage() {
                         <span className="font-grotesk text-[11px] text-white/40">Duration</span>
                         <span className="font-grotesk text-[11px] text-white/60">{pkg.duration_days} days</span>
                       </div>
-                      {startDate && endDate && (
-                        <div className="flex justify-between pt-1.5 border-t border-white/[0.06] mt-1.5">
-                          <span className="font-grotesk text-[11px] text-white/40">End date</span>
-                          <span className="font-grotesk text-[11px] text-white/60">{endDate}</span>
-                        </div>
-                      )}
                     </div>
                   </div>
                 </div>
@@ -422,32 +401,6 @@ export default function BookingPage() {
 
             {/* ═══ RIGHT: Booking Form ═══ */}
             <form onSubmit={handleSubmit} className="flex-1 min-w-0 flex flex-col gap-6">
-
-              {/* ── Start Date ── */}
-              <div className="border border-white/[0.08] bg-white/[0.015] p-6 md:p-8">
-                <SectionHeader icon={<CalendarDays size={14} />} title="Camp Start Date" complete={!!startDate} />
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <FormField label="Start Date" required error={errors.startDate}>
-                    <TextInput
-                      type="date"
-                      value={startDate}
-                      onChange={(e) => { setStartDate(e.target.value); setErrors((prev) => ({ ...prev, startDate: undefined })); }}
-                      min={minBookingDate()}
-                      hasError={!!errors.startDate}
-                    />
-                  </FormField>
-                  {startDate && (
-                    <div className="flex flex-col justify-end pb-0.5">
-                      <p className="font-grotesk text-[9px] uppercase tracking-[0.3em] text-white/40 mb-1.5">End Date (calculated)</p>
-                      <div className="flex items-center gap-2 px-3 py-2.5 bg-primary/[0.06] border border-primary/20">
-                        <CalendarDays size={13} className="text-primary shrink-0" />
-                        <span className="font-grotesk text-sm text-white/80">{endDate}</span>
-                      </div>
-                    </div>
-                  )}
-                </div>
-                <p className="font-grotesk text-[11px] text-white/30 mt-3">Earliest possible start is 7 days from today.</p>
-              </div>
 
               {/* ── Personal Details ── */}
               <div className="border border-white/[0.08] bg-white/[0.015] p-6 md:p-8">
@@ -561,12 +514,6 @@ export default function BookingPage() {
                   <div className="flex justify-between items-center py-2.5 border-b border-white/[0.05]">
                     <span className="font-grotesk text-sm text-white/50">Duration</span>
                     <span className="font-grotesk text-sm text-white">{pkg.duration_days} Days</span>
-                  </div>
-                  <div className="flex justify-between items-center py-2.5 border-b border-white/[0.05]">
-                    <span className="font-grotesk text-sm text-white/50">Start Date</span>
-                    <span className={`font-grotesk text-sm ${startDate ? "text-white" : "text-white/25 italic"}`}>
-                      {startDate ? new Date(startDate).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" }) : "Not selected"}
-                    </span>
                   </div>
                   <div className="flex justify-between items-center pt-3">
                     <span className="font-grotesk text-base text-white font-bold">Total</span>
