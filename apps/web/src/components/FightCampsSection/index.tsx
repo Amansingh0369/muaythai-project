@@ -182,43 +182,6 @@ const FightCampsSection = () => {
           })}
         </motion.div>
 
-        {/* ── UPCOMING BATCHES ── */}
-        <motion.div
-          className="mt-32 border border-white/[0.08] bg-white/[0.02] backdrop-blur-xl rounded-sm p-8 md:p-12 lg:p-16 relative overflow-hidden"
-          initial={{ opacity: 0, y: 40 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ delay: 0.6, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-        >
-          <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-primary/5 to-transparent pointer-events-none" />
-
-          <div className="flex flex-col xl:flex-row xl:items-center xl:justify-between gap-12 relative z-10">
-            <div className="max-w-xl">
-              <div className="flex items-center gap-3 mb-5">
-                <span className="inline-block w-4 h-[2px] bg-primary/50" />
-                <span className="font-grotesk text-[9px] tracking-[0.4em] uppercase text-primary/70">Secure Your Spot</span>
-              </div>
-              <h3 className="font-barlow font-black italic text-4xl sm:text-5xl md:text-6xl text-white uppercase mb-6 leading-[0.85]">
-                UPCOMING <span className="text-gradient-fire">BATCHES</span>
-              </h3>
-              <p className="font-grotesk text-sm md:text-base text-white/50 leading-relaxed">
-                Join our premium Muay Thai clinics in Thailand. Each intensive batch is rigorously restricted in size to enforce highly personalized coaching and an authentically immersive journey.
-              </p>
-            </div>
-
-            <div className="flex flex-col sm:flex-row gap-5">
-              {SITE_CONFIG.batches.map((batch) => (
-                <div key={batch.location} className="border border-white/10 bg-black/60 p-6 md:p-8 text-center min-w-[210px] hover:border-primary/40 transition-colors duration-500 group flex flex-col justify-center">
-                  <p className="font-barlow font-black italic text-2xl md:text-3xl text-white uppercase mb-2 group-hover:text-primary transition-colors duration-500">{batch.location}</p>
-                  <p className="font-grotesk text-sm text-white/60 mb-5">{batch.date}</p>
-                  <span className="inline-block px-3 py-1.5 border border-primary/20 bg-primary/[0.05] font-grotesk text-[9px] tracking-[0.3em] uppercase text-primary font-bold group-hover:bg-primary/20 transition-colors duration-500">
-                    {batch.status}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </motion.div>
-
       </div>
     </section>
   );
