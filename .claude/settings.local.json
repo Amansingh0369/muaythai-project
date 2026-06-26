@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(python3 -)",
+      "Bash(git checkout *)",
+      "Bash(npx tsc *)",
+      "Bash(curl -s -w '\\\\n---HTTP:%{http_code}---\\\\n' -X POST https://muaythai-test.duckdns.org/api/locations/ -H 'Content-Type: application/json' -H 'Origin: http://localhost:3001' -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzgyNTQ1NjEwLCJpYXQiOjE3ODI1MDI0MTAsImp0aSI6IjU1YjRiMzBhNmU0ODRjZDVhOWIyMjBjMDgyYTM1Y2JiIiwidXNlcl9pZCI6IjExIn0.A9qO5vKrFRQkh7IgB5GO71XgCBrYjGZDEeU4iCzPlkY' -d '{\"name\":\"Sitsongpeenong Muaythai\",\"address\":\"83 Chaloem Phrakiat Ratchakan Thi 9 Soi 34, Nong Bon, Prawet, Bangkok 10250, Thailand\",\"city\":\"Bangkok\",\"latitude\":\"13.688715\",\"longitude\":\"100.673867\"}')"
+    ]
+  }
+}

@@ -1,41 +1,35 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { MapContainer, TileLayer, Marker, useMap } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import { SITE_CONFIG } from "@repo/utils";
 import { useRouter } from "next/navigation";
 import { renderToString } from "react-dom/server";
-import { X } from "lucide-react";
+import { X, MapPin, ArrowRight } from "lucide-react";
 
-import phuketImg from "@/assets/phuket.jpg";
-import bangkokImg from "@/assets/bangkok.jpg";
-import chiangmaiImg from "@/assets/chiangmai.jpg";
-import krabiImg from "@/assets/krabi.jpg";
-import kohsamuiImg from "@/assets/kohsamui.jpg";
+import { locationService, type Location } from "@/services/location.service";
 
-const locationImages: Record<string, any> = {
-  Phuket: phuketImg,
-  Bangkok: bangkokImg,
-  "Chiang Mai": chiangmaiImg,
-  Krabi: krabiImg,
-  "Koh Samui": kohsamuiImg,
-};
+// Default view — centred on Thailand. No bounds: the map drags freely.
+const DEFAULT_CENTER: [number, number] = [13.5, 101.0];
+const DEFAULT_ZOOM = 6;
 
-const REAL_COORDS: Record<string, [number, number]> = {
-  "Chiang Mai": [18.7904, 98.9847],
-  Bangkok: [13.7539, 100.5014],
-  Phuket: [7.8906, 98.3981],
-  Krabi: [8.085, 98.9063],
-  "Koh Samui": [9.512, 100.0139],
-};
+// How close (in pixels) a marker must be to the centre crosshair to be "locked on"
+const LOCK_RADIUS_PX = 70;
 
-// Thailand bounding box — users cannot pan outside this
-const THAILAND_BOUNDS: L.LatLngBoundsExpression = [
-  [4.5, 96.5],
-  [21.5, 106.5],
-];
+// A location that has valid, parsed coordinates
+type LocatedLocation = Location & { coords: [number, number] };
+
+// latitude/longitude arrive as strings (or null) from the API
+function parseCoords(loc: Location): [number, number] | null {
+  if (loc.latitude == null || loc.longitude == null) return null;
+  const lat =
+    typeof loc.latitude === "string" ? parseFloat(loc.latitude) : loc.latitude;
+  const lng =
+    typeof loc.longitude === "string" ? parseFloat(loc.longitude) : loc.longitude;
+  if (Number.isNaN(lat) || Number.isNaN(lng)) return null;
+  return [lat, lng];
+}
 
 const buildIcon = (isActive: boolean) => {
   const svg = renderToString(
@@ -60,34 +54,47 @@ const buildIcon = (isActive: boolean) => {
 const ICON_INACTIVE = buildIcon(false);
 const ICON_ACTIVE = buildIcon(true);
 
-// Listens to Leaflet popup events and swaps marker icons imperatively
-function MapEventsHandler({
-  markerRefs,
+/**
+ * Watches the map as it is dragged/zoomed and reports which location (if any)
+ * currently sits under the fixed centre crosshair — the GTA "lock-on" effect.
+ */
+function CenterDetector({
+  locations,
+  onSelect,
 }: {
-  markerRefs: React.MutableRefObject<Record<string, L.Marker | null>>;
+  locations: LocatedLocation[];
+  onSelect: (id: number | null) => void;
 }) {
   const map = useMap();
 
   useEffect(() => {
-    const onOpen = (e: L.PopupEvent) => {
-      Object.values(markerRefs.current).forEach((marker) => {
-        if (!marker) return;
-        marker.setIcon(marker.getPopup() === e.popup ? ICON_ACTIVE : ICON_INACTIVE);
-      });
-    };
-    const onClose = () => {
-      Object.values(markerRefs.current).forEach((marker) => {
-        marker?.setIcon(ICON_INACTIVE);
-      });
+    const update = () => {
+      if (!locations.length) {
+        onSelect(null);
+        return;
+      }
+      const center = map.getSize().divideBy(2); // crosshair is dead centre
+      let bestId: number | null = null;
+      let bestDist = Infinity;
+      for (const loc of locations) {
+        const p = map.latLngToContainerPoint(loc.coords);
+        const d = center.distanceTo(p);
+        if (d < bestDist) {
+          bestDist = d;
+          bestId = loc.id;
+        }
+      }
+      onSelect(bestDist <= LOCK_RADIUS_PX ? bestId : null);
     };
 
-    map.on("popupopen", onOpen);
-    map.on("popupclose", onClose);
+    update();
+    map.on("move", update);
+    map.on("zoom", update);
     return () => {
-      map.off("popupopen", onOpen);
-      map.off("popupclose", onClose);
+      map.off("move", update);
+      map.off("zoom", update);
     };
-  }, [map, markerRefs]);
+  }, [map, locations, onSelect]);
 
   return null;
 }
@@ -99,17 +106,46 @@ interface DynamicMapProps {
 export default function DynamicMap({ onMapReady }: DynamicMapProps) {
   const router = useRouter();
   const mapRef = useRef<L.Map | null>(null);
-  const markerRefs = useRef<Record<string, L.Marker | null>>({});
+
+  const [locations, setLocations] = useState<LocatedLocation[]>([]);
+  const [activeId, setActiveId] = useState<number | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    locationService
+      .getLocations()
+      .then((data) => {
+        if (cancelled) return;
+        const located = data
+          .map((loc) => {
+            const coords = parseCoords(loc);
+            return coords ? { ...loc, coords } : null;
+          })
+          .filter((loc): loc is LocatedLocation => loc !== null);
+        setLocations(located);
+      })
+      .catch((err) => {
+        console.error("Failed to load map locations", err);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  // Stable identity so CenterDetector doesn't re-subscribe on every render
+  const handleSelect = useCallback((id: number | null) => {
+    setActiveId(id);
+  }, []);
+
+  const activeLocation = locations.find((loc) => loc.id === activeId) ?? null;
 
   return (
     <div className="w-full h-full relative z-0 bg-black">
       <MapContainer
-        center={[13.0, 101.5]}
-        zoom={6}
-        minZoom={6}
+        center={DEFAULT_CENTER}
+        zoom={DEFAULT_ZOOM}
+        minZoom={5}
         maxZoom={19}
-        maxBounds={THAILAND_BOUNDS}
-        maxBoundsViscosity={1.0}
         scrollWheelZoom={false}
         style={{ height: "100%", width: "100%", background: "#0a0a0a" }}
         ref={(instance) => {
@@ -118,50 +154,83 @@ export default function DynamicMap({ onMapReady }: DynamicMapProps) {
         }}
         zoomControl={false}
         attributionControl={false}
-        worldCopyJump={false}
+        worldCopyJump={true}
       >
         <TileLayer
           attribution=""
           url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
         />
 
-        <MapEventsHandler markerRefs={markerRefs} />
+        <CenterDetector locations={locations} onSelect={handleSelect} />
 
-        {SITE_CONFIG.locations.map((location) => {
-          const coords = REAL_COORDS[location.name];
-          if (!coords) return null;
-
-          const imgSrc = locationImages[location.name]?.src ?? bangkokImg.src;
-
-          return (
-            <Marker
-              key={location.name}
-              position={coords}
-              icon={ICON_INACTIVE}
-              ref={(r) => {
-                if (r) markerRefs.current[location.name] = r;
-              }}
-            >
-              <Popup className="gta-popup" closeButton={false} autoPan={true}>
-                <div
-                  className="gta-popup-content"
-                  onClick={() => router.push("/locations")}
-                >
-                  <div className="gta-popup-image-wrapper">
-                    <img src={imgSrc} alt={location.name} className="gta-popup-image" />
-                    <div className="gta-popup-overlay" />
-                  </div>
-                  <div className="gta-popup-info">
-                    <div className="gta-popup-header">
-                      <span className="gta-popup-title">{location.name}</span>
-                    </div>
-                  </div>
-                </div>
-              </Popup>
-            </Marker>
-          );
-        })}
+        {locations.map((loc) => (
+          <Marker
+            key={loc.id}
+            position={loc.coords}
+            icon={activeId === loc.id ? ICON_ACTIVE : ICON_INACTIVE}
+            eventHandlers={{
+              // Click a marker to glide it under the crosshair
+              click: () => mapRef.current?.panTo(loc.coords),
+            }}
+          />
+        ))}
       </MapContainer>
+
+      {/* Fixed GTA-style reticle — thin "+" with an empty centre, on top of every map layer */}
+      <div className={`gta-crosshair ${activeLocation ? "locked" : ""}`}>
+        <span className="gta-crosshair-line gta-crosshair-line--h" />
+        <span className="gta-crosshair-line gta-crosshair-line--v" />
+      </div>
+
+      {/* Drag a camp under the crosshair → its details stack appears top-right */}
+      {activeLocation && (
+        <div
+          key={activeLocation.id}
+          className="gta-details-panel absolute top-4 right-4 z-[1000]
+                     w-[min(280px,calc(100vw-32px))] flex flex-col gap-2"
+        >
+          {/* Name */}
+          <button
+            onClick={() => router.push("/locations")}
+            className="group text-left bg-black/85 border border-white/15 backdrop-blur-sm
+                       px-4 py-3 hover:border-primary/60 transition-colors"
+          >
+            <span className="block text-[10px] uppercase tracking-[0.25em] text-primary font-grotesk font-bold mb-1">
+              Camp
+            </span>
+            <span className="flex items-center justify-between gap-2">
+              <span className="gta-popup-title !text-[20px] leading-none">
+                {activeLocation.name}
+              </span>
+              <ArrowRight
+                size={16}
+                className="text-white/40 group-hover:text-primary group-hover:translate-x-0.5 transition-all shrink-0"
+              />
+            </span>
+          </button>
+
+          {/* City */}
+          <div className="bg-black/85 border border-white/15 backdrop-blur-sm px-4 py-2.5">
+            <span className="block text-[10px] uppercase tracking-[0.25em] text-white/40 font-grotesk font-bold mb-0.5">
+              City
+            </span>
+            <span className="flex items-center gap-1.5 text-white text-sm font-semibold">
+              <MapPin size={13} className="text-primary shrink-0" />
+              {activeLocation.city}
+            </span>
+          </div>
+
+          {/* Address */}
+          <div className="bg-black/85 border border-white/15 backdrop-blur-sm px-4 py-2.5">
+            <span className="block text-[10px] uppercase tracking-[0.25em] text-white/40 font-grotesk font-bold mb-0.5">
+              Address
+            </span>
+            <span className="block text-white/80 text-xs leading-snug">
+              {activeLocation.address || "—"}
+            </span>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
