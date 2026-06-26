@@ -9,7 +9,7 @@ import {
   ShieldAlert, BadgeCheck, ChevronRight,
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
-import { packageService, Package } from "@/services/package.service";
+import { packageService, Package, packageLocationNames } from "@/services/package.service";
 import { userService, FullUser } from "@/services/user.service";
 import { orderService, Order } from "@/services/order.service";
 import { paymentService, CreateRazorpayOrderResponse } from "@/services/payment.service";
@@ -302,7 +302,20 @@ export default function BookingPage() {
   }
 
   const Icon = pkg.icon;
-  const locationName = pkg.location_details?.city || pkg.location_details?.name || "Thailand";
+  const locationName = packageLocationNames(pkg);
+  const isMultiLocation = pkg.kind === "GROUP" && pkg.locations.length > 1;
+  const startDateLabel = pkg.start_date
+    ? new Date(pkg.start_date).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })
+    : null;
+
+  // Real backend content sections — skip any empty array.
+  const sections = [
+    { label: "Ideal For", items: pkg.ideal_for },
+    { label: "Training", items: pkg.training },
+    { label: "Experience", items: pkg.experience },
+    { label: "Accommodation", items: pkg.accommodation },
+    { label: "What's Included", items: pkg.included },
+  ].filter((s) => Array.isArray(s.items) && s.items.length > 0);
 
   return (
     <div className="min-h-screen bg-[#050505]">
@@ -412,30 +425,20 @@ export default function BookingPage() {
                     <p className="font-grotesk text-sm text-white/55 leading-relaxed">{pkg.description}</p>
                   )}
 
-                  {/* Ideal for */}
-                  <div>
-                    <p className="font-grotesk text-[9px] tracking-[0.35em] uppercase text-white/30 mb-2">Ideal For</p>
-                    <p className="font-grotesk text-sm text-white/70">{pkg.idealFor}</p>
-                  </div>
-
-                  {/* Includes */}
-                  <div>
-                    <p className="font-grotesk text-[9px] tracking-[0.35em] uppercase text-white/30 mb-3">What's Included</p>
-                    <ul className="space-y-2.5">
-                      {pkg.includes.map((item) => (
-                        <li key={item} className="flex items-start gap-3">
-                          <span className="w-1.5 h-1.5 bg-primary/60 shrink-0 mt-[6px]" />
-                          <span className="font-grotesk text-[13px] text-white/60 leading-relaxed">{item}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-
-                  {/* Outcome */}
-                  <div className="border-t border-white/[0.06] pt-5">
-                    <p className="font-grotesk text-[9px] tracking-[0.35em] uppercase text-white/30 mb-2">Outcome</p>
-                    <p className="font-grotesk text-[13px] text-white/70 leading-relaxed">{pkg.outcome}</p>
-                  </div>
+                  {/* Real backend content sections — each a labeled bullet list, empties skipped */}
+                  {sections.map((section) => (
+                    <div key={section.label}>
+                      <p className="font-grotesk text-[9px] tracking-[0.35em] uppercase text-white/30 mb-3">{section.label}</p>
+                      <ul className="space-y-2.5">
+                        {section.items.map((item) => (
+                          <li key={item} className="flex items-start gap-3">
+                            <span className="w-1.5 h-1.5 bg-primary/60 shrink-0 mt-[6px]" />
+                            <span className="font-grotesk text-[13px] text-white/60 leading-relaxed">{item}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  ))}
 
                   {/* Price box */}
                   <div className="border border-white/[0.08] bg-white/[0.03] p-5">
@@ -452,6 +455,12 @@ export default function BookingPage() {
                         <span className="font-grotesk text-[11px] text-white/40">Duration</span>
                         <span className="font-grotesk text-[11px] text-white/60">{pkg.duration_days} days</span>
                       </div>
+                      {startDateLabel && (
+                        <div className="flex justify-between">
+                          <span className="font-grotesk text-[11px] text-white/40">Start date</span>
+                          <span className="font-grotesk text-[11px] text-white/60">{startDateLabel}</span>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -567,7 +576,7 @@ export default function BookingPage() {
                     <span className="font-grotesk text-sm text-white font-bold">{pkg.title}</span>
                   </div>
                   <div className="flex justify-between items-center py-2.5 border-b border-white/[0.05]">
-                    <span className="font-grotesk text-sm text-white/50">Location</span>
+                    <span className="font-grotesk text-sm text-white/50">{isMultiLocation ? "Locations" : "Location"}</span>
                     <span className="font-grotesk text-sm text-white">{locationName}</span>
                   </div>
                   <div className="flex justify-between items-center py-2.5 border-b border-white/[0.05]">

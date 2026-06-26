@@ -1,14 +1,16 @@
 "use client";
 
 import { motion } from "motion/react";
-import { 
-  Package as PackageIcon, 
-  MapPin, 
-  Clock, 
-  Edit2, 
-  Trash2, 
+import {
+  Package as PackageIcon,
+  MapPin,
+  Clock,
+  Edit2,
+  Trash2,
   ChevronRight,
-  TrendingUp
+  TrendingUp,
+  Users,
+  User
 } from "lucide-react";
 import { Package } from "@/services/package.service";
 
@@ -20,6 +22,12 @@ interface PackageCardProps {
 }
 
 export function PackageCard({ pkg, index, onEdit, onDelete }: PackageCardProps) {
+  const locationLabel =
+    pkg.locations && pkg.locations.length > 0
+      ? pkg.locations.map((l) => l.name).join(" + ")
+      : "No Location Linked";
+  const isGroup = pkg.kind === "GROUP";
+
   return (
     <motion.div
       initial={{ opacity: 0, x: -20 }}
@@ -52,12 +60,16 @@ export function PackageCard({ pkg, index, onEdit, onDelete }: PackageCardProps) 
                     Draft
                 </span>
             )}
+            <span className="text-[10px] font-black uppercase tracking-widest flex items-center gap-1.5 shrink-0 text-primary/70 border border-primary/20 rounded-full px-2 py-0.5">
+                {isGroup ? <Users className="w-3 h-3" /> : <User className="w-3 h-3" />}
+                {isGroup ? "Group" : "Individual"}
+            </span>
         </div>
-        
+
         <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
             <div className="flex items-center gap-2 text-sm text-white/50 truncate">
                 <MapPin className="w-3 h-3 text-primary shrink-0" />
-                <span className="truncate">{pkg.location_details?.name || "No Location Linked"}</span>
+                <span className="truncate">{locationLabel}</span>
             </div>
             
             <div className="flex items-center gap-2 text-sm text-white/50">

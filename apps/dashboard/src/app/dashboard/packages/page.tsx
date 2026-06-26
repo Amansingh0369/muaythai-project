@@ -29,6 +29,8 @@ export default function PackagesPage() {
     isDeleteModalOpen,
     formData,
     setFormData,
+    fieldErrors,
+    formError,
     handleOpenAdd,
     handleOpenEdit,
     handleCloseModal,
@@ -41,9 +43,10 @@ export default function PackagesPage() {
 
   const [searchQuery, setSearchQuery] = useState("");
 
-  const filteredPackages = packages.filter(pkg => 
-    pkg.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    pkg.location_details?.name.toLowerCase().includes(searchQuery.toLowerCase())
+  const q = searchQuery.toLowerCase();
+  const filteredPackages = packages.filter(pkg =>
+    pkg.name.toLowerCase().includes(q) ||
+    (pkg.locations ?? []).some(loc => loc.name.toLowerCase().includes(q))
   );
 
   return (
@@ -173,6 +176,8 @@ export default function PackagesPage() {
         formData={formData}
         setFormData={setFormData}
         locations={locations}
+        fieldErrors={fieldErrors}
+        formError={formError}
       />
 
       <ConfirmModal 

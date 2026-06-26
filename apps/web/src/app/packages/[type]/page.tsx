@@ -1,10 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, MapPin, CalendarDays, Loader2, AlertCircle, Flame, Swords, Crown } from "lucide-react";
-import { packageService, Package } from "@/services/package.service";
+import { packageService, Package, packageLocationNames } from "@/services/package.service";
 import { useAuth } from "@/context/AuthContext";
 import Navbar from "@/components/Navbar";
 
@@ -47,8 +47,12 @@ function formatDate(dateStr: string) {
 export default function SelectPackagePage() {
   const params = useParams();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { user } = useAuth();
   const type = (params.type as string)?.toUpperCase();
+  const kind = (searchParams.get("kind")?.toUpperCase() === "GROUP" ? "GROUP" : "INDIVIDUAL") as
+    | "INDIVIDUAL"
+    | "GROUP";
 
   const [packages, setPackages] = useState<Package[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -62,7 +66,7 @@ export default function SelectPackagePage() {
     const load = async () => {
       try {
         setIsLoading(true);
-        const data = await packageService.getPackagesByType(type);
+        const data = await packageService.getPackagesByType(type, kind);
         setPackages(data);
       } catch {
         setError("Failed to load available camps. Please try again.");
@@ -71,7 +75,7 @@ export default function SelectPackagePage() {
       }
     };
     load();
-  }, [type]);
+  }, [type, kind]);
 
   const handleSelect = (pkg: Package) => {
     if (!user) {
@@ -190,9 +194,14 @@ export default function SelectPackagePage() {
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
               >
-                <p className="font-grotesk text-[10px] tracking-[0.4em] uppercase text-white/30 mb-6">
-                  {packages.length} slot{packages.length !== 1 ? "s" : ""} available — pick your location & date
-                </p>
+                <div className="flex items-center gap-3 mb-6">
+                  <span className="font-grotesk text-[10px] tracking-[0.3em] uppercase text-primary/80 border border-primary/20 px-2.5 py-1">
+                    {kind === "GROUP" ? "Group Packages" : "Individual Packages"}
+                  </span>
+                  <p className="font-grotesk text-[10px] tracking-[0.4em] uppercase text-white/30">
+                    {packages.length} slot{packages.length !== 1 ? "s" : ""} available — pick your location & date
+                  </p>
+                </div>
 
                 <div className="flex flex-col gap-4">
                   {packages.map((pkg, i) => (
@@ -207,7 +216,7 @@ export default function SelectPackagePage() {
                       {/* Left — location + name */}
                       <div className="flex-1 min-w-0">
                         <p className="font-grotesk text-[9px] tracking-[0.4em] uppercase text-primary mb-1">
-                          {pkg.location_details?.city || pkg.location_details?.name || "Thailand"}
+                          {packageLocationNames(pkg)}
                         </p>
                         <h3 className="font-barlow font-black italic text-2xl md:text-3xl text-white uppercase leading-tight mb-2 truncate">
                           {pkg.name}
@@ -217,16 +226,14 @@ export default function SelectPackagePage() {
 
                       {/* Middle — meta chips */}
                       <div className="flex flex-wrap sm:flex-col gap-2 sm:gap-3 shrink-0">
-                        {pkg.location_details && (
-                          <span className="inline-flex items-center gap-1.5 font-grotesk text-[10px] tracking-wide text-white/60 bg-white/[0.06] border border-white/[0.08] px-3 py-1.5">
-                            <MapPin size={10} className="text-primary" />
-                            {pkg.location_details.city || pkg.location_details.name}
-                          </span>
-                        )}
-                        {(pkg as any).start_date && (
+                        <span className="inline-flex items-center gap-1.5 font-grotesk text-[10px] tracking-wide text-white/60 bg-white/[0.06] border border-white/[0.08] px-3 py-1.5">
+                          <MapPin size={10} className="text-primary" />
+                          {packageLocationNames(pkg)}
+                        </span>
+                        {pkg.start_date && (
                           <span className="inline-flex items-center gap-1.5 font-grotesk text-[10px] tracking-wide text-white/60 bg-white/[0.06] border border-white/[0.08] px-3 py-1.5">
                             <CalendarDays size={10} className="text-primary" />
-                            {formatDate((pkg as any).start_date)}
+                            {formatDate(pkg.start_date)}
                           </span>
                         )}
                         <span className="inline-flex items-center gap-1.5 font-grotesk text-[10px] tracking-wide text-white/60 bg-white/[0.06] border border-white/[0.08] px-3 py-1.5">

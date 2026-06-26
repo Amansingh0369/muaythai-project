@@ -3,23 +3,83 @@ import { fetchWithAuth } from "@/lib/api";
 import { Location } from "./location.service";
 
 export type PackageType = 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED';
+export type PackageKind = 'INDIVIDUAL' | 'GROUP';
 
 export interface Package {
   id: number;
   name: string;
+  kind: PackageKind;
+  type: PackageType;
   description: string;
   price: string | number;
+  start_date: string | null;
   duration_days: number;
-  location: number;
-  location_details: Location;
+  /** Array now (was single `location`/`location_details`). INDIVIDUAL → 1, GROUP → 2+. */
+  locations: Location[];
+  ideal_for: string[];
+  training: string[];
+  experience: string[];
+  accommodation: string[];
+  included: string[];
   is_active: boolean;
-  type: PackageType;
-  start_date: string;
   created_at: string;
   updated_at: string;
 }
 
-export type CreatePackageInput = Omit<Package, 'id' | 'location_details' | 'created_at' | 'updated_at'>;
+/**
+ * Create/update payload. Note: locations are sent as `location_ids` (array of ids),
+ * NOT as `locations`. The 5 content sections are arrays of strings.
+ */
+export interface CreatePackageInput {
+  name: string;
+  kind: PackageKind;
+  type: PackageType;
+  description: string;
+  price: string | number;
+  start_date: string | null;
+  duration_days: number;
+  location_ids: number[];
+  ideal_for: string[];
+  training: string[];
+  experience: string[];
+  accommodation: string[];
+  included: string[];
+  is_active: boolean;
+}
+
+export type PackageFieldErrors = Record<string, string[]>;
+
+/** Carries DRF field-level validation errors so the form can render them inline. */
+export class PackageApiError extends Error {
+  fieldErrors: PackageFieldErrors;
+  constructor(message: string, fieldErrors: PackageFieldErrors) {
+    super(message);
+    this.name = "PackageApiError";
+    this.fieldErrors = fieldErrors;
+  }
+}
+
+function normalizeFieldErrors(errorData: unknown): PackageFieldErrors {
+  const out: PackageFieldErrors = {};
+  if (errorData && typeof errorData === "object") {
+    for (const [key, value] of Object.entries(errorData as Record<string, unknown>)) {
+      if (key === "detail" || key === "message") continue;
+      out[key] = Array.isArray(value) ? value.map(String) : [String(value)];
+    }
+  }
+  return out;
+}
+
+function buildErrorMessage(
+  errorData: any,
+  fieldErrors: PackageFieldErrors,
+  fallback: string
+): string {
+  const flat = Object.entries(fieldErrors)
+    .map(([k, v]) => `${k}: ${v.join(", ")}`)
+    .join(" | ");
+  return errorData?.detail || errorData?.message || flat || fallback;
+}
 
 export const packageService = {
   /**
@@ -45,15 +105,11 @@ export const packageService = {
 
     if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        
-        // Handle DRF style field errors
-        const fieldErrors = Object.entries(errorData)
-            .filter(([key]) => key !== 'detail' && key !== 'message')
-            .map(([key, value]) => `${key}: ${Array.isArray(value) ? value.join(', ') : value}`)
-            .join(' | ');
-
-        const errorMessage = errorData.detail || errorData.message || fieldErrors || "Failed to create package";
-        throw new Error(errorMessage);
+        const fieldErrors = normalizeFieldErrors(errorData);
+        throw new PackageApiError(
+          buildErrorMessage(errorData, fieldErrors, "Failed to create package"),
+          fieldErrors
+        );
     }
 
     return response.json();
@@ -71,15 +127,11 @@ export const packageService = {
 
     if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        
-        // Handle DRF style field errors
-        const fieldErrors = Object.entries(errorData)
-            .filter(([key]) => key !== 'detail' && key !== 'message')
-            .map(([key, value]) => `${key}: ${Array.isArray(value) ? value.join(', ') : value}`)
-            .join(' | ');
-
-        const errorMessage = errorData.detail || errorData.message || fieldErrors || "Failed to update package";
-        throw new Error(errorMessage);
+        const fieldErrors = normalizeFieldErrors(errorData);
+        throw new PackageApiError(
+          buildErrorMessage(errorData, fieldErrors, "Failed to update package"),
+          fieldErrors
+        );
     }
 
     return response.json();
