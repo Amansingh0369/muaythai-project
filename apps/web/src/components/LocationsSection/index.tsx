@@ -4,13 +4,9 @@ import { motion, AnimatePresence, useScroll, useMotionValueEvent } from "motion/
 import { useRef, useState } from "react";
 import { TextRotate, TextRotateRef } from "@/components/ui/text-rotate";
 import { MapPin, Star } from "lucide-react";
-import { useAuth } from "@/context/AuthContext";
-import { useRouter } from "next/navigation";
 import { LOCATIONS } from "./LocationsSection.helpers";
 
 const LocationsSection = () => {
-  const { user } = useAuth();
-  const router = useRouter();
   const sectionRef = useRef<HTMLElement>(null);
   const textRotateRef = useRef<TextRotateRef>(null);
   const vibeRotateRef = useRef<TextRotateRef>(null);
@@ -22,13 +18,6 @@ const LocationsSection = () => {
     target: sectionRef,
     offset: ["start start", "end end"],
   });
-
-  const handleSecureSpotClick = (e: React.MouseEvent) => {
-    if (!user) {
-      e.preventDefault();
-      router.push("/login?redirect=/#camps");
-    }
-  };
 
   useMotionValueEvent(scrollYProgress, "change", (latest) => {
     const sectionCount = locations.length;
@@ -176,7 +165,6 @@ const LocationsSection = () => {
               />
               <a
                 href="#camps"
-                onClick={handleSecureSpotClick}
                 className="flex flex-col items-center gap-3 md:gap-4 w-full h-full justify-center relative z-10"
               >
                 <div

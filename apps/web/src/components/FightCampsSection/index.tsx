@@ -5,7 +5,6 @@ import { useRef, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Flame, Swords, Crown } from "lucide-react";
 import { SITE_CONFIG } from "@repo/utils";
-import { useAuth } from "@/context/AuthContext";
 
 const HARDCODED_CAMPS = [
   {
@@ -66,7 +65,6 @@ const HARDCODED_CAMPS = [
 
 const FightCampsSection = () => {
   const router = useRouter();
-  const { user } = useAuth();
   const ref = useRef<HTMLElement>(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
   const [kind, setKind] = useState<"INDIVIDUAL" | "GROUP">("INDIVIDUAL");
@@ -96,12 +94,9 @@ const FightCampsSection = () => {
   };
 
   const handleCampSelect = (type: string) => {
-    const target = `/packages/${type}?kind=${kind}`;
-    if (!user) {
-      router.push(`/login?redirect=${encodeURIComponent(target)}`);
-    } else {
-      router.push(target);
-    }
+    // Packages are publicly viewable — no login required to browse.
+    // The login gate is enforced later at "Book Now" on the package page.
+    router.push(`/packages/${type}?kind=${kind}`);
   };
 
   return (
