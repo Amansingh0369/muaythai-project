@@ -1,6 +1,5 @@
 const BRAND = "This Is Muay Thai";
-const BRAND_EMAIL = "train@thisismuaythai.com";
-const BRAND_LOCATION = "Bangkok, Thailand";
+const BRAND_EMAIL = "Info@thisismuaythai.fit";
 const EFFECTIVE_DATE = "1 June 2025";
 
 export const TERMS = {
@@ -106,7 +105,7 @@ export const PRIVACY = {
     },
     {
       heading: "11. Contact",
-      body: `For privacy-related queries, contact us at ${BRAND_EMAIL} or write to us at ${BRAND_LOCATION}.`,
+      body: `For privacy-related queries, contact us at ${BRAND_EMAIL}.`,
     },
   ],
 };

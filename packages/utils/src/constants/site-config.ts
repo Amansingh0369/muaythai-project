@@ -19,11 +19,17 @@ export const SITE_CONFIG = {
     { label: "About", href: "/about" },
   ],
 
+  contact: {
+    email: "Info@thisismuaythai.fit",
+    phone: "+66 2 123 4567",
+    instagram: "https://www.instagram.com/thisismuaythai.fit?igsh=dmYwZnU0aHl3d3Jw",
+    youtube: "https://youtube.com/@thisismuaythai?si=fHtpofHMLbcmKC-f",
+  },
+
   socials: [
-    { label: "Instagram", href: "#" },
-    { label: "YouTube", href: "#" },
-    { label: "WhatsApp", href: "#" },
-    { label: "Email", href: "#" },
+    { label: "Instagram", href: "https://www.instagram.com/thisismuaythai.fit?igsh=dmYwZnU0aHl3d3Jw" },
+    { label: "YouTube", href: "https://youtube.com/@thisismuaythai?si=fHtpofHMLbcmKC-f" },
+    { label: "Email", href: "mailto:Info@thisismuaythai.fit" },
   ],
 
   highlights: [

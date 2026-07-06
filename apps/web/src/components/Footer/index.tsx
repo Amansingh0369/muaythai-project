@@ -43,9 +43,6 @@ const Footer = () => {
                           {link.label}
                         </TextScramble>
                       </a>
-                      {link.pulse && (
-                        <span className="absolute top-0 -right-4 w-2 h-2 rounded-full bg-primary animate-pulse" />
-                      )}
                     </li>
                   ))}
                 </ul>

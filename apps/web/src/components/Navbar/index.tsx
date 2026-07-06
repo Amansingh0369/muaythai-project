@@ -24,16 +24,10 @@ const Navbar = () => {
           className="bg-black/95 backdrop-blur-md border-b border-white/[0.04] flex items-center px-8 lg:px-14 overflow-hidden"
           style={{ height: TOP_BAR_H }}
         >
-          <div className="max-w-[1440px] w-full mx-auto flex items-center justify-between">
-            <div className="flex items-center gap-8 text-[9px] md:text-[9.5px]">
-              <div className="flex items-center gap-2">
-                <span className="w-1 h-1 bg-primary rounded-full" />
-                <span className="font-barlow font-bold tracking-[0.25em] uppercase text-white/40 italic">Bangkok, Thailand</span>
-              </div>
-            </div>
+          <div className="max-w-[1440px] w-full mx-auto flex items-center justify-end">
             <div className="flex items-center gap-6">
-              <a href="tel:+6621234567" className="font-barlow font-bold text-[9px] md:text-[9.5px] tracking-[0.25em] uppercase text-white/40 hover:text-primary transition-colors italic">
-                +66 2 123 4567
+              <a href={`tel:${SITE_CONFIG.contact.phone.replace(/\s/g, "")}`} className="font-barlow font-bold text-[9px] md:text-[9.5px] tracking-[0.25em] uppercase text-white/40 hover:text-primary transition-colors italic">
+                {SITE_CONFIG.contact.phone}
               </a>
             </div>
           </div>

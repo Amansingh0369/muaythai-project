@@ -1,5 +1,5 @@
 import React from "react";
-import { Mail, MapPin, Instagram, Youtube, Twitter } from "lucide-react";
+import { Mail, Instagram, Youtube } from "lucide-react";
 import { SITE_CONFIG } from "@repo/utils";
 
 /** Footer navigation link groups */
@@ -15,7 +15,7 @@ export const footerLinks = [
       { label: "Privacy Policy", href: "/privacy" },
       { label: "Terms of Service", href: "/terms" },
       { label: "Refund Policy", href: "/refund-policy" },
-      { label: "Contact", href: "#", pulse: true },
+      { label: "Contact", href: "/contact" },
     ],
   },
 ];
@@ -24,12 +24,8 @@ export const footerLinks = [
 export const contactInfo = [
   {
     icon: React.createElement(Mail, { size: 18, className: "text-primary" }),
-    text: "train@thisismuaythai.com",
-    href: "mailto:train@thisismuaythai.com",
-  },
-  {
-    icon: React.createElement(MapPin, { size: 18, className: "text-primary" }),
-    text: "Bangkok, Thailand",
+    text: SITE_CONFIG.contact.email,
+    href: `mailto:${SITE_CONFIG.contact.email}`,
   },
 ];
 
@@ -37,5 +33,5 @@ export const contactInfo = [
 export const socialIcons: Record<string, React.ReactNode> = {
   Instagram: React.createElement(Instagram, { size: 20 }),
   YouTube: React.createElement(Youtube, { size: 20 }),
-  Twitter: React.createElement(Twitter, { size: 20 }),
+  Email: React.createElement(Mail, { size: 20 }),
 };
