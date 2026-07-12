@@ -57,6 +57,10 @@ export default function SelectPackagePage() {
   const [packages, setPackages] = useState<Package[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [highlightedId, setHighlightedId] = useState<number | null>(null);
+
+  // Package id to scroll to + flash (e.g. arriving from a map camp click)
+  const highlightParam = searchParams.get("highlight");
 
   const meta = TYPE_META[type];
   const Icon = meta?.icon ?? Flame;
@@ -76,6 +80,24 @@ export default function SelectPackagePage() {
     };
     load();
   }, [type, kind]);
+
+  // After the list renders, scroll the highlighted package into view and flash it
+  useEffect(() => {
+    if (isLoading || !highlightParam || packages.length === 0) return;
+    const id = Number(highlightParam);
+    if (!packages.some((p) => p.id === id)) return;
+    const t = setTimeout(() => {
+      document
+        .getElementById(`pkg-${id}`)
+        ?.scrollIntoView({ behavior: "smooth", block: "center" });
+      setHighlightedId(id);
+    }, 200);
+    const clear = setTimeout(() => setHighlightedId(null), 3000);
+    return () => {
+      clearTimeout(t);
+      clearTimeout(clear);
+    };
+  }, [isLoading, highlightParam, packages]);
 
   const handleSelect = (pkg: Package) => {
     if (!user) {
@@ -207,11 +229,16 @@ export default function SelectPackagePage() {
                   {packages.map((pkg, i) => (
                     <motion.div
                       key={pkg.id}
+                      id={`pkg-${pkg.id}`}
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: i * 0.08, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
                       onClick={() => handleSelect(pkg)}
-                      className="group cursor-pointer border border-white/[0.08] bg-black/40 hover:border-primary/40 hover:bg-white/[0.03] transition-all duration-500 p-6 md:p-8 flex flex-col sm:flex-row sm:items-center gap-6"
+                      className={`group cursor-pointer border bg-black/40 hover:border-primary/40 hover:bg-white/[0.03] transition-all duration-500 p-6 md:p-8 flex flex-col sm:flex-row sm:items-center gap-6 scroll-mt-28 ${
+                        highlightedId === pkg.id
+                          ? "border-primary ring-2 ring-primary/60 shadow-[0_0_45px_rgba(255,80,0,0.25)]"
+                          : "border-white/[0.08]"
+                      }`}
                     >
                       {/* Left — location + name */}
                       <div className="flex-1 min-w-0">

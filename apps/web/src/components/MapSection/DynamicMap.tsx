@@ -7,8 +7,10 @@ import "leaflet/dist/leaflet.css";
 import { useRouter } from "next/navigation";
 import { renderToString } from "react-dom/server";
 import { X, MapPin, ArrowRight } from "lucide-react";
+import { toast } from "sonner";
 
 import { locationService, type Location } from "@/services/location.service";
+import { packageService, type Package } from "@/services/package.service";
 
 // Default view — centred on Thailand. No bounds: the map drags freely.
 const DEFAULT_CENTER: [number, number] = [13.5, 101.0];
@@ -109,6 +111,8 @@ export default function DynamicMap({ onMapReady }: DynamicMapProps) {
 
   const [locations, setLocations] = useState<LocatedLocation[]>([]);
   const [activeId, setActiveId] = useState<number | null>(null);
+  // locationId → the individual packages hosted at that camp (across all types)
+  const [pkgByLocation, setPkgByLocation] = useState<Map<number, Package[]>>(new Map());
 
   useEffect(() => {
     let cancelled = false;
@@ -132,10 +136,53 @@ export default function DynamicMap({ onMapReady }: DynamicMapProps) {
     };
   }, []);
 
+  // Pre-fetch every individual package once, indexed by the location it's hosted at.
+  // Lets a marker instantly know whether it's bookable — no per-click loading.
+  useEffect(() => {
+    let cancelled = false;
+    packageService
+      .getPackages({ kind: "INDIVIDUAL" })
+      .then((pkgs) => {
+        if (cancelled) return;
+        const map = new Map<number, Package[]>();
+        for (const pkg of pkgs) {
+          for (const loc of pkg.locations ?? []) {
+            const arr = map.get(loc.id) ?? [];
+            arr.push(pkg);
+            map.set(loc.id, arr);
+          }
+        }
+        setPkgByLocation(map);
+      })
+      .catch((err) => {
+        console.error("Failed to load packages for map", err);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   // Stable identity so CenterDetector doesn't re-subscribe on every render
   const handleSelect = useCallback((id: number | null) => {
     setActiveId(id);
   }, []);
+
+  // Click a camp → jump to its individual package (any type) and highlight it.
+  // No package for this location → let the user know instead of a dead page.
+  const goToCampPackage = useCallback(
+    (loc: LocatedLocation) => {
+      const pkgs = pkgByLocation.get(loc.id);
+      if (pkgs && pkgs.length > 0) {
+        const pkg = pkgs[0];
+        router.push(`/packages/${pkg.type}?kind=INDIVIDUAL&highlight=${pkg.id}`);
+      } else {
+        toast("No camps available for this location right now.", {
+          description: `${loc.name} · ${loc.city}`,
+        });
+      }
+    },
+    [pkgByLocation, router]
+  );
 
   const activeLocation = locations.find((loc) => loc.id === activeId) ?? null;
 
@@ -191,7 +238,7 @@ export default function DynamicMap({ onMapReady }: DynamicMapProps) {
         >
           {/* Name */}
           <button
-            onClick={() => router.push("/locations")}
+            onClick={() => goToCampPackage(activeLocation)}
             className="group text-left bg-black/85 border border-white/15 backdrop-blur-sm
                        px-4 py-3 hover:border-primary/60 transition-colors"
           >
