@@ -62,8 +62,14 @@ export default function CampsByKindPage() {
   const highlightParam = searchParams.get("highlight");
 
   // Guided filters: "" = not chosen yet, "ALL" = no filter, else a specific value.
-  const [durationSel, setDurationSel] = useState<string>("");
-  const [citySel, setCitySel] = useState<string>("");
+  // Pre-seed from query params (e.g. arriving from a location's "Secure Spot":
+  // ?city=Phuket&duration=all) so the list shows straight away.
+  const durationParam = searchParams.get("duration");
+  const cityParam = searchParams.get("city");
+  const [durationSel, setDurationSel] = useState<string>(
+    durationParam === "all" ? "ALL" : durationParam ?? ""
+  );
+  const [citySel, setCitySel] = useState<string>(cityParam ?? "");
 
   // Distinct durations present in the data (ascending).
   const durations = useMemo(
