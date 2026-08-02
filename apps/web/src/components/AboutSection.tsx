@@ -52,7 +52,7 @@ const AboutSection = () => {
             transition={{ delay: 0.15, duration: 0.7 }}
           >
             <span className="inline-block w-6 h-[2px] bg-primary" />
-            <span className="font-grotesk text-[10px] tracking-[0.45em] uppercase text-primary font-medium">
+            <span className="font-grotesk text-[12px] tracking-[0.45em] uppercase text-primary font-medium">
               Our Story
             </span>
           </motion.div>
@@ -68,8 +68,8 @@ const AboutSection = () => {
               height={800}
             />
             {/* Overlays */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20" />
-            <div className="absolute inset-0 bg-gradient-to-r from-black/30 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/45 via-transparent to-black/10" />
+            <div className="absolute inset-0 bg-gradient-to-r from-black/20 to-transparent" />
           </div>
 
           {/* Corner accents */}
@@ -84,7 +84,7 @@ const AboutSection = () => {
             transition={{ delay: 0.5, duration: 0.7 }}
           >
             <span className="font-barlow font-black italic text-3xl text-white leading-none">5</span>
-            <span className="font-grotesk text-[10px] tracking-[0.3em] uppercase text-white/40 block mt-0.5">
+            <span className="font-grotesk text-[12px] tracking-[0.3em] uppercase text-white/60 block mt-0.5">
               Locations · Thailand
             </span>
           </motion.div>
@@ -124,10 +124,10 @@ const AboutSection = () => {
             animate={isInView ? { opacity: 1, y: 0 } : {}}
             transition={{ delay: 0.6, duration: 0.7 }}
           >
-            <p className="font-grotesk text-[13px] md:text-sm text-white/45 leading-relaxed">
+            <p className="font-grotesk text-[13px] md:text-sm text-white/65 leading-relaxed">
               It started as something new to try. A trip to Thailand introduced Muay Thai — but what stood out wasn't just the techniques, it was the way people trained. The discipline, the routine, the mindset.
             </p>
-            <p className="font-grotesk text-[13px] md:text-sm text-white/45 leading-relaxed">
+            <p className="font-grotesk text-[13px] md:text-sm text-white/65 leading-relaxed">
               Training wasn't just about fitness — it was about improvement, structure, and pushing limits every day.
             </p>
             <p className="font-grotesk text-[13px] md:text-sm text-white/70 leading-relaxed">
@@ -152,7 +152,7 @@ const AboutSection = () => {
           >
             <a
               href="#camps"
-              className="group relative inline-flex items-center gap-3 bg-primary px-7 py-3.5 font-barlow font-black text-[12px] tracking-[0.25em] uppercase text-black overflow-hidden"
+              className="group relative inline-flex items-center gap-3 bg-primary px-7 py-3.5 font-barlow font-black text-[13px] tracking-[0.25em] uppercase text-black overflow-hidden"
             >
               <span className="relative z-10">Explore Camps</span>
               <span className="relative z-10 translate-x-0 group-hover:translate-x-1 transition-transform duration-300">→</span>

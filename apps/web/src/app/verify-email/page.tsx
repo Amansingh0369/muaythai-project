@@ -41,7 +41,7 @@ function VerifyEmailContent() {
       {state === "loading" && (
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-col items-center gap-4">
           <Loader2 size={40} className="text-primary animate-spin" />
-          <p className="font-grotesk text-white/50 text-sm tracking-wide">Verifying your email…</p>
+          <p className="font-grotesk text-white/70 text-sm tracking-wide">Verifying your email…</p>
         </motion.div>
       )}
 
@@ -51,13 +51,13 @@ function VerifyEmailContent() {
             <CheckCircle size={36} className="text-primary" />
           </div>
           <div>
-            <span className="font-grotesk text-[9px] tracking-[0.5em] uppercase text-primary font-bold block mb-3">
+            <span className="font-grotesk text-[13px] tracking-[0.5em] uppercase text-primary font-bold block mb-3">
               Email Verified
             </span>
             <h1 className="font-barlow font-black italic text-4xl uppercase text-white tracking-tight mb-2">
               You're In
             </h1>
-            <p className="font-grotesk text-white/50 text-sm">{message}</p>
+            <p className="font-grotesk text-white/70 text-sm">{message}</p>
           </div>
           <Link
             href="/login"
@@ -79,13 +79,13 @@ function VerifyEmailContent() {
             <XCircle size={36} className="text-red-400" />
           </div>
           <div>
-            <span className="font-grotesk text-[9px] tracking-[0.5em] uppercase text-red-400 font-bold block mb-3">
+            <span className="font-grotesk text-[13px] tracking-[0.5em] uppercase text-red-400 font-bold block mb-3">
               Verification Failed
             </span>
             <h1 className="font-barlow font-black italic text-4xl uppercase text-white tracking-tight mb-2">
               Link Expired
             </h1>
-            <p className="font-grotesk text-white/50 text-sm max-w-xs">{message}</p>
+            <p className="font-grotesk text-white/70 text-sm max-w-xs">{message}</p>
           </div>
           <Link
             href="/login?tab=signup"

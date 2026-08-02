@@ -57,9 +57,9 @@ const LocationsSection = () => {
                 alt={activeLocation.name}
                 className="w-full h-full object-cover"
               />
-              <div className="absolute inset-0 bg-black/40" />
-              <div className="absolute inset-0 bg-gradient-to-l from-transparent via-black/20 to-black/80" />
-              <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black/30" />
+              <div className="absolute inset-0 bg-black/25" />
+              <div className="absolute inset-0 bg-gradient-to-l from-transparent via-black/10 to-black/60" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-transparent to-black/20" />
             </motion.div>
           </AnimatePresence>
         </div>
@@ -79,7 +79,7 @@ const LocationsSection = () => {
                 style={{ backgroundColor: activeLocation?.themeColor }}
               />
               <span
-                className="font-grotesk text-[10px] md:text-xs tracking-[0.4em] md:tracking-[0.5rem] uppercase mb-4 md:mb-6 block transition-colors duration-1000 font-bold"
+                className="font-grotesk text-[12px] md:text-[13px] tracking-[0.4em] md:tracking-[0.5rem] uppercase mb-4 md:mb-6 block transition-colors duration-1000 font-bold"
                 style={{ color: activeLocation?.themeColor }}
               >
                 EXPERIENCE REALITY
@@ -116,7 +116,7 @@ const LocationsSection = () => {
                 <TextRotate
                   ref={vibeRotateRef}
                   texts={locations.map((l) => l.vibe)}
-                  mainClassName="font-barlow font-bold text-[10px] sm:text-xs md:text-sm lg:text-base tracking-[0.2em] md:tracking-[0.3em] uppercase italic line-clamp-2"
+                  mainClassName="font-barlow font-bold text-[12px] sm:text-[13px] md:text-sm lg:text-base tracking-[0.2em] md:tracking-[0.3em] uppercase italic line-clamp-2"
                   auto={false}
                   loop={false}
                   staggerDuration={0.01}
@@ -126,7 +126,7 @@ const LocationsSection = () => {
                   exit={{ opacity: 0, x: -20 }}
                 />
               </div>
-              <p className="font-grotesk text-white/70 text-xs sm:text-sm md:text-base leading-relaxed">
+              <p className="font-grotesk text-white/70 text-[13px] sm:text-sm md:text-base leading-relaxed">
                 {activeLocation?.description}
               </p>
             </motion.div>
@@ -146,9 +146,9 @@ const LocationsSection = () => {
               <div className="space-y-1 md:space-y-2 relative z-10">
                 <div className="flex items-center gap-2 transition-colors duration-1000" style={{ color: activeLocation?.themeColor }}>
                   <Star size={14} className="fill-current" />
-                  <span className="font-grotesk font-bold text-[9px] md:text-[10px] tracking-[0.3em] uppercase text-white/60">Located In</span>
+                  <span className="font-grotesk font-bold text-[12px] md:text-[12px] tracking-[0.3em] uppercase text-white/60">Located In</span>
                 </div>
-                <p className="font-barlow font-bold text-xs md:text-sm text-white uppercase italic">{activeLocation?.city}</p>
+                <p className="font-barlow font-bold text-[13px] md:text-sm text-white uppercase italic">{activeLocation?.city}</p>
               </div>
             </motion.div>
 
@@ -174,11 +174,11 @@ const LocationsSection = () => {
                   <MapPin size={22} className="lg:w-6 lg:h-6 transition-colors [transition-duration:800ms]" style={{ color: activeLocation?.themeColor }} />
                 </div>
                 <div className="px-2">
-                  <span className="font-grotesk font-bold text-[9px] sm:text-[10px] md:text-xs lg:text-[10px] xl:text-xs tracking-[0.3em] md:tracking-[0.4em] uppercase text-white block transition-colors [transition-duration:800ms] mb-1 md:mb-2 group-hover:text-[var(--loc-theme)]">
+                  <span className="font-grotesk font-bold text-[12px] sm:text-[12px] md:text-[13px] lg:text-[12px] xl:text-[13px] tracking-[0.3em] md:tracking-[0.4em] uppercase text-white block transition-colors [transition-duration:800ms] mb-1 md:mb-2 group-hover:text-[var(--loc-theme)]">
                     Secure Spot
                   </span>
                   <span
-                    className="font-barlow font-bold text-[8px] sm:text-[9px] md:text-[10px] uppercase tracking-[0.2em] leading-tight block break-words max-w-[120px] mx-auto transition-colors [transition-duration:800ms] italic"
+                    className="font-barlow font-bold text-[12px] sm:text-[12px] md:text-[12px] uppercase tracking-[0.2em] leading-tight block break-words max-w-[120px] mx-auto transition-colors [transition-duration:800ms] italic"
                     style={{ color: (activeLocation?.themeColor || "#ffffff") + "99" }}
                   >
                     {activeLocation?.name} · {activeLocation?.city.toUpperCase()}
@@ -204,7 +204,7 @@ const LocationsSection = () => {
               }}
             >
               <span
-                className={`font-barlow font-bold text-[11px] tracking-widest uppercase transition-all [transition-duration:800ms] ${idx === activeIndex ? "opacity-100" : "text-white opacity-0 group-hover:opacity-40"
+                className={`font-barlow font-bold text-[13px] tracking-widest uppercase transition-all [transition-duration:800ms] ${idx === activeIndex ? "opacity-100" : "text-white opacity-0 group-hover:opacity-40"
                   }`}
                 style={idx === activeIndex && activeLocation ? { color: activeLocation.themeColor } : {}}
               >

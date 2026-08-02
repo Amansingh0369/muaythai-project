@@ -30,13 +30,13 @@ export default function LegalPage({ title, effectiveDate, intro, sections }: Leg
         <div className="max-w-4xl mx-auto px-6 py-4 flex items-center gap-4">
           <Link
             href="/"
-            className="flex items-center gap-2 text-white/50 hover:text-primary transition-colors duration-200 font-grotesk text-sm"
+            className="flex items-center gap-2 text-white/70 hover:text-primary transition-colors duration-200 font-grotesk text-sm"
           >
             <ArrowLeft size={16} />
             Home
           </Link>
           <span className="text-white/20">/</span>
-          <span className="font-grotesk text-xs text-white/40 uppercase tracking-widest">{title}</span>
+          <span className="font-grotesk text-[13px] text-white/60 uppercase tracking-widest">{title}</span>
         </div>
       </div>
 
@@ -50,7 +50,7 @@ export default function LegalPage({ title, effectiveDate, intro, sections }: Leg
             className="flex items-center gap-3 mb-6"
           >
             <span className="w-8 h-[2px] bg-primary" />
-            <span className="font-grotesk text-[10px] tracking-[0.4em] uppercase text-primary font-bold">
+            <span className="font-grotesk text-[12px] tracking-[0.4em] uppercase text-primary font-bold">
               Legal
             </span>
           </motion.div>
@@ -66,7 +66,7 @@ export default function LegalPage({ title, effectiveDate, intro, sections }: Leg
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="font-grotesk text-white/40 text-sm"
+            className="font-grotesk text-white/60 text-sm"
           >
             Effective Date: {effectiveDate}
           </motion.p>
@@ -105,10 +105,10 @@ export default function LegalPage({ title, effectiveDate, intro, sections }: Leg
                   <table className="w-full text-sm font-grotesk">
                     <thead>
                       <tr className="bg-white/5 border-b border-white/10">
-                        <th className="text-left px-4 py-3 text-white/50 uppercase tracking-widest text-[10px] font-bold w-2/3">
+                        <th className="text-left px-4 py-3 text-white/70 uppercase tracking-widest text-[12px] font-bold w-2/3">
                           Cancellation Window
                         </th>
-                        <th className="text-left px-4 py-3 text-white/50 uppercase tracking-widest text-[10px] font-bold">
+                        <th className="text-left px-4 py-3 text-white/70 uppercase tracking-widest text-[12px] font-bold">
                           Refund
                         </th>
                       </tr>
@@ -132,7 +132,7 @@ export default function LegalPage({ title, effectiveDate, intro, sections }: Leg
         </div>
 
         {/* Bottom links */}
-        <div className="mt-20 pt-8 border-t border-white/10 flex flex-wrap gap-6 font-grotesk text-xs text-white/30">
+        <div className="mt-20 pt-8 border-t border-white/10 flex flex-wrap gap-6 font-grotesk text-[13px] text-white/55">
           <Link href="/terms" className="hover:text-primary transition-colors">Terms & Conditions</Link>
           <Link href="/privacy" className="hover:text-primary transition-colors">Privacy Policy</Link>
           <Link href="/refund-policy" className="hover:text-primary transition-colors">Cancellation & Refund Policy</Link>

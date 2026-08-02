@@ -109,7 +109,7 @@ const FightCampsSection = () => {
           backgroundSize: "128px 128px",
         }}
       />
-      <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-[#050505] to-black z-[2]" />
+      <div className="absolute inset-0 bg-gradient-to-b from-black/55 via-[#0a0a0a] to-black z-[2]" />
 
       {/* ── FULL-SCREEN KIND-SWITCH SWEEP (intro-style takeover) ── */}
       <AnimatePresence>
@@ -133,7 +133,7 @@ const FightCampsSection = () => {
 
             {/* Eyebrow caption */}
             <motion.span
-              className="absolute top-[32%] font-grotesk text-[10px] md:text-xs tracking-[0.45em] uppercase text-primary z-[3]"
+              className="absolute top-[32%] font-grotesk text-[12px] md:text-[13px] tracking-[0.45em] uppercase text-primary z-[3]"
               initial={{ opacity: 0 }}
               animate={{ opacity: [0, 1, 1, 0] }}
               transition={{ duration: 1.4, ease: "easeOut" }}
@@ -188,7 +188,7 @@ const FightCampsSection = () => {
         >
           <div className="flex justify-center items-center gap-3 mb-6">
             <span className="inline-block w-8 h-[2px] bg-primary" />
-            <span className="font-grotesk text-[10px] md:text-xs tracking-[0.45em] uppercase text-primary font-medium">
+            <span className="font-grotesk text-[12px] md:text-[13px] tracking-[0.45em] uppercase text-primary font-medium">
               Choose Your Experience
             </span>
             <span className="inline-block w-8 h-[2px] bg-primary" />
@@ -198,7 +198,7 @@ const FightCampsSection = () => {
             FIGHT <span className="text-gradient-fire">CAMPS</span>
           </h2>
 
-          <p className="font-grotesk text-sm md:text-base text-white/50 mt-6 max-w-2xl mx-auto leading-relaxed">
+          <p className="font-grotesk text-sm md:text-base text-white/70 mt-6 max-w-2xl mx-auto leading-relaxed">
             These aren't packages. They're experiences. No matter your level, your camp is waiting for you.
           </p>
         </motion.div>
@@ -216,17 +216,17 @@ const FightCampsSection = () => {
                 key={option}
                 type="button"
                 onClick={() => handleKindChange(option)}
-                className={`font-grotesk text-[10px] md:text-xs tracking-[0.3em] uppercase px-6 py-3 transition-all duration-300 ${
+                className={`font-grotesk text-[12px] md:text-[13px] tracking-[0.3em] uppercase px-6 py-3 transition-all duration-300 ${
                   kind === option
                     ? "bg-primary text-black"
-                    : "text-white/50 border border-white/10 hover:text-white/80"
+                    : "text-white/70 border border-white/10 hover:text-white/80"
                 }`}
               >
                 {option === "INDIVIDUAL" ? "Individual" : "Group"}
               </button>
             ))}
           </div>
-          <p className="font-grotesk text-xs text-white/40 mt-4 text-center">
+          <p className="font-grotesk text-[13px] text-white/60 mt-4 text-center">
             {kind === "INDIVIDUAL"
               ? "Train at a single location"
               : "A journey across multiple locations"}
@@ -263,13 +263,13 @@ const FightCampsSection = () => {
                     <Icon className="w-7 h-7 text-black" />
                   </div>
 
-                  <p className="font-grotesk text-[10px] tracking-[0.4em] uppercase text-primary mb-3">
+                  <p className="font-grotesk text-[12px] tracking-[0.4em] uppercase text-primary mb-3">
                     {camp.subtitle}
                   </p>
                   <h3 className="font-barlow font-black italic text-3xl md:text-4xl lg:text-5xl text-white uppercase mb-3 leading-[0.85]">
                     {camp.title}
                   </h3>
-                  <p className="font-grotesk text-xs text-white/40 mb-10 pb-6 border-b border-white/[0.05]">
+                  <p className="font-grotesk text-[13px] text-white/60 mb-10 pb-6 border-b border-white/[0.05]">
                     <span className="text-white/70">{camp.idealFor}</span>
                   </p>
 
@@ -285,12 +285,12 @@ const FightCampsSection = () => {
                   </ul>
 
                   <div className="border-t border-white/[0.08] pt-6 mb-8 mt-auto">
-                    <p className="font-grotesk text-[9px] tracking-[0.4em] uppercase text-white/30 mb-3">Outcome</p>
+                    <p className="font-grotesk text-[12px] tracking-[0.4em] uppercase text-white/55 mb-3">Outcome</p>
                     <p className="text-sm font-grotesk text-white/80 leading-relaxed">{camp.outcome}</p>
                   </div>
 
                   <div
-                    className={`block w-full text-center py-4 font-barlow font-black text-xs tracking-[0.3em] uppercase transition-all duration-500 overflow-hidden relative isolate ${
+                    className={`block w-full text-center py-4 font-barlow font-black text-[13px] tracking-[0.3em] uppercase transition-all duration-500 overflow-hidden relative isolate ${
                       camp.featured
                         ? "bg-primary text-black hover:bg-white hover:scale-[1.02]"
                         : "bg-transparent border border-white/20 text-white hover:border-primary hover:text-primary hover:bg-primary/5"

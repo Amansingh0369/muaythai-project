@@ -16,7 +16,7 @@ export function Input({ label, error, id, className = "", ...props }: InputProps
       {label && (
         <label
           htmlFor={inputId}
-          className="text-xs font-bold uppercase tracking-widest text-outline font-display"
+          className="text-[13px] font-bold uppercase tracking-widest text-outline font-display"
         >
           {label}
         </label>

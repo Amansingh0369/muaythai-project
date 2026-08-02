@@ -41,7 +41,7 @@ const DirectoryTiles = () => {
               className="flex items-center gap-3 mb-4"
             >
               <span className="w-8 h-[2px] bg-primary" />
-              <span className="font-grotesk text-[10px] md:text-xs tracking-[0.4em] uppercase text-primary font-bold">
+              <span className="font-grotesk text-[12px] md:text-[13px] tracking-[0.4em] uppercase text-primary font-bold">
                 Bifurcate your journey
               </span>
             </motion.div>
@@ -93,7 +93,7 @@ const DirectoryTiles = () => {
                     className="h-full w-full object-cover transition-transform duration-700
                                scale-100 group-hover:scale-105 opacity-35 group-hover:opacity-55"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-black/10" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/35 to-transparent" />
                   <div className={`absolute inset-0 bg-gradient-to-br ${tile.accent} opacity-0 group-hover:opacity-100 transition-opacity duration-700`} />
                 </div>
 
@@ -106,7 +106,7 @@ const DirectoryTiles = () => {
                 <div className="relative z-10 flex flex-col justify-between w-full p-6 md:p-8">
                   {/* Icon */}
                   <div className="w-10 h-10 bg-white/5 border border-white/10 flex items-center justify-center
-                                  text-white/50 group-hover:text-primary group-hover:border-primary/30
+                                  text-white/70 group-hover:text-primary group-hover:border-primary/30
                                   transition-all duration-500 shrink-0">
                     {tile.icon}
                   </div>
@@ -117,12 +117,12 @@ const DirectoryTiles = () => {
                                    mb-1.5 tracking-wide group-hover:text-primary transition-colors duration-300">
                       {tile.title}
                     </h3>
-                    <p className="font-grotesk text-xs md:text-sm text-white/45 leading-relaxed mb-4
+                    <p className="font-grotesk text-[13px] md:text-sm text-white/65 leading-relaxed mb-4
                                   translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100
                                   transition-all duration-500">
                       {tile.description}
                     </p>
-                    <div className="flex items-center gap-2 font-barlow font-bold text-[10px] tracking-[0.2em]
+                    <div className="flex items-center gap-2 font-barlow font-bold text-[12px] tracking-[0.2em]
                                     uppercase text-primary opacity-0 -translate-x-3
                                     group-hover:opacity-100 group-hover:translate-x-0
                                     transition-all duration-500">

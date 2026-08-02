@@ -91,14 +91,14 @@ const Footer = () => {
                   className="hover:text-primary transition-all duration-300 hover:scale-110"
                 >
                   {socialIcons[social.label] || (
-                    <span className="font-heading uppercase tracking-widest text-xs">{social.label}</span>
+                    <span className="font-heading uppercase tracking-widest text-[13px]">{social.label}</span>
                   )}
                 </a>
               ))}
             </div>
 
             {/* Copyright */}
-            <p className="text-center md:text-left text-muted-foreground font-heading tracking-widest text-xs uppercase">
+            <p className="text-center md:text-left text-muted-foreground font-heading tracking-widest text-[13px] uppercase">
               {SITE_CONFIG.copyright}
             </p>
           </div>

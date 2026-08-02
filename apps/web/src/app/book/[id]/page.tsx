@@ -33,7 +33,7 @@ function SectionHeader({ icon, title, complete }: { icon: React.ReactNode; title
       </div>
       <h3 className="font-barlow font-black italic text-lg uppercase tracking-wide text-white">{title}</h3>
       <span className="flex-1 h-px bg-white/[0.06]" />
-      {complete && <span className="font-grotesk text-[9px] tracking-[0.3em] uppercase text-green-400">Complete</span>}
+      {complete && <span className="font-grotesk text-[13px] tracking-[0.3em] uppercase text-green-400">Complete</span>}
     </div>
   );
 }
@@ -51,12 +51,12 @@ function FormField({
 }) {
   return (
     <div className="flex flex-col gap-1.5">
-      <label className="font-grotesk text-[9px] uppercase tracking-[0.3em] text-white/60 font-bold">
+      <label className="font-grotesk text-[13px] uppercase tracking-[0.3em] text-white/60 font-bold">
         {label} {required && <span className="text-primary">*</span>}
       </label>
       {children}
       {error && (
-        <p className="font-grotesk text-[10px] text-red-400 flex items-center gap-1">
+        <p className="font-grotesk text-[13px] text-red-400 flex items-center gap-1">
           <AlertCircle size={10} /> {error}
         </p>
       )}
@@ -278,10 +278,10 @@ export default function BookingPage() {
 
   if (authLoading || pageLoading) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
           <Loader2 className="text-primary animate-spin" size={32} />
-          <p className="font-grotesk text-[10px] tracking-[0.4em] uppercase text-white/30 animate-pulse">Preparing Your Camp…</p>
+          <p className="font-grotesk text-[13px] tracking-[0.4em] uppercase text-white/55 animate-pulse">Preparing Your Camp…</p>
         </div>
       </div>
     );
@@ -289,11 +289,11 @@ export default function BookingPage() {
 
   if (pageError || !pkg) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center text-center px-6">
+      <div className="min-h-screen bg-background flex items-center justify-center text-center px-6">
         <div className="flex flex-col items-center gap-4">
           <AlertCircle size={32} className="text-red-400" />
           <p className="font-grotesk text-white/60 text-sm">{pageError ?? "Package not found."}</p>
-          <button onClick={() => router.push("/locations")} className="px-6 py-2.5 font-barlow font-bold text-[11px] tracking-[0.2em] uppercase bg-primary text-black">
+          <button onClick={() => router.push("/locations")} className="px-6 py-2.5 font-barlow font-bold text-[13px] tracking-[0.2em] uppercase bg-primary text-black">
             Back to Locations
           </button>
         </div>
@@ -318,7 +318,7 @@ export default function BookingPage() {
   ].filter((s) => Array.isArray(s.items) && s.items.length > 0);
 
   return (
-    <div className="min-h-screen bg-[#050505]">
+    <div className="min-h-screen bg-background">
       <Navbar />
 
       {/* Success overlay */}
@@ -340,7 +340,7 @@ export default function BookingPage() {
               </motion.div>
               <div>
                 <h2 className="font-barlow font-black italic text-4xl text-white uppercase mb-2">Booking Confirmed</h2>
-                <p className="font-grotesk text-sm text-white/50">Redirecting you to your profile…</p>
+                <p className="font-grotesk text-sm text-white/70">Redirecting you to your profile…</p>
               </div>
             </div>
           </motion.div>
@@ -352,7 +352,7 @@ export default function BookingPage() {
         <div className="max-w-7xl mx-auto px-5 md:px-10 lg:px-16 pt-8 pb-6">
           <button
             onClick={() => router.back()}
-            className="inline-flex items-center gap-2 font-grotesk text-xs text-white/40 hover:text-white/80 transition-colors duration-200 group"
+            className="inline-flex items-center gap-2 font-grotesk text-[13px] text-white/60 hover:text-white/80 transition-colors duration-200 group"
           >
             <ArrowLeft size={14} className="group-hover:-translate-x-1 transition-transform duration-200" />
             Back to Locations
@@ -363,7 +363,7 @@ export default function BookingPage() {
         <div className="max-w-7xl mx-auto px-5 md:px-10 lg:px-16 mb-10">
           <div className="flex items-center gap-3 mb-3">
             <span className="inline-block w-6 h-[2px] bg-primary" />
-            <span className="font-grotesk text-[10px] tracking-[0.45em] uppercase text-primary font-medium">Fight Camp Booking</span>
+            <span className="font-grotesk text-[13px] tracking-[0.45em] uppercase text-primary font-medium">Fight Camp Booking</span>
           </div>
           <h1 className="font-barlow font-black italic text-4xl sm:text-5xl md:text-6xl lg:text-7xl text-white uppercase leading-[0.88] tracking-tight">
             SECURE YOUR <span className="text-gradient-fire">SPOT</span>
@@ -382,8 +382,8 @@ export default function BookingPage() {
               <div className="flex items-start gap-3 px-4 py-3.5 bg-amber-400/[0.06] border border-amber-400/20">
                 <ShieldAlert size={15} className="text-amber-400 shrink-0 mt-0.5" />
                 <div>
-                  <p className="font-grotesk text-xs text-amber-300 font-bold mb-0.5">Profile incomplete</p>
-                  <p className="font-grotesk text-[11px] text-white/50">
+                  <p className="font-grotesk text-[13px] text-amber-300 font-bold mb-0.5">Profile incomplete</p>
+                  <p className="font-grotesk text-[13px] text-white/70">
                     Please fill in: <span className="text-amber-300">{missingFields.join(", ")}</span> before booking.
                   </p>
                 </div>
@@ -406,13 +406,13 @@ export default function BookingPage() {
                   <div className="w-12 h-12 bg-black/30 flex items-center justify-center mb-4">
                     <Icon size={22} className="text-white" />
                   </div>
-                  <p className="font-grotesk text-[9px] tracking-[0.4em] uppercase text-white/70 mb-1">{pkg.subtitle}</p>
+                  <p className="font-grotesk text-[13px] tracking-[0.4em] uppercase text-white/70 mb-1">{pkg.subtitle}</p>
                   <h2 className="font-barlow font-black italic text-4xl text-white uppercase leading-[0.88] mb-3">{pkg.title}</h2>
                   <div className="flex items-center gap-2 flex-wrap">
-                    <span className="inline-flex items-center gap-1.5 font-grotesk text-[10px] tracking-wide text-white/70 bg-black/20 px-2.5 py-1">
+                    <span className="inline-flex items-center gap-1.5 font-grotesk text-[13px] tracking-wide text-white/70 bg-black/20 px-2.5 py-1">
                       <MapPin size={10} /> {locationName}
                     </span>
-                    <span className="inline-flex items-center gap-1.5 font-grotesk text-[10px] tracking-wide text-white/70 bg-black/20 px-2.5 py-1">
+                    <span className="inline-flex items-center gap-1.5 font-grotesk text-[13px] tracking-wide text-white/70 bg-black/20 px-2.5 py-1">
                       <Clock size={10} /> {pkg.duration}
                     </span>
                   </div>
@@ -428,7 +428,7 @@ export default function BookingPage() {
                   {/* Real backend content sections — each a labeled bullet list, empties skipped */}
                   {sections.map((section) => (
                     <div key={section.label}>
-                      <p className="font-grotesk text-[9px] tracking-[0.35em] uppercase text-white/30 mb-3">{section.label}</p>
+                      <p className="font-grotesk text-[13px] tracking-[0.35em] uppercase text-white/55 mb-3">{section.label}</p>
                       <ul className="space-y-2.5">
                         {section.items.map((item) => (
                           <li key={item} className="flex items-start gap-3">
@@ -443,22 +443,22 @@ export default function BookingPage() {
                   {/* Price box */}
                   <div className="border border-white/[0.08] bg-white/[0.03] p-5">
                     <div className="flex items-end justify-between mb-3">
-                      <span className="font-grotesk text-[9px] tracking-[0.35em] uppercase text-white/40">Total Amount</span>
+                      <span className="font-grotesk text-[13px] tracking-[0.35em] uppercase text-white/60">Total Amount</span>
                       <span className="font-barlow font-black italic text-3xl text-white">{fmt(pkg.price)}</span>
                     </div>
                     <div className="space-y-1.5">
                       <div className="flex justify-between">
-                        <span className="font-grotesk text-[11px] text-white/40">Camp fee</span>
-                        <span className="font-grotesk text-[11px] text-white/60">{fmt(pkg.price)}</span>
+                        <span className="font-grotesk text-[13px] text-white/60">Camp fee</span>
+                        <span className="font-grotesk text-[13px] text-white/60">{fmt(pkg.price)}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="font-grotesk text-[11px] text-white/40">Duration</span>
-                        <span className="font-grotesk text-[11px] text-white/60">{pkg.duration_days} days</span>
+                        <span className="font-grotesk text-[13px] text-white/60">Duration</span>
+                        <span className="font-grotesk text-[13px] text-white/60">{pkg.duration_days} days</span>
                       </div>
                       {startDateLabel && (
                         <div className="flex justify-between">
-                          <span className="font-grotesk text-[11px] text-white/40">Start date</span>
-                          <span className="font-grotesk text-[11px] text-white/60">{startDateLabel}</span>
+                          <span className="font-grotesk text-[13px] text-white/60">Start date</span>
+                          <span className="font-grotesk text-[13px] text-white/60">{startDateLabel}</span>
                         </div>
                       )}
                     </div>
@@ -514,7 +514,7 @@ export default function BookingPage() {
               {/* ── Emergency Contact ── */}
               <div className="border border-white/[0.08] bg-white/[0.015] p-5 sm:p-6 md:p-8">
                 <SectionHeader icon={<Phone size={14} />} title="Emergency Contact" complete={sectionComplete.emergency} />
-                <p className="font-grotesk text-[11px] text-white/35 mb-5">Required for all camp participants — someone we can reach if needed.</p>
+                <p className="font-grotesk text-[13px] text-white/55 mb-5">Required for all camp participants — someone we can reach if needed.</p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <FormField label="Contact Name" required error={errors.emergencyName}>
                     <TextInput
@@ -563,7 +563,7 @@ export default function BookingPage() {
                     />
                   </FormField>
                 </div>
-                <p className="font-grotesk text-[11px] text-white/30 mt-3">Medical info helps our coaches keep you safe during training. All data is confidential.</p>
+                <p className="font-grotesk text-[13px] text-white/55 mt-3">Medical info helps our coaches keep you safe during training. All data is confidential.</p>
               </div>
 
               {/* ── Order Summary + CTA ── */}
@@ -572,15 +572,15 @@ export default function BookingPage() {
 
                 <div className="space-y-3 mb-6">
                   <div className="flex justify-between items-center py-2.5 border-b border-white/[0.05]">
-                    <span className="font-grotesk text-sm text-white/50">Camp</span>
+                    <span className="font-grotesk text-sm text-white/70">Camp</span>
                     <span className="font-grotesk text-sm text-white font-bold">{pkg.title}</span>
                   </div>
                   <div className="flex justify-between items-center py-2.5 border-b border-white/[0.05]">
-                    <span className="font-grotesk text-sm text-white/50">{isMultiLocation ? "Locations" : "Location"}</span>
+                    <span className="font-grotesk text-sm text-white/70">{isMultiLocation ? "Locations" : "Location"}</span>
                     <span className="font-grotesk text-sm text-white">{locationName}</span>
                   </div>
                   <div className="flex justify-between items-center py-2.5 border-b border-white/[0.05]">
-                    <span className="font-grotesk text-sm text-white/50">Duration</span>
+                    <span className="font-grotesk text-sm text-white/70">Duration</span>
                     <span className="font-grotesk text-sm text-white">{pkg.duration_days} Days</span>
                   </div>
                   <div className="flex justify-between items-center pt-3">
@@ -599,7 +599,7 @@ export default function BookingPage() {
                       className="flex items-center gap-2.5 px-4 py-3 bg-red-500/[0.07] border border-red-500/20 mb-5"
                     >
                       <AlertCircle size={14} className="text-red-400 shrink-0" />
-                      <p className="font-grotesk text-xs text-red-300">{submitError}</p>
+                      <p className="font-grotesk text-[13px] text-red-300">{submitError}</p>
                     </motion.div>
                   )}
                 </AnimatePresence>
@@ -623,8 +623,8 @@ export default function BookingPage() {
                 </button>
 
                 <div className="flex items-center justify-center gap-1.5 mt-4">
-                  <Lock size={11} className="text-white/30" />
-                  <p className="font-grotesk text-[10px] text-white/30 text-center leading-relaxed">
+                  <Lock size={11} className="text-white/55" />
+                  <p className="font-grotesk text-[13px] text-white/55 text-center leading-relaxed">
                     Secured by Razorpay · Your spot is confirmed only after payment succeeds.
                   </p>
                 </div>

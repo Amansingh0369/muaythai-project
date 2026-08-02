@@ -37,7 +37,7 @@ export default function GoogleAuthButton({ redirectPath }: GoogleAuthButtonProps
   return (
     <div className="w-full flex flex-col items-center gap-3">
       {loading ? (
-        <div className="flex items-center gap-2 text-primary text-xs font-barlow font-bold uppercase tracking-widest animate-pulse py-3">
+        <div className="flex items-center gap-2 text-primary text-[13px] font-barlow font-bold uppercase tracking-widest animate-pulse py-3">
           <Loader2 size={16} className="animate-spin" />
           Verifying...
         </div>
@@ -63,7 +63,7 @@ export default function GoogleAuthButton({ redirectPath }: GoogleAuthButtonProps
             initial={{ opacity: 0, y: 6 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0 }}
-            className="text-red-400 text-xs font-grotesk text-center"
+            className="text-red-400 text-[13px] font-grotesk text-center"
           >
             {error}
           </motion.p>

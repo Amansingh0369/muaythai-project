@@ -40,7 +40,7 @@ const IntroAnimation = ({ onComplete }: IntroAnimationProps) => {
           
           {/* Eyebrow text flashing in */}
           <motion.div
-            className="font-grotesk text-[10px] md:text-[12px] tracking-[0.45em] uppercase text-primary mb-6"
+            className="font-grotesk text-[12px] md:text-[13px] tracking-[0.45em] uppercase text-primary mb-6"
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: [0, 1, 0, 1], scale: 1 }}
             transition={{ duration: 0.4, ease: "easeOut" }}

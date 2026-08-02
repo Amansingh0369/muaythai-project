@@ -67,8 +67,8 @@ function SectionHeader({ icon, title }: { icon: React.ReactNode; title: string }
 function FieldRow({ label, value }: { label: string; value: string | null }) {
   return (
     <div className="flex flex-col gap-0.5">
-      <span className="font-grotesk text-[9px] uppercase tracking-[0.3em] text-white/55 font-bold">{label}</span>
-      <span className="font-grotesk text-sm text-white">{value || <span className="text-white/50 italic">Not set</span>}</span>
+      <span className="font-grotesk text-[13px] uppercase tracking-[0.3em] text-white/55 font-bold">{label}</span>
+      <span className="font-grotesk text-sm text-white">{value || <span className="text-white/70 italic">Not set</span>}</span>
     </div>
   );
 }
@@ -77,13 +77,13 @@ const EditInput = forwardRef<HTMLInputElement, React.InputHTMLAttributes<HTMLInp
   function EditInput({ label, error, ...props }, ref) {
     return (
       <div className="flex flex-col gap-1.5">
-        <label className="font-grotesk text-[9px] uppercase tracking-[0.3em] text-white/60 font-bold">{label}</label>
+        <label className="font-grotesk text-[13px] uppercase tracking-[0.3em] text-white/60 font-bold">{label}</label>
         <input
           ref={ref}
-          className={`w-full bg-white/[0.08] border px-3 py-2.5 text-sm font-grotesk text-white placeholder:text-white/30 outline-none focus:bg-white/[0.12] transition-colors duration-200 ${error ? "border-red-500/50" : "border-white/15 focus:border-primary/60"}`}
+          className={`w-full bg-white/[0.08] border px-3 py-2.5 text-sm font-grotesk text-white placeholder:text-white/55 outline-none focus:bg-white/[0.12] transition-colors duration-200 ${error ? "border-red-500/50" : "border-white/15 focus:border-primary/60"}`}
           {...props}
         />
-        {error && <p className="font-grotesk text-[10px] text-red-400">{error}</p>}
+        {error && <p className="font-grotesk text-[13px] text-red-400">{error}</p>}
       </div>
     );
   }
@@ -93,7 +93,7 @@ const EditSelect = forwardRef<HTMLSelectElement, React.SelectHTMLAttributes<HTML
   function EditSelect({ label, children, error, ...props }, ref) {
     return (
       <div className="flex flex-col gap-1.5">
-        <label className="font-grotesk text-[9px] uppercase tracking-[0.3em] text-white/60 font-bold">{label}</label>
+        <label className="font-grotesk text-[13px] uppercase tracking-[0.3em] text-white/60 font-bold">{label}</label>
         <select
           ref={ref}
           className="w-full bg-white/[0.08] border border-white/15 px-3 py-2.5 text-sm font-grotesk text-white outline-none focus:border-primary/60 transition-colors duration-200 appearance-none"
@@ -101,7 +101,7 @@ const EditSelect = forwardRef<HTMLSelectElement, React.SelectHTMLAttributes<HTML
         >
           {children}
         </select>
-        {error && <p className="font-grotesk text-[10px] text-red-400">{error}</p>}
+        {error && <p className="font-grotesk text-[13px] text-red-400">{error}</p>}
       </div>
     );
   }
@@ -197,7 +197,7 @@ export default function ProfilePage() {
 
   if (isLoading || fetching) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <Loader2 className="text-primary animate-spin" size={32} />
       </div>
     );
@@ -205,13 +205,13 @@ export default function ProfilePage() {
 
   if (fetchError || !fullUser) {
     return (
-      <div className="min-h-screen bg-black pt-[98px] flex items-center justify-center">
+      <div className="min-h-screen bg-background pt-[98px] flex items-center justify-center">
         <div className="text-center flex flex-col items-center gap-4">
           <AlertCircle size={32} className="text-red-400" />
           <p className="font-grotesk text-white/60 text-sm">{fetchError ?? "Could not load profile."}</p>
           <button
             onClick={() => window.location.reload()}
-            className="px-6 py-2.5 font-barlow font-bold text-[11px] tracking-[0.2em] uppercase bg-primary text-black"
+            className="px-6 py-2.5 font-barlow font-bold text-[13px] tracking-[0.2em] uppercase bg-primary text-black"
           >
             Retry
           </button>
@@ -223,7 +223,7 @@ export default function ProfilePage() {
   const p = fullUser.profile;
 
   return (
-    <div className="min-h-screen bg-black pt-[98px]">
+    <div className="min-h-screen bg-background pt-[98px]">
 
       {/* ── HERO BANNER ──────────────────────────────────────────────────── */}
       <div className="relative border-b border-white/[0.06] overflow-hidden">
@@ -248,24 +248,24 @@ export default function ProfilePage() {
             {/* Info */}
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-3 mb-1 flex-wrap">
-                <span className="font-grotesk text-[9px] tracking-[0.5em] uppercase text-primary font-bold">This Is Muay Thai</span>
+                <span className="font-grotesk text-[13px] tracking-[0.5em] uppercase text-primary font-bold">This Is Muay Thai</span>
                 {fullUser.role === "ADMIN" && (
-                  <span className="font-grotesk text-[9px] tracking-[0.2em] uppercase bg-primary/20 border border-primary/30 text-primary px-2 py-0.5">Admin</span>
+                  <span className="font-grotesk text-[13px] tracking-[0.2em] uppercase bg-primary/20 border border-primary/30 text-primary px-2 py-0.5">Admin</span>
                 )}
               </div>
               <h1 className="font-barlow font-black italic text-3xl md:text-4xl uppercase text-white leading-tight truncate">
                 {fullUser.full_name ?? "Warrior"}
               </h1>
               <div className="flex flex-wrap items-center gap-4 mt-2">
-                <span className="flex items-center gap-1.5 font-grotesk text-xs text-white/65">
+                <span className="flex items-center gap-1.5 font-grotesk text-[13px] text-white/65">
                   <Mail size={12} /> {fullUser.email}
                 </span>
                 {p?.phone_no && (
-                  <span className="flex items-center gap-1.5 font-grotesk text-xs text-white/65">
+                  <span className="flex items-center gap-1.5 font-grotesk text-[13px] text-white/65">
                     <Phone size={12} /> {p.phone_no}
                   </span>
                 )}
-                <span className="flex items-center gap-1.5 font-grotesk text-xs text-white/65">
+                <span className="flex items-center gap-1.5 font-grotesk text-[13px] text-white/65">
                   <Calendar size={12} /> Joined {formatDate(fullUser.created_at)}
                 </span>
               </div>
@@ -276,14 +276,14 @@ export default function ProfilePage() {
               {!editing && (
                 <button
                   onClick={() => setEditing(true)}
-                  className="flex items-center gap-2 px-5 py-2.5 font-barlow font-bold text-[11px] tracking-[0.2em] uppercase border border-white/15 text-white/60 hover:border-primary/50 hover:text-primary transition-all duration-200"
+                  className="flex items-center gap-2 px-5 py-2.5 font-barlow font-bold text-[13px] tracking-[0.2em] uppercase border border-white/15 text-white/60 hover:border-primary/50 hover:text-primary transition-all duration-200"
                 >
                   <Edit2 size={13} /> Edit Profile
                 </button>
               )}
               <button
                 onClick={() => { logout(); router.push("/"); }}
-                className="flex items-center gap-2 px-5 py-2.5 font-barlow font-bold text-[11px] tracking-[0.2em] uppercase border border-white/10 text-white/50 hover:border-red-500/40 hover:text-red-400 transition-all duration-200"
+                className="flex items-center gap-2 px-5 py-2.5 font-barlow font-bold text-[13px] tracking-[0.2em] uppercase border border-white/10 text-white/70 hover:border-red-500/40 hover:text-red-400 transition-all duration-200"
               >
                 <LogOut size={13} /> Logout
               </button>
@@ -294,7 +294,7 @@ export default function ProfilePage() {
           {p?.experience_level && (
             <div className="mt-5 flex items-center gap-2">
               <Activity size={13} className="text-primary" />
-              <span className="font-grotesk text-[10px] uppercase tracking-[0.3em] text-white/40">
+              <span className="font-grotesk text-[13px] uppercase tracking-[0.3em] text-white/60">
                 {p.experience_level} Fighter
               </span>
             </div>
@@ -341,11 +341,11 @@ export default function ProfilePage() {
                     </EditSelect>
                     <div className="sm:col-span-2">
                       <div className="flex flex-col gap-1.5">
-                        <label className="font-grotesk text-[9px] uppercase tracking-[0.3em] text-white/40 font-bold">Bio</label>
+                        <label className="font-grotesk text-[13px] uppercase tracking-[0.3em] text-white/60 font-bold">Bio</label>
                         <textarea
                           rows={3}
                           placeholder="Tell us a bit about yourself..."
-                          className="w-full bg-white/[0.08] border border-white/15 px-3 py-2.5 text-sm font-grotesk text-white placeholder:text-white/30 outline-none focus:border-primary/60 resize-none transition-colors duration-200"
+                          className="w-full bg-white/[0.08] border border-white/15 px-3 py-2.5 text-sm font-grotesk text-white placeholder:text-white/55 outline-none focus:border-primary/60 resize-none transition-colors duration-200"
                           {...register("bio")}
                         />
                       </div>
@@ -427,7 +427,7 @@ export default function ProfilePage() {
                     <button
                       type="submit"
                       disabled={isSubmitting}
-                      className="group relative overflow-hidden flex items-center gap-2 px-8 py-3 font-barlow font-black text-[12px] tracking-[0.25em] uppercase bg-primary text-black hover:shadow-[0_0_25px_hsl(var(--primary)/0.4)] disabled:opacity-60 transition-all duration-300"
+                      className="group relative overflow-hidden flex items-center gap-2 px-8 py-3 font-barlow font-black text-[13px] tracking-[0.25em] uppercase bg-primary text-black hover:shadow-[0_0_25px_hsl(var(--primary)/0.4)] disabled:opacity-60 transition-all duration-300"
                     >
                       {isSubmitting ? <Loader2 size={13} className="animate-spin" /> : <Check size={13} />}
                       {isSubmitting ? "Saving…" : "Save Changes"}
@@ -435,12 +435,12 @@ export default function ProfilePage() {
                     <button
                       type="button"
                       onClick={() => { setEditing(false); setSaveError(null); }}
-                      className="flex items-center gap-2 px-6 py-3 font-barlow font-bold text-[12px] tracking-[0.2em] uppercase border border-white/15 text-white/50 hover:text-white transition-colors duration-200"
+                      className="flex items-center gap-2 px-6 py-3 font-barlow font-bold text-[13px] tracking-[0.2em] uppercase border border-white/15 text-white/70 hover:text-white transition-colors duration-200"
                     >
                       <X size={13} /> Cancel
                     </button>
                     {saveError && (
-                      <p className="font-grotesk text-xs text-red-400 flex items-center gap-1.5">
+                      <p className="font-grotesk text-[13px] text-red-400 flex items-center gap-1.5">
                         <AlertCircle size={12} /> {saveError}
                       </p>
                     )}
@@ -458,8 +458,8 @@ export default function ProfilePage() {
                 {fullUser.orders.length === 0 ? (
                   <div className="py-8 flex flex-col items-center gap-3 text-center">
                     <Package size={28} className="text-white/15" />
-                    <p className="font-grotesk text-xs text-white/30">No bookings yet.</p>
-                    <a href="/locations" className="font-grotesk text-xs text-primary hover:underline">Browse camps →</a>
+                    <p className="font-grotesk text-[13px] text-white/55">No bookings yet.</p>
+                    <a href="/locations" className="font-grotesk text-[13px] text-primary hover:underline">Browse camps →</a>
                   </div>
                 ) : (
                   <div className="flex flex-col gap-3">
@@ -474,9 +474,9 @@ export default function ProfilePage() {
                           <div className="flex items-center justify-between mb-2.5">
                             <span className="inline-flex items-center gap-1.5">
                               <span className={`w-1.5 h-1.5 rounded-full ${meta.dot}`} />
-                              <span className={`font-grotesk text-[9px] font-bold uppercase tracking-[0.28em] ${meta.tone}`}>{meta.label}</span>
+                              <span className={`font-grotesk text-[13px] font-bold uppercase tracking-[0.28em] ${meta.tone}`}>{meta.label}</span>
                             </span>
-                            <span className="font-grotesk text-[10px] text-white/45 tracking-wide">{formatDate(order.created_at)}</span>
+                            <span className="font-grotesk text-[13px] text-white/65 tracking-wide">{formatDate(order.created_at)}</span>
                           </div>
 
                           {/* name + price */}

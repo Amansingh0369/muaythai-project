@@ -109,11 +109,11 @@ export default function SelectPackagePage() {
 
   if (!meta) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center text-center px-6">
+      <div className="min-h-screen bg-background flex items-center justify-center text-center px-6">
         <div className="flex flex-col items-center gap-4">
           <AlertCircle size={32} className="text-red-400" />
           <p className="font-grotesk text-white/60 text-sm">Invalid camp type.</p>
-          <button onClick={() => router.push("/#camps")} className="px-6 py-2.5 font-barlow font-bold text-[11px] tracking-[0.2em] uppercase bg-primary text-black">
+          <button onClick={() => router.push("/#camps")} className="px-6 py-2.5 font-barlow font-bold text-[13px] tracking-[0.2em] uppercase bg-primary text-black">
             Back to Camps
           </button>
         </div>
@@ -122,7 +122,7 @@ export default function SelectPackagePage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#050505]">
+    <div className="min-h-screen bg-background">
       <Navbar />
 
       <div className="pt-[88px] pb-24">
@@ -130,7 +130,7 @@ export default function SelectPackagePage() {
         <div className="max-w-6xl mx-auto px-5 md:px-10 lg:px-16 pt-8 pb-6">
           <button
             onClick={() => router.back()}
-            className="inline-flex items-center gap-2 font-grotesk text-xs text-white/40 hover:text-white/80 transition-colors duration-200 group"
+            className="inline-flex items-center gap-2 font-grotesk text-[13px] text-white/60 hover:text-white/80 transition-colors duration-200 group"
           >
             <ArrowLeft size={14} className="group-hover:-translate-x-1 transition-transform duration-200" />
             Back to Camps
@@ -141,7 +141,7 @@ export default function SelectPackagePage() {
         <div className="max-w-6xl mx-auto px-5 md:px-10 lg:px-16 mb-12">
           <div className="flex items-center gap-3 mb-4">
             <span className="inline-block w-6 h-[2px] bg-primary" />
-            <span className="font-grotesk text-[10px] tracking-[0.45em] uppercase text-primary font-medium">Select Your Slot</span>
+            <span className="font-grotesk text-[13px] tracking-[0.45em] uppercase text-primary font-medium">Select Your Slot</span>
           </div>
           <div className="flex items-start gap-5">
             <div className={`w-16 h-16 bg-gradient-to-br ${meta.accent} flex items-center justify-center shrink-0`}>
@@ -151,7 +151,7 @@ export default function SelectPackagePage() {
               <h1 className="font-barlow font-black italic text-5xl md:text-6xl lg:text-7xl text-white uppercase leading-[0.88] tracking-tight">
                 {meta.label}
               </h1>
-              <p className="font-grotesk text-sm text-white/40 mt-2">{meta.subtitle}</p>
+              <p className="font-grotesk text-sm text-white/60 mt-2">{meta.subtitle}</p>
             </div>
           </div>
         </div>
@@ -168,7 +168,7 @@ export default function SelectPackagePage() {
                 className="flex flex-col items-center justify-center py-32 gap-6"
               >
                 <Loader2 className="animate-spin text-primary w-10 h-10" />
-                <p className="font-grotesk text-[10px] tracking-[0.4em] uppercase text-white/30 animate-pulse">
+                <p className="font-grotesk text-[13px] tracking-[0.4em] uppercase text-white/55 animate-pulse">
                   Loading Available Camps…
                 </p>
               </motion.div>
@@ -181,10 +181,10 @@ export default function SelectPackagePage() {
                 className="flex flex-col items-center justify-center py-24 gap-4 text-center"
               >
                 <AlertCircle className="text-red-500/50 w-10 h-10" />
-                <p className="text-white/40 text-sm font-grotesk">{error}</p>
+                <p className="text-white/60 text-sm font-grotesk">{error}</p>
                 <button
                   onClick={() => window.location.reload()}
-                  className="mt-2 px-8 py-3 bg-white/5 border border-white/10 text-white text-xs font-bold uppercase tracking-widest hover:bg-white/10 transition-all font-grotesk"
+                  className="mt-2 px-8 py-3 bg-white/5 border border-white/10 text-white text-[13px] font-bold uppercase tracking-widest hover:bg-white/10 transition-all font-grotesk"
                 >
                   Retry
                 </button>
@@ -199,12 +199,12 @@ export default function SelectPackagePage() {
               >
                 <Icon className="text-white/10 w-16 h-16" />
                 <h3 className="text-white font-black text-2xl uppercase tracking-tighter font-barlow italic">No Slots Available</h3>
-                <p className="text-white/40 text-sm max-w-sm font-grotesk">
+                <p className="text-white/60 text-sm max-w-sm font-grotesk">
                   No {meta.label.toLowerCase()} camps are currently open for booking. Check back soon.
                 </p>
                 <button
                   onClick={() => router.push("/#camps")}
-                  className="mt-4 px-8 py-3 border border-white/10 text-white text-xs font-bold uppercase tracking-widest hover:bg-white/5 transition-all font-grotesk"
+                  className="mt-4 px-8 py-3 border border-white/10 text-white text-[13px] font-bold uppercase tracking-widest hover:bg-white/5 transition-all font-grotesk"
                 >
                   View Other Camps
                 </button>
@@ -217,10 +217,10 @@ export default function SelectPackagePage() {
                 exit={{ opacity: 0 }}
               >
                 <div className="flex items-center gap-3 mb-6">
-                  <span className="font-grotesk text-[10px] tracking-[0.3em] uppercase text-primary/80 border border-primary/20 px-2.5 py-1">
+                  <span className="font-grotesk text-[13px] tracking-[0.3em] uppercase text-primary/80 border border-primary/20 px-2.5 py-1">
                     {kind === "GROUP" ? "Group Packages" : "Individual Packages"}
                   </span>
-                  <p className="font-grotesk text-[10px] tracking-[0.4em] uppercase text-white/30">
+                  <p className="font-grotesk text-[13px] tracking-[0.4em] uppercase text-white/55">
                     {packages.length} slot{packages.length !== 1 ? "s" : ""} available — pick your location & date
                   </p>
                 </div>
@@ -242,28 +242,28 @@ export default function SelectPackagePage() {
                     >
                       {/* Left — location + name */}
                       <div className="flex-1 min-w-0">
-                        <p className="font-grotesk text-[9px] tracking-[0.4em] uppercase text-primary mb-1">
+                        <p className="font-grotesk text-[13px] tracking-[0.4em] uppercase text-primary mb-1">
                           {packageLocationNames(pkg)}
                         </p>
                         <h3 className="font-barlow font-black italic text-2xl md:text-3xl text-white uppercase leading-tight mb-2 truncate">
                           {pkg.name}
                         </h3>
-                        <p className="font-grotesk text-xs text-white/40 leading-relaxed line-clamp-2">{pkg.description}</p>
+                        <p className="font-grotesk text-[13px] text-white/60 leading-relaxed line-clamp-2">{pkg.description}</p>
                       </div>
 
                       {/* Middle — meta chips */}
                       <div className="flex flex-wrap sm:flex-col gap-2 sm:gap-3 shrink-0">
-                        <span className="inline-flex items-center gap-1.5 font-grotesk text-[10px] tracking-wide text-white/60 bg-white/[0.06] border border-white/[0.08] px-3 py-1.5">
+                        <span className="inline-flex items-center gap-1.5 font-grotesk text-[13px] tracking-wide text-white/60 bg-white/[0.06] border border-white/[0.08] px-3 py-1.5">
                           <MapPin size={10} className="text-primary" />
                           {packageLocationNames(pkg)}
                         </span>
                         {pkg.start_date && (
-                          <span className="inline-flex items-center gap-1.5 font-grotesk text-[10px] tracking-wide text-white/60 bg-white/[0.06] border border-white/[0.08] px-3 py-1.5">
+                          <span className="inline-flex items-center gap-1.5 font-grotesk text-[13px] tracking-wide text-white/60 bg-white/[0.06] border border-white/[0.08] px-3 py-1.5">
                             <CalendarDays size={10} className="text-primary" />
                             {formatDate(pkg.start_date)}
                           </span>
                         )}
-                        <span className="inline-flex items-center gap-1.5 font-grotesk text-[10px] tracking-wide text-white/60 bg-white/[0.06] border border-white/[0.08] px-3 py-1.5">
+                        <span className="inline-flex items-center gap-1.5 font-grotesk text-[13px] tracking-wide text-white/60 bg-white/[0.06] border border-white/[0.08] px-3 py-1.5">
                           {pkg.duration_days} Days
                         </span>
                       </div>
@@ -271,7 +271,7 @@ export default function SelectPackagePage() {
                       {/* Right — price + CTA */}
                       <div className="shrink-0 flex flex-row sm:flex-col items-center sm:items-end gap-4 sm:gap-3">
                         <span className="font-barlow font-black italic text-3xl text-white">{fmt(pkg.price)}</span>
-                        <span className="font-grotesk text-[10px] tracking-[0.3em] uppercase text-white/30 border border-white/10 px-4 py-2 group-hover:border-primary group-hover:text-primary transition-colors duration-300">
+                        <span className="font-grotesk text-[13px] tracking-[0.3em] uppercase text-white/55 border border-white/10 px-4 py-2 group-hover:border-primary group-hover:text-primary transition-colors duration-300">
                           Book Now →
                         </span>
                       </div>

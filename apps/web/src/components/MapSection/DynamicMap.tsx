@@ -242,7 +242,7 @@ export default function DynamicMap({ onMapReady }: DynamicMapProps) {
             className="group text-left bg-black/85 border border-white/15 backdrop-blur-sm
                        px-4 py-3 hover:border-primary/60 transition-colors"
           >
-            <span className="block text-[10px] uppercase tracking-[0.25em] text-primary font-grotesk font-bold mb-1">
+            <span className="block text-[12px] uppercase tracking-[0.25em] text-primary font-grotesk font-bold mb-1">
               Camp
             </span>
             <span className="flex items-center justify-between gap-2">
@@ -251,14 +251,14 @@ export default function DynamicMap({ onMapReady }: DynamicMapProps) {
               </span>
               <ArrowRight
                 size={16}
-                className="text-white/40 group-hover:text-primary group-hover:translate-x-0.5 transition-all shrink-0"
+                className="text-white/60 group-hover:text-primary group-hover:translate-x-0.5 transition-all shrink-0"
               />
             </span>
           </button>
 
           {/* City */}
           <div className="bg-black/85 border border-white/15 backdrop-blur-sm px-4 py-2.5">
-            <span className="block text-[10px] uppercase tracking-[0.25em] text-white/40 font-grotesk font-bold mb-0.5">
+            <span className="block text-[12px] uppercase tracking-[0.25em] text-white/60 font-grotesk font-bold mb-0.5">
               City
             </span>
             <span className="flex items-center gap-1.5 text-white text-sm font-semibold">
@@ -269,10 +269,10 @@ export default function DynamicMap({ onMapReady }: DynamicMapProps) {
 
           {/* Address */}
           <div className="bg-black/85 border border-white/15 backdrop-blur-sm px-4 py-2.5">
-            <span className="block text-[10px] uppercase tracking-[0.25em] text-white/40 font-grotesk font-bold mb-0.5">
+            <span className="block text-[12px] uppercase tracking-[0.25em] text-white/60 font-grotesk font-bold mb-0.5">
               Address
             </span>
-            <span className="block text-white/80 text-xs leading-snug">
+            <span className="block text-white/80 text-[13px] leading-snug">
               {activeLocation.address || "—"}
             </span>
           </div>

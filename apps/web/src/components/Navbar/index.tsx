@@ -26,7 +26,7 @@ const Navbar = () => {
           style={{ height: TOP_BAR_H }}
         >
           <div className="max-w-[1440px] w-full mx-auto flex items-center justify-between">
-            <span className="font-barlow font-bold text-[9px] md:text-[9.5px] tracking-[0.25em] uppercase text-white/40 italic truncate">
+            <span className="font-barlow font-bold text-[9px] md:text-[12px] tracking-[0.25em] uppercase text-white/60 italic truncate">
               {SITE_CONFIG.brand} <span className="text-white/25">— </span> <span className="text-primary/80">Gnova Group</span>
             </span>
             <div className="flex items-center gap-6">
@@ -34,7 +34,7 @@ const Navbar = () => {
                 href={`https://wa.me/${SITE_CONFIG.contact.phone.replace(/\D/g, "")}?text=${encodeURIComponent(SITE_CONFIG.contact.whatsappMessage)}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-1.5 font-barlow font-bold text-[9px] md:text-[9.5px] tracking-[0.25em] uppercase text-white/40 hover:text-primary transition-colors italic"
+                className="flex items-center gap-1.5 font-barlow font-bold text-[12px] md:text-[12px] tracking-[0.25em] uppercase text-white/60 hover:text-primary transition-colors italic"
               >
                 <WhatsAppIcon size={12} />
                 {SITE_CONFIG.contact.phone}
@@ -105,11 +105,11 @@ const Navbar = () => {
                       <div className="w-7 h-7 rounded-full bg-primary/20 border border-primary/40 flex items-center justify-center group-hover:bg-primary/30 group-hover:border-primary/60 transition-colors">
                         <UserIcon size={12} className="text-primary" />
                       </div>
-                      <span className="font-barlow font-bold text-[11px] text-white/50 tracking-[0.15em] uppercase truncate max-w-[100px] group-hover:text-white/80 transition-colors">
+                      <span className="font-barlow font-bold text-[13px] text-white/70 tracking-[0.15em] uppercase truncate max-w-[100px] group-hover:text-white/80 transition-colors">
                         {user.full_name?.split(" ")[0] ?? user.email}
                       </span>
                     </a>
-                    <button onClick={() => logout()} className="text-white/30 hover:text-primary transition-colors hover:scale-110 duration-200">
+                    <button onClick={() => logout()} className="text-white/55 hover:text-primary transition-colors hover:scale-110 duration-200">
                       <LogOut size={15} />
                     </button>
                   </div>
@@ -117,7 +117,7 @@ const Navbar = () => {
                   <div className="flex items-center gap-3">
                     <motion.a
                       href="/login"
-                      className="flex items-center justify-center px-6 h-9 font-barlow font-black text-[12px] tracking-[0.2em] uppercase text-white/70 border border-white/15 hover:border-primary/60 hover:text-primary transition-all duration-300"
+                      className="flex items-center justify-center px-6 h-9 font-barlow font-black text-[13px] tracking-[0.2em] uppercase text-white/70 border border-white/15 hover:border-primary/60 hover:text-primary transition-all duration-300"
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.97 }}
                     >
@@ -125,7 +125,7 @@ const Navbar = () => {
                     </motion.a>
                     <motion.a
                       href="/login?tab=signup"
-                      className="group relative overflow-hidden flex items-center justify-center gap-2 px-6 h-9 font-barlow font-black text-[12px] tracking-[0.2em] uppercase text-black bg-primary shadow-[0_0_20px_hsl(var(--primary)/0.25)] hover:shadow-[0_0_35px_hsl(var(--primary)/0.4)] transition-all duration-300"
+                      className="group relative overflow-hidden flex items-center justify-center gap-2 px-6 h-9 font-barlow font-black text-[13px] tracking-[0.2em] uppercase text-black bg-primary shadow-[0_0_20px_hsl(var(--primary)/0.25)] hover:shadow-[0_0_35px_hsl(var(--primary)/0.4)] transition-all duration-300"
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.97 }}
                     >
@@ -198,7 +198,7 @@ const Navbar = () => {
                     >
                       <UserIcon size={20} /> My Profile
                     </a>
-                    <button onClick={() => { logout(); setIsOpen(false); }} className="flex items-center gap-3 text-white/40 font-barlow font-bold uppercase tracking-widest hover:text-primary transition-colors">
+                    <button onClick={() => { logout(); setIsOpen(false); }} className="flex items-center gap-3 text-white/60 font-barlow font-bold uppercase tracking-widest hover:text-primary transition-colors">
                       <LogOut size={20} /> Logout
                     </button>
                   </div>

@@ -37,7 +37,7 @@ const ShopComingSoon = () => {
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.7 }}
         >
-          <span className="font-grotesk text-[10px] tracking-[0.45em] uppercase text-primary font-medium">
+          <span className="font-grotesk text-[12px] tracking-[0.45em] uppercase text-primary font-medium">
             Stay Tuned
           </span>
         </motion.div>
@@ -72,7 +72,7 @@ const ShopComingSoon = () => {
 
         {/* Subtext */}
         <motion.p
-          className="font-grotesk text-[13px] md:text-base text-white/45 leading-relaxed max-w-lg"
+          className="font-grotesk text-[13px] md:text-base text-white/65 leading-relaxed max-w-lg"
           initial={{ opacity: 0, y: 16 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ delay: 0.55, duration: 0.7 }}

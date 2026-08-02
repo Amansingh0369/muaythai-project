@@ -42,7 +42,7 @@ export default function BurnStrip() {
           viewport={{ once: true }}
         >
           <span className="inline-block w-8 h-[2px] bg-primary" />
-          <span className="font-grotesk text-[10px] md:text-xs tracking-[0.45em] uppercase text-primary font-medium">
+          <span className="font-grotesk text-[12px] md:text-[13px] tracking-[0.45em] uppercase text-primary font-medium">
             Next Level Training
           </span>
           <span className="inline-block w-8 h-[2px] bg-primary" />
@@ -60,7 +60,7 @@ export default function BurnStrip() {
         </motion.h2>
 
         <motion.p
-          className="font-grotesk text-sm md:text-base text-white/50 max-w-lg mt-8 leading-relaxed"
+          className="font-grotesk text-sm md:text-base text-white/70 max-w-lg mt-8 leading-relaxed"
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           transition={{ duration: 0.8, delay: 0.3 }}
@@ -80,7 +80,7 @@ export default function BurnStrip() {
           {[...Array(8)].map((_, i) => (
             <span
               key={i}
-              className="font-barlow font-black text-[12px] md:text-sm tracking-[0.4em] uppercase text-white/20 px-6"
+              className="font-barlow font-black text-[13px] md:text-sm tracking-[0.4em] uppercase text-white/20 px-6"
             >
               {SITE_CONFIG.brand} · FORGE YOUR LEGACY · BURN THE BOATS ·
             </span>

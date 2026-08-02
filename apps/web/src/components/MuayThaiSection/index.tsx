@@ -45,7 +45,7 @@ const MuayThaiSection = () => {
               transition={{ delay: 0.1, duration: 0.7 }}
             >
               <span className="inline-block w-6 h-[2px] bg-primary" />
-              <span className="font-grotesk text-[10px] tracking-[0.45em] uppercase text-primary font-medium">
+              <span className="font-grotesk text-[12px] tracking-[0.45em] uppercase text-primary font-medium">
                 The Art of Eight Limbs
               </span>
             </motion.div>
@@ -77,10 +77,10 @@ const MuayThaiSection = () => {
             animate={isInView ? { opacity: 1, y: 0 } : {}}
             transition={{ delay: 0.45, duration: 0.7 }}
           >
-            <p className="font-grotesk text-[13px] md:text-sm text-white/45 leading-relaxed">
+            <p className="font-grotesk text-[13px] md:text-sm text-white/65 leading-relaxed">
               Muay Thai is a striking martial art from Thailand that uses punches, kicks, elbows, and knees. But beyond techniques, it's a system built on discipline, conditioning, and control.
             </p>
-            <p className="font-grotesk text-[13px] md:text-sm text-white/45 leading-relaxed">
+            <p className="font-grotesk text-[13px] md:text-sm text-white/65 leading-relaxed">
               Every movement has purpose. Every session builds both physical and mental strength. It's not just about learning how to fight — it's about learning how to push limits, stay composed under pressure, and develop real confidence.
             </p>
           </motion.div>
@@ -97,13 +97,13 @@ const MuayThaiSection = () => {
           <div className="absolute left-0 top-0 bottom-0 w-[3px] bg-primary" />
 
           <div className="pl-6 md:pl-8">
-            <span className="font-grotesk text-[10px] tracking-[0.45em] uppercase text-primary font-medium block mb-4">
+            <span className="font-grotesk text-[12px] tracking-[0.45em] uppercase text-primary font-medium block mb-4">
               History
             </span>
             <h3 className="font-barlow font-black italic text-2xl md:text-4xl text-white uppercase leading-[0.9] mb-5">
               FROM ANCIENT BATTLEFIELDS<br className="hidden md:block" /> TO MODERN STADIUMS
             </h3>
-            <p className="font-grotesk text-[13px] md:text-sm text-white/45 leading-relaxed max-w-3xl">
+            <p className="font-grotesk text-[13px] md:text-sm text-white/65 leading-relaxed max-w-3xl">
               Muay Thai originated in Thailand centuries ago as a battlefield combat system. Over time, it evolved from survival into a national sport deeply rooted in Thai culture. From ancient warriors to modern stadiums, it has remained true to its core — discipline, respect, and resilience. Today, it is practiced worldwide, but its heart still lies in Thailand.
             </p>
           </div>
@@ -122,7 +122,7 @@ const MuayThaiSection = () => {
         >
           <div className="flex items-center gap-3 mb-10">
             <span className="inline-block w-6 h-[2px] bg-primary" />
-            <span className="font-grotesk text-[10px] tracking-[0.45em] uppercase text-primary font-medium">
+            <span className="font-grotesk text-[12px] tracking-[0.45em] uppercase text-primary font-medium">
               Why Muay Thai
             </span>
           </div>
@@ -152,7 +152,7 @@ const MuayThaiSection = () => {
                   <h4 className="font-barlow font-bold italic text-[13px] md:text-sm tracking-[0.1em] uppercase text-white mb-2 relative z-10">
                     {benefit.title}
                   </h4>
-                  <p className="font-grotesk text-[11px] md:text-xs text-white/40 group-hover:text-white/60 transition-colors duration-300 leading-relaxed relative z-10">
+                  <p className="font-grotesk text-[13px] md:text-[13px] text-white/60 group-hover:text-white/60 transition-colors duration-300 leading-relaxed relative z-10">
                     {benefit.desc}
                   </p>
 

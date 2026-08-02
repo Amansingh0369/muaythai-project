@@ -78,7 +78,7 @@ export default function ScrambleDemoPage() {
         {demos.map((demo) => (
           <div key={demo.name} className="space-y-4 border border-white/10 p-8 rounded-lg">
             <h2 className="text-xl font-bold">{demo.name}</h2>
-            <p className="text-sm text-white/40">{demo.description}</p>
+            <p className="text-sm text-white/60">{demo.description}</p>
             <div className="pt-4 border-t border-white/5">
               <demo.component />
             </div>

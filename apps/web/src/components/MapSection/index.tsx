@@ -9,9 +9,9 @@ import type { Map as LeafletMap } from "leaflet";
 const DynamicMap = dynamic(() => import("./DynamicMap"), {
   ssr: false,
   loading: () => (
-    <div className="w-full h-full flex flex-col items-center justify-center bg-[#0a0a0a] text-white">
+    <div className="w-full h-full flex flex-col items-center justify-center bg-background text-white">
       <Loader2 className="animate-spin text-primary w-10 h-10 mb-3" />
-      <span className="font-grotesk tracking-[0.3em] uppercase text-xs font-bold animate-pulse">
+      <span className="font-grotesk tracking-[0.3em] uppercase text-[13px] font-bold animate-pulse">
         Loading Map...
       </span>
     </div>

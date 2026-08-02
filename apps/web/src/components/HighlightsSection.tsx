@@ -72,7 +72,7 @@ const HighlightsSection = () => {
               transition={{ delay: 0.1, duration: 0.7 }}
             >
               <span className="inline-block w-6 h-[2px] bg-primary" />
-              <span className="font-grotesk text-[10px] tracking-[0.45em] uppercase text-primary font-medium">
+              <span className="font-grotesk text-[12px] tracking-[0.45em] uppercase text-primary font-medium">
                 What Sets Us Apart
               </span>
             </motion.div>
@@ -103,7 +103,7 @@ const HighlightsSection = () => {
               transition={{ delay: 0.55, duration: 0.7 }}
               className="space-y-5"
             >
-              <p className="font-grotesk text-[13px] md:text-sm text-white/45 leading-relaxed max-w-sm">
+              <p className="font-grotesk text-[13px] md:text-sm text-white/65 leading-relaxed max-w-sm">
                 We offer a complete Muay Thai experience. Our fight camps give you access to authentic, fighter-level training in the birthplace of Muay Thai.
               </p>
               <div className="flex items-start gap-4">
@@ -137,7 +137,7 @@ const HighlightsSection = () => {
                     style={{ background: "radial-gradient(circle at 0% 0%, hsl(24 95% 46% / 0.05) 0%, transparent 60%)" }}
                   />
                   <Icon className="w-4 h-4 text-primary mt-0.5 shrink-0 group-hover:scale-110 transition-transform duration-300" />
-                  <span className="font-grotesk text-[12px] md:text-sm text-white/60 group-hover:text-white/80 transition-colors duration-300 leading-relaxed">
+                  <span className="font-grotesk text-[13px] md:text-sm text-white/60 group-hover:text-white/80 transition-colors duration-300 leading-relaxed">
                     {item.text}
                   </span>
                 </motion.div>

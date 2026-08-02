@@ -131,7 +131,7 @@ const GroupBatchPopup = () => {
               <button
                 onClick={close}
                 aria-label="Close"
-                className="absolute top-4 right-4 text-white/40 hover:text-white transition-colors"
+                className="absolute top-4 right-4 text-white/60 hover:text-white transition-colors"
               >
                 <X size={18} />
               </button>
@@ -139,11 +139,11 @@ const GroupBatchPopup = () => {
               {/* Eyebrow */}
               <div className="flex items-center flex-wrap gap-3 mb-5">
                 <div className="flex items-center gap-2">
-                  <span className="font-grotesk text-[10px] tracking-[0.4em] uppercase text-primary font-bold">
+                  <span className="font-grotesk text-[12px] tracking-[0.4em] uppercase text-primary font-bold">
                     Next Departure
                   </span>
                 </div>
-                <span className="font-barlow font-bold text-[10px] tracking-[0.2em] uppercase text-primary bg-primary/10 border border-primary/30 px-2.5 py-1">
+                <span className="font-barlow font-bold text-[12px] tracking-[0.2em] uppercase text-primary bg-primary/10 border border-primary/30 px-2.5 py-1">
                   Upcoming Batch
                 </span>
               </div>
@@ -180,7 +180,7 @@ const GroupBatchPopup = () => {
               {/* Price + CTA */}
               <div className="flex items-center justify-between gap-4 mt-6">
                 <div className="flex flex-col">
-                  <span className="font-grotesk text-[10px] tracking-[0.25em] uppercase text-white/40">
+                  <span className="font-grotesk text-[12px] tracking-[0.25em] uppercase text-white/60">
                     From
                   </span>
                   <span className="font-barlow font-black italic text-2xl text-white">
@@ -190,7 +190,7 @@ const GroupBatchPopup = () => {
 
                 <button
                   onClick={goToBooking}
-                  className="group relative inline-flex items-center gap-2 bg-primary px-6 py-3.5 font-barlow font-black text-[12px] tracking-[0.2em] uppercase text-black overflow-hidden"
+                  className="group relative inline-flex items-center gap-2 bg-primary px-6 py-3.5 font-barlow font-black text-[13px] tracking-[0.2em] uppercase text-black overflow-hidden"
                 >
                   <span className="relative z-10">Reserve Spot</span>
                   <ArrowUpRight

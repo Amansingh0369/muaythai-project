@@ -103,7 +103,7 @@ const HeroSection = () => {
             transition={{ delay: 0.3, duration: 0.7 }}
           >
 
-            <span className="font-grotesk text-[10px] md:text-[11px] tracking-[0.45em] uppercase text-primary font-medium">
+            <span className="font-grotesk text-[12px] md:text-[13px] tracking-[0.45em] uppercase text-primary font-medium">
               Thailand's Premier Muay Thai Experience
             </span>
           </motion.div>
@@ -135,7 +135,7 @@ const HeroSection = () => {
             animate={{ y: [0, 7, 0] }}
             transition={{ repeat: Infinity, duration: 2.2, ease: "easeInOut" }}
           >
-            <ArrowDown size={14} className="text-white/30" />
+            <ArrowDown size={14} className="text-white/55" />
           </motion.div>
           <div className="w-px h-10 bg-gradient-to-b from-white/20 to-transparent" />
         </motion.div>
@@ -143,7 +143,7 @@ const HeroSection = () => {
         {/* Side vertical text */}
         <div className="absolute right-6 md:right-10 top-1/2 -translate-y-1/2 hidden lg:flex flex-col items-center gap-3">
           <span
-            className="font-grotesk text-[9px] tracking-[0.4em] uppercase text-white/20 rotate-90 origin-center whitespace-nowrap"
+            className="font-grotesk text-[12px] tracking-[0.4em] uppercase text-white/20 rotate-90 origin-center whitespace-nowrap"
             style={{ writingMode: "vertical-rl" }}
           >
             Scroll to explore
@@ -161,7 +161,7 @@ const HeroSection = () => {
           {[...Array(8)].map((_, i) => (
             <span
               key={i}
-              className="font-barlow font-black text-[11px] tracking-[0.4em] uppercase text-white/10 px-4"
+              className="font-barlow font-black text-[13px] tracking-[0.4em] uppercase text-white/10 px-4"
             >
               {SITE_CONFIG.brand} · Muay Thai Thailand · Train Hard · Fight Strong ·
             </span>

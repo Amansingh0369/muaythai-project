@@ -80,7 +80,7 @@ export default function SignupForm({ redirectPath }: SignupFormProps) {
           <button
             onClick={handleResend}
             disabled={resendState === "sending" || resendState === "sent"}
-            className="flex items-center gap-2 font-grotesk text-xs text-white/40
+            className="flex items-center gap-2 font-grotesk text-[13px] text-white/60
                        hover:text-primary disabled:cursor-not-allowed
                        transition-colors duration-200"
           >
@@ -95,7 +95,7 @@ export default function SignupForm({ redirectPath }: SignupFormProps) {
                 initial={{ opacity: 0, y: 4 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0 }}
-                className="font-grotesk text-[10px] text-red-400"
+                className="font-grotesk text-[13px] text-red-400"
               >
                 {resendMessage}
               </motion.p>
@@ -143,7 +143,7 @@ export default function SignupForm({ redirectPath }: SignupFormProps) {
         />
       </div>
 
-      <p className="font-grotesk text-[10px] text-white/25 -mt-1">
+      <p className="font-grotesk text-[13px] text-white/25 -mt-1">
         Min 8 chars · one uppercase · one number
       </p>
 
@@ -153,7 +153,7 @@ export default function SignupForm({ redirectPath }: SignupFormProps) {
             initial={{ opacity: 0, y: 4 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0 }}
-            className="font-grotesk text-xs text-red-400 text-center"
+            className="font-grotesk text-[13px] text-red-400 text-center"
           >
             {serverError}
           </motion.p>

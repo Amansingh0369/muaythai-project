@@ -27,7 +27,7 @@ function AuthCard() {
     >
       {/* Brand */}
       <div className="flex flex-col items-center mb-7">
-        <span className="font-grotesk text-[9px] tracking-[0.5em] uppercase text-primary font-bold mb-3">
+        <span className="font-grotesk text-[13px] tracking-[0.5em] uppercase text-primary font-bold mb-3">
           This Is Muay Thai
         </span>
         <AnimatePresence mode="wait">
@@ -49,7 +49,7 @@ function AuthCard() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="font-grotesk text-white/50 text-sm mt-2"
+            className="font-grotesk text-white/70 text-sm mt-2"
           >
             {tab === "login"
               ? "Sign in to access your bookings"
@@ -67,15 +67,15 @@ function AuthCard() {
         <div className="flex border border-white/[0.12] mb-8 relative overflow-hidden">
           <button
             onClick={() => setTab("login")}
-            className={`flex-1 py-3 font-barlow font-bold text-[11px] tracking-[0.25em] uppercase relative z-10 transition-colors duration-300
-              ${tab === "login" ? "text-black" : "text-white/50 hover:text-white/80"}`}
+            className={`flex-1 py-3 font-barlow font-bold text-[13px] tracking-[0.25em] uppercase relative z-10 transition-colors duration-300
+              ${tab === "login" ? "text-black" : "text-white/70 hover:text-white/80"}`}
           >
             Sign In
           </button>
           <button
             onClick={() => setTab("signup")}
-            className={`flex-1 py-3 font-barlow font-bold text-[11px] tracking-[0.25em] uppercase relative z-10 transition-colors duration-300
-              ${tab === "signup" ? "text-black" : "text-white/50 hover:text-white/80"}`}
+            className={`flex-1 py-3 font-barlow font-bold text-[13px] tracking-[0.25em] uppercase relative z-10 transition-colors duration-300
+              ${tab === "signup" ? "text-black" : "text-white/70 hover:text-white/80"}`}
           >
             Create Account
           </button>
@@ -110,7 +110,7 @@ function AuthCard() {
         </div>
 
         {/* Toggle hint */}
-        <p className="font-grotesk text-xs text-white/40 text-center mt-6">
+        <p className="font-grotesk text-[13px] text-white/60 text-center mt-6">
           {tab === "login" ? (
             <>
               New here?{" "}
@@ -130,7 +130,7 @@ function AuthCard() {
       </motion.div>
 
       {/* Legal */}
-      <p className="font-grotesk text-[10px] text-white/30 text-center mt-5 leading-relaxed">
+      <p className="font-grotesk text-[13px] text-white/55 text-center mt-5 leading-relaxed">
         By continuing you agree to our{" "}
         <a href="/terms" className="underline hover:text-white/60 transition-colors">Terms</a>
         {" & "}

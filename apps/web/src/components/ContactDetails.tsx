@@ -44,7 +44,7 @@ const ContactDetails = () => {
         {/* Section label */}
         <div className="flex items-center gap-3 mb-12">
           <span className="w-10 h-[2px] bg-primary" />
-          <span className="font-grotesk text-[10px] md:text-xs tracking-[0.4em] uppercase text-primary font-bold">
+          <span className="font-grotesk text-[12px] md:text-[13px] tracking-[0.4em] uppercase text-primary font-bold">
             Reach Out
           </span>
         </div>
@@ -69,7 +69,7 @@ const ContactDetails = () => {
                   <Icon size={20} />
                 </span>
                 <span className="flex flex-col">
-                  <span className="font-grotesk text-[10px] tracking-[0.3em] uppercase text-white/40 mb-1">
+                  <span className="font-grotesk text-[12px] tracking-[0.3em] uppercase text-white/60 mb-1">
                     {channel.label}
                   </span>
                   <span className="font-barlow font-bold text-lg md:text-xl text-white group-hover:text-primary transition-colors duration-300 break-all">

@@ -60,7 +60,7 @@ export default function LoginForm({ redirectPath }: LoginFormProps) {
             initial={{ opacity: 0, y: 4 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0 }}
-            className="font-grotesk text-xs text-red-400 text-center"
+            className="font-grotesk text-[13px] text-red-400 text-center"
           >
             {serverError}
           </motion.p>

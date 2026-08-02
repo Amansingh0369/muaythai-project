@@ -34,7 +34,7 @@ const PageHero = ({ title, subtitle, image, label }: PageHeroProps) => {
             className="flex items-center gap-3 mb-6"
           >
             <span className="w-10 h-[2px] bg-primary" />
-            <span className="font-grotesk text-[10px] md:text-xs tracking-[0.4em] uppercase text-primary font-bold">
+            <span className="font-grotesk text-[12px] md:text-[13px] tracking-[0.4em] uppercase text-primary font-bold">
               {label}
             </span>
           </motion.div>
@@ -56,7 +56,7 @@ const PageHero = ({ title, subtitle, image, label }: PageHeroProps) => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.8, duration: 0.8 }}
-            className="mt-6 font-grotesk text-white/50 text-sm md:text-base max-w-xl leading-relaxed"
+            className="mt-6 font-grotesk text-white/70 text-sm md:text-base max-w-xl leading-relaxed"
           >
             {subtitle}
           </motion.p>

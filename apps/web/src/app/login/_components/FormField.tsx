@@ -15,7 +15,7 @@ const FormField = forwardRef<HTMLInputElement, FormFieldProps>(
 
     return (
       <div className="flex flex-col gap-1.5 w-full">
-        <label className="font-grotesk text-[10px] uppercase tracking-[0.3em] text-white/60 font-bold">
+        <label className="font-grotesk text-[13px] uppercase tracking-[0.3em] text-white/60 font-bold">
           {label}
         </label>
         <div className="relative">
@@ -24,7 +24,7 @@ const FormField = forwardRef<HTMLInputElement, FormFieldProps>(
             type={isPassword ? (visible ? "text" : "password") : props.type}
             className={`
               w-full bg-white/[0.07] border px-4 py-3 text-sm font-grotesk text-white
-              placeholder:text-white/30 outline-none
+              placeholder:text-white/55 outline-none
               transition-colors duration-200
               focus:bg-white/[0.11]
               ${error
@@ -41,14 +41,14 @@ const FormField = forwardRef<HTMLInputElement, FormFieldProps>(
               type="button"
               tabIndex={-1}
               onClick={() => setVisible((v) => !v)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/60 transition-colors"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-white/55 hover:text-white/60 transition-colors"
             >
               {visible ? <EyeOff size={15} /> : <Eye size={15} />}
             </button>
           )}
         </div>
         {error && (
-          <p className="font-grotesk text-[10px] text-red-400">{error}</p>
+          <p className="font-grotesk text-[13px] text-red-400">{error}</p>
         )}
       </div>
     );
