@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, Loader2, AlertCircle, User, Users } from "lucide-react";
+import { ArrowLeft, Loader2, AlertCircle, User, Users, Clock, MapPin, ChevronDown, SlidersHorizontal } from "lucide-react";
 import { packageService, type Package } from "@/services/package.service";
 import { useAuth } from "@/context/AuthContext";
 import Navbar from "@/components/Navbar";
@@ -32,6 +32,18 @@ function resolveKind(raw?: string): Kind | null {
   return value === "INDIVIDUAL" || value === "GROUP" ? value : null;
 }
 
+function GuidedHint({ icon: Icon, text }: { icon: typeof Clock; text: string }) {
+  return (
+    <div className="flex flex-col items-center justify-center gap-3 py-20 text-center border border-white/10 bg-white/[0.02]">
+      <Icon className="w-10 h-10 text-white/15" />
+      <p className="font-grotesk text-sm text-white/60 max-w-xs">{text}</p>
+    </div>
+  );
+}
+
+const selectClass =
+  "appearance-none w-full bg-white/[0.05] border border-white/15 text-white font-grotesk text-sm px-4 py-3.5 pr-10 focus:outline-none focus:border-primary/60 transition-colors cursor-pointer [&>option]:bg-black [&>option]:text-white";
+
 export default function CampsByKindPage() {
   const params = useParams();
   const router = useRouter();
@@ -48,6 +60,42 @@ export default function CampsByKindPage() {
 
   // A specific camp to scroll to + flash (e.g. arriving from a map camp click).
   const highlightParam = searchParams.get("highlight");
+
+  // Guided filters: "" = not chosen yet, "ALL" = no filter, else a specific value.
+  const [durationSel, setDurationSel] = useState<string>("");
+  const [citySel, setCitySel] = useState<string>("");
+
+  // Distinct durations present in the data (ascending).
+  const durations = useMemo(
+    () => Array.from(new Set(packages.map((p) => p.duration_days))).sort((a, b) => a - b),
+    [packages]
+  );
+
+  // Cities available for the chosen duration (cascades from the duration pick).
+  const cities = useMemo(() => {
+    const pool =
+      durationSel === "" || durationSel === "ALL"
+        ? packages
+        : packages.filter((p) => p.duration_days === Number(durationSel));
+    const set = new Set<string>();
+    pool.forEach((p) => (p.locations ?? []).forEach((l) => l.city && set.add(l.city)));
+    return Array.from(set).sort();
+  }, [packages, durationSel]);
+
+  // Camps matching both filters — only once both have been chosen.
+  const filtered = useMemo(() => {
+    if (durationSel === "" || citySel === "") return [];
+    return packages.filter((p) => {
+      const durationOk = durationSel === "ALL" || p.duration_days === Number(durationSel);
+      const cityOk = citySel === "ALL" || (p.locations ?? []).some((l) => l.city === citySel);
+      return durationOk && cityOk;
+    });
+  }, [packages, durationSel, citySel]);
+
+  const handleDurationChange = (value: string) => {
+    setDurationSel(value);
+    setCitySel(""); // re-choose the city whenever the duration changes
+  };
 
   useEffect(() => {
     if (!kind) return;
@@ -203,26 +251,102 @@ export default function CampsByKindPage() {
               </motion.div>
             ) : (
               <motion.div key="list" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                {/* Filter header */}
                 <div className="flex items-center gap-3 mb-6">
+                  <SlidersHorizontal size={16} className="text-primary" />
                   <span className="font-grotesk text-[13px] tracking-[0.3em] uppercase text-primary/80 border border-primary/20 px-2.5 py-1">
                     {meta.label}
                   </span>
-                  <p className="font-grotesk text-[13px] tracking-[0.4em] uppercase text-white/55">
-                    {packages.length} slot{packages.length !== 1 ? "s" : ""} available — pick your location &amp; date
+                  <p className="font-grotesk text-[13px] tracking-[0.3em] uppercase text-white/55">
+                    Filter to find your camp
                   </p>
                 </div>
 
-                <div className="flex flex-col gap-4">
-                  {packages.map((pkg, i) => (
-                    <PackageRow
-                      key={pkg.id}
-                      pkg={pkg}
-                      index={i}
-                      highlighted={highlightedId === pkg.id}
-                      onSelect={handleSelect}
-                    />
-                  ))}
+                {/* Cascading dropdowns: Duration → City */}
+                <div className="flex flex-col sm:flex-row gap-4 mb-10">
+                  <div className="flex-1 space-y-2">
+                    <label className="flex items-center gap-2 font-grotesk text-[12px] tracking-[0.3em] uppercase text-white/50">
+                      <Clock size={13} className="text-primary" /> Duration
+                    </label>
+                    <div className="relative">
+                      <select
+                        value={durationSel}
+                        onChange={(e) => handleDurationChange(e.target.value)}
+                        className={selectClass}
+                      >
+                        <option value="" disabled>
+                          Select duration…
+                        </option>
+                        <option value="ALL">All durations</option>
+                        {durations.map((d) => (
+                          <option key={d} value={String(d)}>
+                            {d} {d === 1 ? "Day" : "Days"}
+                          </option>
+                        ))}
+                      </select>
+                      <ChevronDown size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 pointer-events-none" />
+                    </div>
+                  </div>
+
+                  <AnimatePresence>
+                    {durationSel !== "" && (
+                      <motion.div
+                        className="flex-1 space-y-2"
+                        initial={{ opacity: 0, y: 8 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0 }}
+                      >
+                        <label className="flex items-center gap-2 font-grotesk text-[12px] tracking-[0.3em] uppercase text-white/50">
+                          <MapPin size={13} className="text-primary" /> City
+                        </label>
+                        <div className="relative">
+                          <select
+                            value={citySel}
+                            onChange={(e) => setCitySel(e.target.value)}
+                            className={selectClass}
+                          >
+                            <option value="" disabled>
+                              Select city…
+                            </option>
+                            <option value="ALL">All cities</option>
+                            {cities.map((c) => (
+                              <option key={c} value={c}>
+                                {c}
+                              </option>
+                            ))}
+                          </select>
+                          <ChevronDown size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 pointer-events-none" />
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </div>
+
+                {/* Guided reveal: duration → city → results */}
+                {durationSel === "" ? (
+                  <GuidedHint icon={Clock} text="Select a duration to get started." />
+                ) : citySel === "" ? (
+                  <GuidedHint icon={MapPin} text="Now choose a city to see matching camps." />
+                ) : filtered.length === 0 ? (
+                  <GuidedHint icon={AlertCircle} text="No camps match these filters. Try 'All' or a different combination." />
+                ) : (
+                  <>
+                    <p className="font-grotesk text-[13px] tracking-[0.4em] uppercase text-white/55 mb-6">
+                      {filtered.length} camp{filtered.length !== 1 ? "s" : ""} found
+                    </p>
+                    <div className="flex flex-col gap-4">
+                      {filtered.map((pkg, i) => (
+                        <PackageRow
+                          key={pkg.id}
+                          pkg={pkg}
+                          index={i}
+                          highlighted={highlightedId === pkg.id}
+                          onSelect={handleSelect}
+                        />
+                      ))}
+                    </div>
+                  </>
+                )}
               </motion.div>
             )}
           </AnimatePresence>
