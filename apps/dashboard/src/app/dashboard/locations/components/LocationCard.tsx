@@ -31,9 +31,25 @@ export function LocationCard({ location, index, onEdit, onDelete }: LocationCard
       {/* Side Accent */}
       <div className="absolute left-0 top-0 bottom-0 w-1 bg-white/5 group-hover:bg-primary/50 transition-all" />
       
-      {/* Icon Area */}
-      <div className="w-16 h-16 rounded-2xl bg-white/5 flex items-center justify-center shrink-0 group-hover:bg-primary/10 transition-all border border-white/5">
-        <Globe className="text-primary w-8 h-8" />
+      {/* Thumbnail / Icon Area */}
+      <div className="w-16 h-16 rounded-2xl bg-white/5 flex items-center justify-center shrink-0 group-hover:bg-primary/10 transition-all border border-white/5 overflow-hidden relative">
+        {location.images?.[0] ? (
+          <>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={location.images[0].image}
+              alt={location.images[0].caption ?? location.name}
+              className="w-full h-full object-cover"
+            />
+            {location.images.length > 1 && (
+              <span className="absolute bottom-0.5 right-0.5 text-[8px] font-black bg-black/70 text-white px-1 py-0.5 rounded">
+                +{location.images.length - 1}
+              </span>
+            )}
+          </>
+        ) : (
+          <Globe className="text-primary w-8 h-8" />
+        )}
       </div>
 
       {/* Content Area */}

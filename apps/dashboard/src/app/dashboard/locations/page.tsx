@@ -28,6 +28,11 @@ export default function LocationsPage() {
     setIsDeleteModalOpen,
     formData,
     setFormData,
+    newFiles,
+    existingImages,
+    addFiles,
+    removeNewFile,
+    removeExistingImage,
     handleOpenAdd,
     handleOpenEdit,
     handleCloseModal,
@@ -147,7 +152,7 @@ export default function LocationsPage() {
       )}
 
       {/* Main Form Modal */}
-      <LocationModal 
+      <LocationModal
         isOpen={isAddModalOpen}
         onClose={handleCloseModal}
         onSubmit={handleSubmit}
@@ -155,6 +160,11 @@ export default function LocationsPage() {
         editingLocation={editingLocation}
         formData={formData}
         setFormData={setFormData}
+        newFiles={newFiles}
+        existingImages={existingImages}
+        addFiles={addFiles}
+        removeNewFile={removeNewFile}
+        removeExistingImage={removeExistingImage}
       />
 
       {/* Global Deletion Security Modal */}

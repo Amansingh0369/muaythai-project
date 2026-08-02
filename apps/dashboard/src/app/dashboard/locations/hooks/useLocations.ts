@@ -1,7 +1,12 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { locationService, Location, CreateLocationInput } from "@/services/location.service";
+import {
+  locationService,
+  Location,
+  LocationImage,
+  CreateLocationInput,
+} from "@/services/location.service";
 
 export function useLocations() {
   const [locations, setLocations] = useState<Location[]>([]);
@@ -21,6 +26,32 @@ export function useLocations() {
     latitude: "",
     longitude: "",
   });
+
+  // Gallery state (staged locally until save)
+  const [newFiles, setNewFiles] = useState<File[]>([]); // files to upload
+  const [existingImages, setExistingImages] = useState<LocationImage[]>([]); // kept images (edit mode)
+  const [removeImageIds, setRemoveImageIds] = useState<number[]>([]); // ids to delete on save
+
+  const resetGallery = useCallback(() => {
+    setNewFiles([]);
+    setExistingImages([]);
+    setRemoveImageIds([]);
+  }, []);
+
+  const addFiles = useCallback((files: File[]) => {
+    const images = files.filter((f) => f.type.startsWith("image/"));
+    if (images.length) setNewFiles((prev) => [...prev, ...images]);
+  }, []);
+
+  const removeNewFile = useCallback((index: number) => {
+    setNewFiles((prev) => prev.filter((_, i) => i !== index));
+  }, []);
+
+  // Move an existing image into the "to delete" list (applied on save).
+  const removeExistingImage = useCallback((imageId: number) => {
+    setExistingImages((prev) => prev.filter((img) => img.id !== imageId));
+    setRemoveImageIds((prev) => (prev.includes(imageId) ? prev : [...prev, imageId]));
+  }, []);
 
   const fetchLocations = useCallback(async () => {
     try {
@@ -43,6 +74,7 @@ export function useLocations() {
   const handleOpenAdd = () => {
     setEditingLocation(null);
     setFormData({ name: "", address: "", city: "", latitude: "", longitude: "" });
+    resetGallery();
     setIsAddModalOpen(true);
   };
 
@@ -55,6 +87,8 @@ export function useLocations() {
       latitude: location.latitude?.toString() || "",
       longitude: location.longitude?.toString() || "",
     });
+    resetGallery();
+    setExistingImages(location.images ?? []);
     setIsAddModalOpen(true);
   };
 
@@ -62,6 +96,7 @@ export function useLocations() {
     setIsAddModalOpen(false);
     setEditingLocation(null);
     setFormData({ name: "", address: "", city: "", latitude: "", longitude: "" });
+    resetGallery();
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -69,9 +104,9 @@ export function useLocations() {
     setIsSubmitting(true);
     try {
       if (editingLocation) {
-        await locationService.updateLocation(editingLocation.id, formData);
+        await locationService.updateLocation(editingLocation.id, formData, newFiles, removeImageIds);
       } else {
-        await locationService.createLocation(formData);
+        await locationService.createLocation(formData, newFiles);
       }
       await fetchLocations();
       handleCloseModal();
@@ -112,6 +147,11 @@ export function useLocations() {
     isDeleteModalOpen,
     formData,
     setFormData,
+    newFiles,
+    existingImages,
+    addFiles,
+    removeNewFile,
+    removeExistingImage,
     handleOpenAdd,
     handleOpenEdit,
     handleCloseModal,
