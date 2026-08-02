@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
+import { SITE_CONFIG } from "@repo/utils";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import MuayThaiSection from "@/components/MuayThaiSection";
 import PageHero from "@/components/PageHero";
 
 export const metadata: Metadata = {
-  title: "The Art of Eight Limbs | This Is Muay Thai",
+  title: `The Art of Eight Limbs | ${SITE_CONFIG.brand}`,
   description: "Learn about the rich history, tradition, and techniques of Muay Thai. From ancient origins to modern professional striking.",
 };
 

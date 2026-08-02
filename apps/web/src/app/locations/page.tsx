@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { SITE_CONFIG } from "@repo/utils";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import LocationsSection from "@/components/LocationsSection";
@@ -8,7 +9,7 @@ import PageHero from "@/components/PageHero";
 import heroImg from "@/assets/download.png";
 
 export const metadata: Metadata = {
-  title: "Camps & Locations | This Is Muay Thai",
+  title: `Camps & Locations | ${SITE_CONFIG.brand}`,
   description: "Explore our training hubs in Bangkok, Phuket, and beyond, and choose from our intensive fight camp programs.",
 };
 

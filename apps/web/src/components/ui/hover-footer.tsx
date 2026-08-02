@@ -29,8 +29,10 @@ export const TextHoverEffect = ({
         fill="white"
         fontWeight="900"
         className="font-barlow"
-        fontSize="190"
+        fontSize="150"
         letterSpacing="-0.04em"
+        textLength="940"
+        lengthAdjust="spacingAndGlyphs"
       >
         {text}
       </text>

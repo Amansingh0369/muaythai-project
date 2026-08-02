@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { SITE_CONFIG } from "@repo/utils";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import PageHero from "@/components/PageHero";
@@ -6,7 +7,7 @@ import ShopComingSoon from "@/components/ShopComingSoon";
 import training from "@/assets/training.jpg";
 
 export const metadata: Metadata = {
-  title: "Shop | This Is Muay Thai",
+  title: `Shop | ${SITE_CONFIG.brand}`,
   description: "Official This Is Muay Thai merchandise is coming soon. Stay tuned for authentic gear, apparel, and fight camp essentials.",
 };
 

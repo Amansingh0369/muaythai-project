@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { SITE_CONFIG } from "@repo/utils";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import PageHero from "@/components/PageHero";
@@ -6,7 +7,7 @@ import ContactDetails from "@/components/ContactDetails";
 import contact from "@/assets/training.jpg";
 
 export const metadata: Metadata = {
-  title: "Contact Us | This Is Muay Thai",
+  title: `Contact Us | ${SITE_CONFIG.brand}`,
   description: "Get in touch with This Is Muay Thai — reach us by email or phone, or follow the journey on Instagram and YouTube.",
 };
 

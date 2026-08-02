@@ -4,7 +4,7 @@
  */
 
 export const SITE_CONFIG = {
-  brand: "MUAY THAI",
+  brand: "This Is Muay Thai",
   taglines: {
     heroSub: "Most people train. Few experience.",
     heroMain: ["TRAVEL", "TRAIN", "TRANSFORM"],

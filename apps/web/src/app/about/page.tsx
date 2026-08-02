@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { SITE_CONFIG } from "@repo/utils";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import AboutSection from "@/components/AboutSection";
@@ -8,7 +9,7 @@ import PageHero from "@/components/PageHero";
 import about from "@/assets/about.jpg";
 
 export const metadata: Metadata = {
-  title: "About Our Heritage & Muay Thai | This Is Muay Thai",
+  title: `About Our Heritage & Muay Thai | ${SITE_CONFIG.brand}`,
   description: "Discover the philosophy and heritage behind This Is Muay Thai and learn about the rich history and techniques of the Art of Eight Limbs.",
 };
 
