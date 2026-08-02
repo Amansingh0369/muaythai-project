@@ -71,31 +71,6 @@ const HeroSection = () => {
       >
         <div className="px-6 md:px-12 lg:px-20 pb-10 md:pb-14 lg:pb-20">
 
-          {/* Eyebrow */}
-          <motion.div
-            className="flex items-center gap-3 mb-5 md:mb-7"
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.3, duration: 0.7 }}
-          >
-            <span className="inline-block w-6 h-[2px] bg-primary" />
-            <span className="font-grotesk text-[10px] md:text-[11px] tracking-[0.45em] uppercase text-primary font-medium">
-              Thailand's Premier Muay Thai Experience
-            </span>
-          </motion.div>
-
-          {/* Main headline */}
-          <div className="overflow-hidden mb-3 md:mb-4">
-            <motion.h1
-              className="font-barlow font-black italic text-[17vw] sm:text-[13vw] md:text-[11vw] lg:text-[9.5vw] xl:text-[9vw] leading-[0.88] tracking-[-0.01em] text-white uppercase"
-              initial={{ y: "100%", opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: 0.5, duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
-            >
-              {SITE_CONFIG.brand}
-            </motion.h1>
-          </div>
-
           {/* Rotating tagline strip */}
           <div className="flex items-center gap-0 overflow-hidden mb-7 md:mb-10">
             <motion.div
@@ -120,37 +95,33 @@ const HeroSection = () => {
             </div>
           </div>
 
-          {/* Bottom row: description + CTA */}
+          {/* Eyebrow */}
           <motion.div
-            className="flex flex-col sm:flex-row sm:items-end gap-6 sm:gap-10"
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 1, duration: 0.7 }}
+            className="flex items-center gap-3 mb-5 md:mb-7"
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.3, duration: 0.7 }}
           >
-            <p className="font-grotesk text-[13px] md:text-sm text-white/70 max-w-[320px] leading-relaxed">
-              Immersive Muay Thai training camps across Thailand's most iconic locations.
-            </p>
 
-            <div className="flex items-center gap-4">
-              <motion.a
-                href="/locations"
-                className="group relative inline-flex items-center gap-3 bg-primary px-7 py-3.5 font-barlow font-black text-[12px] tracking-[0.25em] uppercase text-black overflow-hidden"
-                whileHover={{ scale: 1.03 }}
-                whileTap={{ scale: 0.97 }}
-              >
-                <span className="relative z-10">Explore Camps</span>
-                <span className="relative z-10 translate-x-0 group-hover:translate-x-1 transition-transform duration-300">→</span>
-                <span className="absolute inset-0 bg-white/20 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-500 skew-x-12" />
-              </motion.a>
-
-              <a
-                href="/about"
-                className="font-grotesk text-[11px] tracking-[0.2em] uppercase text-white/40 hover:text-white transition-colors duration-300 border-b border-white/10 hover:border-white/40 pb-0.5"
-              >
-                Our Story
-              </a>
-            </div>
+            <span className="font-grotesk text-[10px] md:text-[11px] tracking-[0.45em] uppercase text-primary font-medium">
+              Thailand's Premier Muay Thai Experience
+            </span>
           </motion.div>
+
+          {/* Main headline */}
+          <div className="overflow-hidden mb-3 md:mb-4">
+            <motion.h1
+              className="font-barlow font-black italic text-[17vw] sm:text-[13vw] md:text-[11vw] lg:text-[9.5vw] xl:text-[9vw] leading-[0.88] tracking-[-0.01em] text-white uppercase"
+              initial={{ y: "100%", opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: 0.5, duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
+            >
+              {SITE_CONFIG.brand}
+            </motion.h1>
+          </div>
+
+
+
         </div>
 
         {/* Scroll indicator */}
