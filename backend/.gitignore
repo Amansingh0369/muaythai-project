@@ -33,6 +33,14 @@ db.sqlite3-journal
 
 # Environment variables
 .env
+.env.*
+!.env.example
+
+# Data migration / secrets (never commit — contains user data and credentials)
+datadump.json
+*.pem
+db.sqlite3-wal
+db.sqlite3-shm
 
 # IDE
 .vscode/

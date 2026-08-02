@@ -1,5 +1,4 @@
 from django.conf import settings
-from django.core.mail import send_mail
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
 from django.contrib.auth.tokens import default_token_generator
@@ -10,6 +9,7 @@ from rest_framework_simplejwt.views import TokenRefreshView
 from users.models import User
 from users.serializers import UserSerializer
 from .services import GoogleAuthService
+from .emails import send_verification_email, send_password_reset_email
 from .serializers import (
     GoogleLoginSerializer, RegisterSerializer, LoginSerializer,
     ResendVerificationSerializer, PasswordResetRequestSerializer,
@@ -122,14 +122,8 @@ class RegisterView(views.APIView):
         uid = urlsafe_base64_encode(force_bytes(user.pk))
         
         verification_link = f"{settings.FRONTEND_URL}/verify-email?token={token}&uid={uid}"
-        
-        send_mail(
-            subject='Verify your email address',
-            message=f'Please click the link below to verify your email address:\n\n{verification_link}',
-            from_email=settings.DEFAULT_FROM_EMAIL,
-            recipient_list=[user.email],
-            fail_silently=False,
-        )
+
+        send_verification_email(user=user, verification_link=verification_link)
 
         return response.Response({
             'message': 'Registration successful. Please check your email to verify your account.'
@@ -184,14 +178,8 @@ class ResendVerificationEmailView(views.APIView):
         uid = urlsafe_base64_encode(force_bytes(user.pk))
         
         verification_link = f"{settings.FRONTEND_URL}/verify-email?token={token}&uid={uid}"
-        
-        send_mail(
-            subject='Verify your email address',
-            message=f'Please click the link below to verify your email address:\n\n{verification_link}',
-            from_email=settings.DEFAULT_FROM_EMAIL,
-            recipient_list=[user.email],
-            fail_silently=False,
-        )
+
+        send_verification_email(user=user, verification_link=verification_link)
 
         return response.Response({
             'message': 'If an account exists with this email, a verification link has been sent.'
@@ -254,15 +242,10 @@ class PasswordResetRequestView(views.APIView):
         uid = urlsafe_base64_encode(force_bytes(user.pk))
         
         reset_link = f"{settings.FRONTEND_URL}/reset-password?token={token}&uid={uid}"
-        
-        send_mail(
-            subject='Password Reset Request',
-            message=f'Please click the link below to reset your password:\n\n{reset_link}',
-            from_email=settings.DEFAULT_FROM_EMAIL,
-            recipient_list=[user.email],
-            fail_silently=False,
-        )
-        
+
+        expiry_minutes = max(1, settings.PASSWORD_RESET_TIMEOUT // 60)
+        send_password_reset_email(user=user, reset_link=reset_link, expiry_minutes=expiry_minutes)
+
         return response.Response({'message': 'If an account exists with this email, a reset link has been sent.'}, status=status.HTTP_200_OK)
 
 class PasswordResetConfirmView(views.APIView):
