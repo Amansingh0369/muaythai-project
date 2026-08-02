@@ -2,6 +2,7 @@
 
 import { useState, useCallback } from "react";
 import IntroAnimation from "@/components/IntroAnimation";
+import GroupBatchPopup from "@/components/GroupBatchPopup";
 import Navbar from "@/components/Navbar";
 import HeroSection from "@/components/HeroSection";
 import DirectoryTiles from "@/components/DirectoryTiles";
@@ -27,6 +28,7 @@ export default function Home() {
           <MapSection />
           <BurnStrip />
           <Footer />
+          <GroupBatchPopup />
         </main>
       )}
     </div>
