@@ -6,6 +6,7 @@ import { Menu, X, LogOut, User as UserIcon, ArrowUpRight } from "lucide-react";
 import logo from "@/assets/logo.png";
 import { SITE_CONFIG } from "@repo/utils";
 import { useAuth } from "@/context/AuthContext";
+import WhatsAppIcon from "@/components/WhatsAppIcon";
 
 const Navbar = () => {
   const { user, logout } = useAuth();
@@ -33,8 +34,9 @@ const Navbar = () => {
                 href={`https://wa.me/${SITE_CONFIG.contact.phone.replace(/\D/g, "")}?text=${encodeURIComponent(SITE_CONFIG.contact.whatsappMessage)}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="font-barlow font-bold text-[9px] md:text-[9.5px] tracking-[0.25em] uppercase text-white/40 hover:text-primary transition-colors italic"
+                className="flex items-center gap-1.5 font-barlow font-bold text-[9px] md:text-[9.5px] tracking-[0.25em] uppercase text-white/40 hover:text-primary transition-colors italic"
               >
+                <WhatsAppIcon size={12} />
                 {SITE_CONFIG.contact.phone}
               </a>
             </div>

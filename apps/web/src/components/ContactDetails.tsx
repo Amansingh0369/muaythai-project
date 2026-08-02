@@ -1,8 +1,9 @@
 "use client";
 
 import { motion } from "motion/react";
-import { Mail, Phone, Instagram, Youtube, ArrowUpRight } from "lucide-react";
+import { Mail, Instagram, Youtube, ArrowUpRight } from "lucide-react";
 import { SITE_CONFIG } from "@repo/utils";
+import WhatsAppIcon from "@/components/WhatsAppIcon";
 
 const { contact } = SITE_CONFIG;
 
@@ -14,7 +15,7 @@ const channels = [
     href: `mailto:${contact.email}`,
   },
   {
-    icon: Phone,
+    icon: WhatsAppIcon,
     label: "WhatsApp",
     value: contact.phone,
     href: `https://wa.me/${contact.phone.replace(/\D/g, "")}?text=${encodeURIComponent(contact.whatsappMessage)}`,
