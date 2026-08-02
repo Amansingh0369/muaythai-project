@@ -29,7 +29,12 @@ const Navbar = () => {
               {SITE_CONFIG.brand} <span className="text-white/25">— </span> <span className="text-primary/80">Gnova Group</span>
             </span>
             <div className="flex items-center gap-6">
-              <a href={`tel:${SITE_CONFIG.contact.phone.replace(/\s/g, "")}`} className="font-barlow font-bold text-[9px] md:text-[9.5px] tracking-[0.25em] uppercase text-white/40 hover:text-primary transition-colors italic">
+              <a
+                href={`https://wa.me/${SITE_CONFIG.contact.phone.replace(/\D/g, "")}?text=${encodeURIComponent(SITE_CONFIG.contact.whatsappMessage)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-barlow font-bold text-[9px] md:text-[9.5px] tracking-[0.25em] uppercase text-white/40 hover:text-primary transition-colors italic"
+              >
                 {SITE_CONFIG.contact.phone}
               </a>
             </div>

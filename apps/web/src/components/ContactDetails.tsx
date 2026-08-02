@@ -15,9 +15,10 @@ const channels = [
   },
   {
     icon: Phone,
-    label: "Phone",
+    label: "WhatsApp",
     value: contact.phone,
-    href: `tel:${contact.phone.replace(/\s/g, "")}`,
+    href: `https://wa.me/${contact.phone.replace(/\D/g, "")}?text=${encodeURIComponent(contact.whatsappMessage)}`,
+    external: true,
   },
   {
     icon: Instagram,
