@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, Loader2, AlertCircle, User, Users, Clock, MapPin, ChevronDown, SlidersHorizontal } from "lucide-react";
+import { ArrowLeft, Loader2, AlertCircle, User, Users, Clock, MapPin, ChevronDown, SlidersHorizontal, CalendarDays } from "lucide-react";
 import { packageService, type Package } from "@/services/package.service";
 import { useAuth } from "@/context/AuthContext";
 import Navbar from "@/components/Navbar";
@@ -44,6 +44,14 @@ function GuidedHint({ icon: Icon, text }: { icon: typeof Clock; text: string }) 
 const selectClass =
   "appearance-none w-full bg-white/[0.05] border border-white/15 text-white font-grotesk text-sm px-4 py-3.5 pr-10 focus:outline-none focus:border-primary/60 transition-colors cursor-pointer [&>option]:bg-black [&>option]:text-white";
 
+const inputClass =
+  "w-full bg-white/[0.05] border border-white/15 text-white font-grotesk text-sm px-4 py-3 focus:outline-none focus:border-primary/60 transition-colors cursor-pointer [color-scheme:dark]";
+
+/** Normalise an API start_date to a YYYY-MM-DD string for comparison. */
+function dayOf(startDate: string | null): string | null {
+  return startDate ? startDate.slice(0, 10) : null;
+}
+
 export default function CampsByKindPage() {
   const params = useParams();
   const router = useRouter();
@@ -61,46 +69,70 @@ export default function CampsByKindPage() {
   // A specific camp to scroll to + flash (e.g. arriving from a map camp click).
   const highlightParam = searchParams.get("highlight");
 
-  // Guided filters: "" = not chosen yet, "ALL" = no filter, else a specific value.
-  // Pre-seed from query params (e.g. arriving from a location's "Secure Spot":
-  // ?city=Phuket&duration=all) so the list shows straight away.
+  // Guided filters (in order: Date → Duration → City).
+  // "" = not chosen yet, "ANY"/"ALL" = no filter, else a specific value.
+  // Pre-seed from query params (e.g. "Secure Spot": ?date=any&city=Phuket&duration=all)
+  // so the list shows straight away.
+  const dateParam = searchParams.get("date");
   const durationParam = searchParams.get("duration");
   const cityParam = searchParams.get("city");
+  const [dateSel, setDateSel] = useState<string>(
+    dateParam === "any" ? "ANY" : dateParam ? dateParam : durationParam || cityParam ? "ANY" : ""
+  );
   const [durationSel, setDurationSel] = useState<string>(
     durationParam === "all" ? "ALL" : durationParam ?? ""
   );
   const [citySel, setCitySel] = useState<string>(cityParam ?? "");
 
-  // Distinct durations present in the data (ascending).
-  const durations = useMemo(
-    () => Array.from(new Set(packages.map((p) => p.duration_days))).sort((a, b) => a - b),
-    [packages]
-  );
+  const today = new Date().toISOString().slice(0, 10);
 
-  // Cities available for the chosen duration (cascades from the duration pick).
+  // Keep only camps starting on/after the chosen date (undated excluded once a date is set).
+  const matchesDate = (p: Package) => {
+    if (dateSel === "" || dateSel === "ANY") return true;
+    const day = dayOf(p.start_date);
+    return day != null && day >= dateSel;
+  };
+
+  // Durations available for the chosen date (cascades from the date pick).
+  const durations = useMemo(() => {
+    const pool = packages.filter(matchesDate);
+    return Array.from(new Set(pool.map((p) => p.duration_days))).sort((a, b) => a - b);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [packages, dateSel]);
+
+  // Cities available for the chosen date + duration (cascades further).
   const cities = useMemo(() => {
-    const pool =
-      durationSel === "" || durationSel === "ALL"
-        ? packages
-        : packages.filter((p) => p.duration_days === Number(durationSel));
+    const pool = packages
+      .filter(matchesDate)
+      .filter((p) => durationSel === "" || durationSel === "ALL" || p.duration_days === Number(durationSel));
     const set = new Set<string>();
     pool.forEach((p) => (p.locations ?? []).forEach((l) => l.city && set.add(l.city)));
     return Array.from(set).sort();
-  }, [packages, durationSel]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [packages, dateSel, durationSel]);
 
-  // Camps matching both filters — only once both have been chosen.
+  // Camps matching all three filters — only once all have been chosen.
   const filtered = useMemo(() => {
-    if (durationSel === "" || citySel === "") return [];
+    if (dateSel === "" || durationSel === "" || citySel === "") return [];
     return packages.filter((p) => {
+      const dateOk = matchesDate(p);
       const durationOk = durationSel === "ALL" || p.duration_days === Number(durationSel);
       const cityOk = citySel === "ALL" || (p.locations ?? []).some((l) => l.city === citySel);
-      return durationOk && cityOk;
+      return dateOk && durationOk && cityOk;
     });
-  }, [packages, durationSel, citySel]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [packages, dateSel, durationSel, citySel]);
+
+  // Changing an upstream filter resets the ones downstream of it.
+  const handleDateChange = (value: string) => {
+    setDateSel(value);
+    setDurationSel("");
+    setCitySel("");
+  };
 
   const handleDurationChange = (value: string) => {
     setDurationSel(value);
-    setCitySel(""); // re-choose the city whenever the duration changes
+    setCitySel("");
   };
 
   useEffect(() => {
@@ -268,34 +300,73 @@ export default function CampsByKindPage() {
                   </p>
                 </div>
 
-                {/* Cascading dropdowns: Duration → City */}
+                {/* Cascading filters: Date → Duration → City */}
                 <div className="flex flex-col sm:flex-row gap-4 mb-10">
+                  {/* Start date (first, optional via "Any date") */}
                   <div className="flex-1 space-y-2">
                     <label className="flex items-center gap-2 font-grotesk text-[12px] tracking-[0.3em] uppercase text-white/50">
-                      <Clock size={13} className="text-primary" /> Duration
+                      <CalendarDays size={13} className="text-primary" /> Start Date
                     </label>
-                    <div className="relative">
-                      <select
-                        value={durationSel}
-                        onChange={(e) => handleDurationChange(e.target.value)}
-                        className={selectClass}
+                    <div className="flex gap-2">
+                      <input
+                        type="date"
+                        min={today}
+                        value={dateSel === "ANY" ? "" : dateSel}
+                        onChange={(e) => handleDateChange(e.target.value)}
+                        onClick={(e) => e.currentTarget.showPicker?.()}
+                        className={inputClass}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => handleDateChange("ANY")}
+                        className={`shrink-0 px-4 font-grotesk text-[12px] tracking-[0.2em] uppercase border transition-colors ${
+                          dateSel === "ANY"
+                            ? "bg-primary text-black border-primary"
+                            : "border-white/15 text-white/60 hover:text-white hover:border-white/30"
+                        }`}
                       >
-                        <option value="" disabled>
-                          Select duration…
-                        </option>
-                        <option value="ALL">All durations</option>
-                        {durations.map((d) => (
-                          <option key={d} value={String(d)}>
-                            {d} {d === 1 ? "Day" : "Days"}
-                          </option>
-                        ))}
-                      </select>
-                      <ChevronDown size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 pointer-events-none" />
+                        Any
+                      </button>
                     </div>
                   </div>
 
+                  {/* Duration (after date) */}
                   <AnimatePresence>
-                    {durationSel !== "" && (
+                    {dateSel !== "" && (
+                      <motion.div
+                        className="flex-1 space-y-2"
+                        initial={{ opacity: 0, y: 8 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0 }}
+                      >
+                        <label className="flex items-center gap-2 font-grotesk text-[12px] tracking-[0.3em] uppercase text-white/50">
+                          <Clock size={13} className="text-primary" /> Duration
+                        </label>
+                        <div className="relative">
+                          <select
+                            value={durationSel}
+                            onChange={(e) => handleDurationChange(e.target.value)}
+                            className={selectClass}
+                          >
+                            <option value="" disabled>
+                              Select duration…
+                            </option>
+                            <option value="ALL">All durations</option>
+                            {durations.map((d) => (
+                              <option key={d} value={String(d)}>
+                                {d} {d === 1 ? "Day" : "Days"}
+                              </option>
+                            ))}
+                          </select>
+                          <ChevronDown size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 pointer-events-none" />
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+
+                  {/* City (after duration) */}
+                  <AnimatePresence>
+                    {dateSel !== "" && durationSel !== "" && (
                       <motion.div
                         className="flex-1 space-y-2"
                         initial={{ opacity: 0, y: 8 }}
@@ -328,9 +399,11 @@ export default function CampsByKindPage() {
                   </AnimatePresence>
                 </div>
 
-                {/* Guided reveal: duration → city → results */}
-                {durationSel === "" ? (
-                  <GuidedHint icon={Clock} text="Select a duration to get started." />
+                {/* Guided reveal: date → duration → city → results */}
+                {dateSel === "" ? (
+                  <GuidedHint icon={CalendarDays} text="Pick a start date (or 'Any date') to get started." />
+                ) : durationSel === "" ? (
+                  <GuidedHint icon={Clock} text="Now choose a duration." />
                 ) : citySel === "" ? (
                   <GuidedHint icon={MapPin} text="Now choose a city to see matching camps." />
                 ) : filtered.length === 0 ? (
