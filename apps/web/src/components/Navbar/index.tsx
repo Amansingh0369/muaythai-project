@@ -21,10 +21,13 @@ const Navbar = () => {
       <nav className="fixed top-0 left-0 right-0 z-[100] flex flex-col">
         {/* ── TOP UTILITY BAR ── */}
         <div
-          className="bg-black/95 backdrop-blur-md border-b border-white/[0.04] flex items-center px-8 lg:px-14 overflow-hidden"
+          className="bg-black/60 backdrop-blur-xl border-b border-white/[0.04] flex items-center px-8 lg:px-14 overflow-hidden"
           style={{ height: TOP_BAR_H }}
         >
-          <div className="max-w-[1440px] w-full mx-auto flex items-center justify-end">
+          <div className="max-w-[1440px] w-full mx-auto flex items-center justify-between">
+            <span className="font-barlow font-bold text-[9px] md:text-[9.5px] tracking-[0.25em] uppercase text-white/40 italic truncate">
+              {SITE_CONFIG.brand} <span className="text-white/25">— </span> <span className="text-primary/80">Gnova Group</span>
+            </span>
             <div className="flex items-center gap-6">
               <a href={`tel:${SITE_CONFIG.contact.phone.replace(/\s/g, "")}`} className="font-barlow font-bold text-[9px] md:text-[9.5px] tracking-[0.25em] uppercase text-white/40 hover:text-primary transition-colors italic">
                 {SITE_CONFIG.contact.phone}
@@ -35,7 +38,7 @@ const Navbar = () => {
 
         {/* ── MAIN NAVIGATION BAR ── */}
         <div
-          className="relative bg-black/85 backdrop-blur-xl border-b border-white/[0.06] shadow-2xl"
+          className="relative bg-black/60 backdrop-blur-xl border-b border-white/[0.06] shadow-2xl"
           style={{ height: NAV_H }}
         >
           <div className="h-full max-w-[1440px] mx-auto flex items-stretch justify-between">

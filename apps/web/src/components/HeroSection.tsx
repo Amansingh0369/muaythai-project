@@ -50,9 +50,9 @@ const HeroSection = () => {
         />
 
         {/* Layered overlays */}
-        <div className="absolute inset-0 bg-black/55" />
-        <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/40 to-transparent" />
-        <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black/50" />
+        <div className="absolute inset-0 bg-black/35" />
+        <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/20 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-black/30" />
       </motion.div>
 
       {/* Noise grain texture */}
@@ -150,23 +150,6 @@ const HeroSection = () => {
                 Our Story
               </a>
             </div>
-          </motion.div>
-
-          {/* Location badges */}
-          <motion.div
-            className="flex gap-3 flex-wrap mt-8"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 1.2, duration: 0.7 }}
-          >
-            {["Bangkok", "Phuket", "Chiang Mai", "Krabi", "Koh Samui"].map((loc) => (
-              <span
-                key={loc}
-                className="font-grotesk text-[10px] tracking-[0.2em] uppercase text-white/50 border border-white/[0.1] px-3 py-1.5 hover:text-white/80 hover:border-white/50 transition-colors cursor-default"
-              >
-                {loc}
-              </span>
-            ))}
           </motion.div>
         </div>
 

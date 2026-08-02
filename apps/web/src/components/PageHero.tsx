@@ -16,14 +16,13 @@ const PageHero = ({ title, subtitle, image, label }: PageHeroProps) => {
       <div className="absolute inset-0 z-0">
         <motion.img
           initial={{ scale: 1.1, opacity: 0 }}
-          animate={{ scale: 1, opacity: 0.6 }}
+          animate={{ scale: 1, opacity: 0.85 }}
           transition={{ duration: 1.5, ease: "easeOut" }}
           src={image}
           alt={title}
           className="h-full w-full object-cover"
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-black via-black/80 to-transparent" />
-        <div className="absolute inset-0 bg-black/20" />
+        <div className="absolute inset-0 bg-black/60 backdrop-blur-xl" />
       </div>
 
       <div className="relative z-10 px-6 md:px-12 lg:px-20 max-w-7xl mx-auto w-full">
