@@ -6,9 +6,11 @@ import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { useRouter } from "next/navigation";
 import { renderToString } from "react-dom/server";
-import { X, MapPin, ArrowRight } from "lucide-react";
+import { MapPin, ArrowRight, type LucideIcon } from "lucide-react";
 import { toast } from "sonner";
 
+import fighterMarker from "@/assets/fighter-marker.png";
+import { MAP_DECORATIONS } from "@/constants/map-decorations";
 import { locationService, type Location } from "@/services/location.service";
 import { packageService, type Package } from "@/services/package.service";
 
@@ -34,27 +36,41 @@ function parseCoords(loc: Location): [number, number] | null {
 }
 
 const buildIcon = (isActive: boolean) => {
-  const svg = renderToString(
-    <X
-      size={isActive ? 36 : 28}
-      strokeWidth={isActive ? 3 : 2.5}
-      color={isActive ? "hsl(16, 100%, 50%)" : "white"}
-    />
-  );
+  // Source is 1536×1024 (3:2); keep the aspect ratio for the marker box.
+  const width = isActive ? 64 : 50;
+  const height = Math.round(width * (1024 / 1536));
   return L.divIcon({
     className: "custom-leaflet-marker",
-    html: `<div class="gta-marker ${isActive ? "active" : ""}">
-             <div class="gta-x-icon">${svg}</div>
+    html: `<div class="gta-marker ${isActive ? "active" : ""}" style="width:${width}px;height:${height}px;">
+             <img src="${fighterMarker.src}" alt="camp" class="gta-fighter-icon" style="width:${width}px;" />
              ${isActive ? '<div class="gta-marker-pulse"></div>' : ""}
            </div>`,
-    iconSize: [24, 24],
-    iconAnchor: [12, 12],
-    popupAnchor: [0, -16],
+    iconSize: [width, height],
+    iconAnchor: [width / 2, height / 2],
+    popupAnchor: [0, -Math.round(height / 2)],
   });
 };
 
 const ICON_INACTIVE = buildIcon(false);
 const ICON_ACTIVE = buildIcon(true);
+
+// ── Decorative ambient POIs (fake, hardcoded) — pure map flavour, non-interactive.
+const buildDecoIcon = (Icon: LucideIcon) => {
+  const svg = renderToString(
+    <Icon size={17} strokeWidth={1.8} color="rgba(255,255,255,0.5)" />
+  );
+  return L.divIcon({
+    className: "custom-leaflet-marker",
+    html: `<div class="map-deco">${svg}</div>`,
+    iconSize: [17, 17],
+    iconAnchor: [8, 8],
+  });
+};
+
+const DECORATIONS = MAP_DECORATIONS.map((d) => ({
+  ...d,
+  leafletIcon: buildDecoIcon(d.icon),
+}));
 
 /**
  * Watches the map as it is dragged/zoomed and reports which location (if any)
@@ -209,6 +225,17 @@ export default function DynamicMap({ onMapReady }: DynamicMapProps) {
         />
 
         <CenterDetector locations={locations} onSelect={handleSelect} />
+
+        {/* Decorative ambient POIs — fake flavour, don't capture clicks */}
+        {DECORATIONS.map((deco, i) => (
+          <Marker
+            key={`deco-${i}`}
+            position={deco.coords}
+            icon={deco.leafletIcon}
+            interactive={false}
+            keyboard={false}
+          />
+        ))}
 
         {locations.map((loc) => (
           <Marker
