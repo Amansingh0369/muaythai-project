@@ -14,7 +14,8 @@ export const SITE_CONFIG = {
 
   navigation: [
     { label: "Home", href: "/" },
-    { label: "Camps & Locations", href: "/locations" },
+    { label: "Camps", href: "/camps" },
+    { label: "Locations", href: "/locations" },
     { label: "Shop", href: "/shop" },
     { label: "About", href: "/about" },
   ],

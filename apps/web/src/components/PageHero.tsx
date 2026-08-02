@@ -33,7 +33,7 @@ const PageHero = ({ title, subtitle, image, label }: PageHeroProps) => {
             transition={{ delay: 0.3, duration: 0.6 }}
             className="flex items-center gap-3 mb-6"
           >
-            <span className="w-10 h-[2px] bg-primary" />
+            {/* <span className="w-10 h-[2px] bg-primary" /> */}
             <span className="font-grotesk text-[12px] md:text-[13px] tracking-[0.4em] uppercase text-primary font-bold">
               {label}
             </span>

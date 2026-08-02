@@ -459,7 +459,7 @@ export default function ProfilePage() {
                   <div className="py-8 flex flex-col items-center gap-3 text-center">
                     <Package size={28} className="text-white/15" />
                     <p className="font-grotesk text-[13px] text-white/55">No bookings yet.</p>
-                    <a href="/locations" className="font-grotesk text-[13px] text-primary hover:underline">Browse camps →</a>
+                    <a href="/camps" className="font-grotesk text-[13px] text-primary hover:underline">Browse camps →</a>
                   </div>
                 ) : (
                   <div className="flex flex-col gap-3">

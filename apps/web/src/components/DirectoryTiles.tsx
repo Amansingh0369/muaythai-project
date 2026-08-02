@@ -2,10 +2,11 @@
 
 import { motion } from "motion/react";
 import { TextScramble } from "@/components/ui/text-scramble";
-import { ArrowUpRight, Info, MapPin } from "lucide-react";
+import { ArrowUpRight, Info, MapPin, Dumbbell } from "lucide-react";
 import Link from "next/link";
 import aboutImg from "@/assets/training.jpg";
 import locationsImg from "@/assets/download.png";
+import campsImg from "@/assets/hero-fighter.jpg";
 
 const TILES = [
   {
@@ -17,8 +18,16 @@ const TILES = [
     accent: "from-blue-500/20 to-transparent",
   },
   {
-    title: "Camps & Locations",
-    description: "Intensive training camps across Thailand's most iconic locations.",
+    title: "Camps",
+    description: "Intensive Muay Thai fight camp programs for every level.",
+    href: "/camps",
+    icon: <Dumbbell size={20} />,
+    image: campsImg.src,
+    accent: "from-primary/20 to-transparent",
+  },
+  {
+    title: "Locations",
+    description: "Explore our training hubs across Thailand's most iconic destinations.",
     href: "/locations",
     icon: <MapPin size={20} />,
     image: locationsImg.src,
@@ -69,7 +78,7 @@ const DirectoryTiles = () => {
         </div>
 
         {/* Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-8 max-w-5xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 md:gap-8 max-w-5xl mx-auto">
           {TILES.map((tile, idx) => (
             <motion.div
               key={tile.title}
