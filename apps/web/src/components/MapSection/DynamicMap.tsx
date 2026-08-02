@@ -190,7 +190,7 @@ export default function DynamicMap({ onMapReady }: DynamicMapProps) {
       const pkgs = pkgByLocation.get(loc.id);
       if (pkgs && pkgs.length > 0) {
         const pkg = pkgs[0];
-        router.push(`/packages/${pkg.type}?kind=INDIVIDUAL&highlight=${pkg.id}`);
+        router.push(`/camps/individual?highlight=${pkg.id}`);
       } else {
         toast("No camps available for this location right now.", {
           description: `${loc.name} · ${loc.city}`,
