@@ -61,6 +61,9 @@ export default function CampsByKindPage() {
   const kind = resolveKind(params.kind as string);
   const meta = kind ? KIND_META[kind] : null;
 
+  // Group camps are a curated set — show them all, no filtering.
+  const showFilters = kind !== "GROUP";
+
   const [packages, setPackages] = useState<Package[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -289,18 +292,23 @@ export default function CampsByKindPage() {
               </motion.div>
             ) : (
               <motion.div key="list" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                {/* Filter header */}
+                {/* Header */}
                 <div className="flex items-center gap-3 mb-6">
-                  <SlidersHorizontal size={16} className="text-primary" />
+                  {showFilters ? (
+                    <SlidersHorizontal size={16} className="text-primary" />
+                  ) : (
+                    <Icon className="w-4 h-4 text-primary" />
+                  )}
                   <span className="font-grotesk text-[13px] tracking-[0.3em] uppercase text-primary/80 border border-primary/20 px-2.5 py-1">
                     {meta.label}
                   </span>
                   <p className="font-grotesk text-[13px] tracking-[0.3em] uppercase text-white/55">
-                    Filter to find your camp
+                    {showFilters ? "Filter to find your camp" : "All group camps"}
                   </p>
                 </div>
 
                 {/* Cascading filters: Date → Duration → City */}
+                {showFilters && (
                 <div className="flex flex-col sm:flex-row gap-4 mb-10">
                   {/* Start date (first, optional via "Any date") */}
                   <div className="flex-1 space-y-2">
@@ -398,9 +406,27 @@ export default function CampsByKindPage() {
                     )}
                   </AnimatePresence>
                 </div>
+                )}
 
                 {/* Guided reveal: date → duration → city → results */}
-                {dateSel === "" ? (
+                {!showFilters ? (
+                  <>
+                    <p className="font-grotesk text-[13px] tracking-[0.4em] uppercase text-white/55 mb-6">
+                      {packages.length} camp{packages.length !== 1 ? "s" : ""} available
+                    </p>
+                    <div className="flex flex-col gap-4">
+                      {packages.map((pkg, i) => (
+                        <PackageRow
+                          key={pkg.id}
+                          pkg={pkg}
+                          index={i}
+                          highlighted={highlightedId === pkg.id}
+                          onSelect={handleSelect}
+                        />
+                      ))}
+                    </div>
+                  </>
+                ) : dateSel === "" ? (
                   <GuidedHint icon={CalendarDays} text="Pick a start date (or 'Any date') to get started." />
                 ) : durationSel === "" ? (
                   <GuidedHint icon={Clock} text="Now choose a duration." />
