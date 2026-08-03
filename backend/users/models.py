@@ -109,12 +109,18 @@ class Profile(models.Model):
 
 # Signals
 @receiver(post_save, sender=User)
-def create_user_profile(sender, instance, created, **kwargs):
+def create_user_profile(sender, instance, created, raw=False, **kwargs):
+    # Skip during fixture loading (loaddata); the fixture provides its own Profile rows.
+    if raw:
+        return
     if created:
         Profile.objects.get_or_create(user=instance)
 
 
 @receiver(post_save, sender=User)
-def save_user_profile(sender, instance, **kwargs):
+def save_user_profile(sender, instance, raw=False, **kwargs):
+    # Skip during fixture loading (loaddata) to avoid touching not-yet-loaded rows.
+    if raw:
+        return
     if hasattr(instance, 'profile'):
         instance.profile.save()

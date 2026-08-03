@@ -15,22 +15,28 @@ class PackageViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         queryset = Package.objects.all().order_by('price', 'id')
-        
-        # Filter by location ID
+
+        # Filter by location ID (matches any of the package's M2M locations)
         location_id = self.request.query_params.get('location')
         if location_id:
-            queryset = queryset.filter(location_id=location_id)
-            
+            queryset = queryset.filter(locations__id=location_id)
+
+        # Filter by kind: INDIVIDUAL | GROUP (case-insensitive)
+        kind = self.request.query_params.get('kind')
+        if kind:
+            queryset = queryset.filter(kind__iexact=kind)
+
         # Filter by type (case-insensitive)
         package_type = self.request.query_params.get('type')
         if package_type:
             queryset = queryset.filter(type__iexact=package_type)
-            
+
         # Non-admins only see active packages
         if not (self.request.user and self.request.user.is_authenticated and self.request.user.role == 'ADMIN'):
             queryset = queryset.filter(is_active=True)
-            
-        return queryset
+
+        # M2M location filter can produce duplicate rows
+        return queryset.distinct()
 
     def get_permissions(self):
         if self.action in ['list', 'retrieve', 'reviews']:
@@ -40,7 +46,14 @@ class PackageViewSet(viewsets.ModelViewSet):
         return [IsAdmin()]
 
     def perform_destroy(self, instance):
-        instance.delete()
+        # Orders reference packages via a protected FK, so a package with orders
+        # cannot be hard-deleted. Deactivate it instead (kept for order history,
+        # hidden from the public since non-admins only see active packages).
+        if instance.orders.exists():
+            instance.is_active = False
+            instance.save(update_fields=['is_active'])
+        else:
+            instance.delete()
 
     @action(detail=True, methods=['get'])
     def reviews(self, request, pk=None):
