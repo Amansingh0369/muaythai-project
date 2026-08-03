@@ -37,6 +37,18 @@ Create `.env` file:
 SECRET_KEY=your_secret
 DEBUG=False
 ALLOWED_HOSTS=muaythai-test.duckdns.org
+
+# AWS S3 (media storage — required; app fails to start if unset)
+AWS_ACCESS_KEY_ID=your_key
+AWS_SECRET_ACCESS_KEY=your_secret
+AWS_STORAGE_BUCKET_NAME=your_bucket
+AWS_S3_REGION_NAME=ap-south-1
+
+# Email (Gmail SMTP for verification / password-reset emails)
+EMAIL_HOST_USER=your_gmail
+EMAIL_HOST_PASSWORD=your_app_password
+DEFAULT_FROM_EMAIL=your_gmail
+FRONTEND_URL=https://your-frontend-domain
 ```
 
 ---
@@ -94,6 +106,11 @@ server {
     listen 80;
     server_name muaythai-test.duckdns.org;
 
+    # Allow larger multipart uploads (e.g. location image galleries).
+    # nginx defaults to 1M, which returns 413 Request Entity Too Large on
+    # image uploads before the request ever reaches Django/Gunicorn.
+    client_max_body_size 150M;
+
     location /static/ {
         root /home/ubuntu/muaythai-project/backend;
     }
@@ -104,6 +121,12 @@ server {
     }
 }
 ```
+
+> **Note:** Certbot rewrites this file when enabling HTTPS (moving the server to
+> `listen 443 ssl`). The `client_max_body_size 150M;` directive must remain inside
+> the HTTPS `server { ... }` block after that. If image uploads start returning
+> **413 Request Entity Too Large**, this directive is missing — add it back and
+> run `sudo nginx -t && sudo systemctl reload nginx`.
 
 ```bash
 sudo ln -s /etc/nginx/sites-available/mauythai /etc/nginx/sites-enabled/

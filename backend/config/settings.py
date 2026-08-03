@@ -177,8 +177,15 @@ AWS_STORAGE_BUCKET_NAME = os.environ['AWS_STORAGE_BUCKET_NAME']
 AWS_S3_REGION_NAME = os.environ.get('AWS_S3_REGION_NAME', 'ap-south-1')
 # Optional custom domain (e.g. CloudFront). Defaults to the bucket's S3 URL.
 AWS_S3_CUSTOM_DOMAIN = os.environ.get('AWS_S3_CUSTOM_DOMAIN') or None
-# Let objects be publicly readable so <img src> works without signed URLs.
-AWS_QUERYSTRING_AUTH = os.environ.get('AWS_QUERYSTRING_AUTH', 'False') == 'True'
+# The bucket is private, so URLs are pre-signed (temporary read access) by
+# default. Set AWS_QUERYSTRING_AUTH=False only if the bucket is made public.
+AWS_QUERYSTRING_AUTH = os.environ.get('AWS_QUERYSTRING_AUTH', 'True') == 'True'
+# How long a signed media URL stays valid (seconds). Default 7 days.
+AWS_QUERYSTRING_EXPIRE = int(os.environ.get('AWS_QUERYSTRING_EXPIRE', 604800))
+# Use virtual-hosted regional endpoint (bucket.s3.<region>.amazonaws.com) so
+# signed URLs hit the right region directly instead of a 307 redirect.
+AWS_S3_ADDRESSING_STYLE = 'virtual'
+AWS_S3_SIGNATURE_VERSION = 's3v4'
 AWS_S3_FILE_OVERWRITE = False
 AWS_DEFAULT_ACL = None
 AWS_S3_OBJECT_PARAMETERS = {'CacheControl': 'max-age=86400'}
