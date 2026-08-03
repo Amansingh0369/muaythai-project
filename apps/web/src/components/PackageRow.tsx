@@ -20,11 +20,19 @@ interface PackageRowProps {
   pkg: Package;
   index: number;
   highlighted?: boolean;
+  /** CTA copy — listings that lead to a location page pass "View Camp →". */
+  ctaLabel?: string;
   onSelect: (pkg: Package) => void;
 }
 
 /** A single bookable camp row — shared by the Camps and Packages listings. */
-const PackageRow = ({ pkg, index, highlighted = false, onSelect }: PackageRowProps) => {
+const PackageRow = ({
+  pkg,
+  index,
+  highlighted = false,
+  ctaLabel = "Book Now →",
+  onSelect,
+}: PackageRowProps) => {
   return (
     <motion.div
       id={`pkg-${pkg.id}`}
@@ -72,7 +80,7 @@ const PackageRow = ({ pkg, index, highlighted = false, onSelect }: PackageRowPro
       <div className="shrink-0 flex flex-row sm:flex-col items-center sm:items-end gap-4 sm:gap-3">
         <span className="font-barlow font-black italic text-3xl text-white">{fmtPrice(pkg.price)}</span>
         <span className="font-grotesk text-[13px] tracking-[0.3em] uppercase text-white/55 border border-white/10 px-4 py-2 group-hover:border-primary group-hover:text-primary transition-colors duration-300">
-          Book Now →
+          {ctaLabel}
         </span>
       </div>
     </motion.div>

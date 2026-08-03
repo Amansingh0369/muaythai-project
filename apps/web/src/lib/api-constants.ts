@@ -11,6 +11,7 @@ export const API_ENDPOINTS = {
     VERIFY_EMAIL: "/auth/verify-email/",
     VERIFY_EMAIL_RESEND: "/auth/verify-email/resend/",
     PASSWORD_RESET: "/auth/password-reset/",
+    PASSWORD_RESET_VALIDATE: "/auth/password-reset/validate/",
     PASSWORD_RESET_CONFIRM: "/auth/password-reset-confirm/",
     REFRESH: "/auth/refresh/",
     LOGOUT: "/auth/logout/",

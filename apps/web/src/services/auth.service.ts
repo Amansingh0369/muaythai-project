@@ -1,5 +1,8 @@
 import { API_CONFIG, API_ENDPOINTS } from "@/lib/api-constants";
 import { fetchWithAuth } from "@/lib/api";
+import { PasswordResetError, parsePasswordResetError } from "@/lib/password-reset-errors";
+
+export { PasswordResetError };
 
 export interface User {
   id: string;
@@ -89,7 +92,12 @@ export const authService = {
     return data as MessageResponse;
   },
 
-  /** Request a password reset link */
+  /**
+   * Request a password reset link.
+   *
+   * The backend answers identically whether or not the email is registered, so callers
+   * must show the same confirmation either way — never branch on the result.
+   */
   async requestPasswordReset(email: string): Promise<MessageResponse> {
     const response = await fetch(`${API_CONFIG.BASE_URL}${API_ENDPOINTS.AUTH.PASSWORD_RESET}`, {
       method: "POST",
@@ -98,11 +106,24 @@ export const authService = {
     });
     let data: any;
     try { data = await response.json(); } catch { data = {}; }
-    if (!response.ok) throw new Error(data.detail || data.error || data.message || "Failed");
+    if (!response.ok) throw parsePasswordResetError(data, "Could not send the reset link. Please try again.");
     return data as MessageResponse;
   },
 
-  /** Confirm password reset */
+  /** Check a reset link's uid + token before showing the new-password form */
+  async validateResetToken(uid: string, token: string): Promise<MessageResponse> {
+    const response = await fetch(`${API_CONFIG.BASE_URL}${API_ENDPOINTS.AUTH.PASSWORD_RESET_VALIDATE}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ uid, token }),
+    });
+    let data: any;
+    try { data = await response.json(); } catch { data = {}; }
+    if (!response.ok) throw parsePasswordResetError(data, "This reset link is no longer valid.");
+    return data as MessageResponse;
+  },
+
+  /** Set a new password using the uid + token from the reset link */
   async confirmPasswordReset(uid: string, token: string, newPassword: string): Promise<MessageResponse> {
     const response = await fetch(`${API_CONFIG.BASE_URL}${API_ENDPOINTS.AUTH.PASSWORD_RESET_CONFIRM}`, {
       method: "POST",
@@ -111,7 +132,7 @@ export const authService = {
     });
     let data: any;
     try { data = await response.json(); } catch { data = {}; }
-    if (!response.ok) throw new Error(data.detail || data.error || data.message || "Failed");
+    if (!response.ok) throw parsePasswordResetError(data, "Could not reset your password. Please try again.");
     return data as MessageResponse;
   },
 

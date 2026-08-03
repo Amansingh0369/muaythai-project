@@ -6,6 +6,7 @@ import { Loader2, ArrowRight } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { motion, AnimatePresence } from "motion/react";
 import FormField from "./FormField";
 import { loginSchema, LoginFormValues } from "../auth.helpers";
@@ -53,6 +54,15 @@ export default function LoginForm({ redirectPath }: LoginFormProps) {
         error={errors.password?.message}
         {...register("password")}
       />
+
+      <div className="flex justify-end -mt-1">
+        <Link
+          href="/forgot-password"
+          className="font-grotesk text-[13px] text-white/60 hover:text-primary transition-colors"
+        >
+          Forgot password?
+        </Link>
+      </div>
 
       <AnimatePresence>
         {serverError && (
