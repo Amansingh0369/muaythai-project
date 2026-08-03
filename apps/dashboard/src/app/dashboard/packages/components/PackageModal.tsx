@@ -150,7 +150,7 @@ export function PackageModal({
   const locationHint =
     formData.kind === "INDIVIDUAL"
       ? "Select exactly 1 location"
-      : "Select 2 or more locations";
+      : "Select 1 or more locations";
 
   return (
     <AnimatePresence>
@@ -203,7 +203,7 @@ export function PackageModal({
                   <div className="grid grid-cols-2 gap-3">
                     {([
                       { value: "INDIVIDUAL", label: "Individual", icon: User, hint: "Single location" },
-                      { value: "GROUP", label: "Group", icon: Users, hint: "Multiple locations" },
+                      { value: "GROUP", label: "Group", icon: Users, hint: "One or more locations" },
                     ] as const).map(({ value, label, icon: Icon, hint }) => (
                       <button
                         key={value}

@@ -115,8 +115,10 @@ export function usePackages() {
     const count = formData.location_ids.length;
     if (formData.kind === "INDIVIDUAL" && count !== 1) {
       errs.location_ids = ["An individual package must have exactly one location."];
-    } else if (formData.kind === "GROUP" && count < 2) {
-      errs.location_ids = ["A group package must have at least two locations."];
+    } else if (formData.kind === "GROUP" && count < 1) {
+      // The API imposes no count rule on group camps, but one with no location
+      // has nothing to show on the site or map — so keep a floor of 1 here.
+      errs.location_ids = ["A group package must have at least one location."];
     }
     setFieldErrors(errs);
     return Object.keys(errs).length === 0;
