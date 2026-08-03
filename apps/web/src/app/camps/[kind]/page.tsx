@@ -4,11 +4,12 @@ import { useEffect, useMemo, useState } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, Loader2, AlertCircle, User, Users, Clock, MapPin, ChevronDown, SlidersHorizontal, CalendarDays } from "lucide-react";
-import { packageService, type Package } from "@/services/package.service";
+import { packageService, type Package, type LocationDetails } from "@/services/package.service";
 import { useAuth } from "@/context/AuthContext";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import PackageRow from "@/components/PackageRow";
+import LocationPickerModal from "@/components/LocationPickerModal";
 
 type Kind = "INDIVIDUAL" | "GROUP";
 
@@ -175,8 +176,32 @@ export default function CampsByKindPage() {
     };
   }, [isLoading, highlightParam, packages]);
 
+  // A multi-location camp waiting on the user to pick which location to open.
+  const [pickerPkg, setPickerPkg] = useState<Package | null>(null);
+
+  // Land on the location page with the clicked camp scrolled to + flashed, so the
+  // user can book it straight from there.
+  const goToLocation = (locationId: number, pkgId: number) =>
+    router.push(`/locations/${locationId}?highlight=${pkgId}`);
+
+  // Camps no longer open the booking form directly — they route to a location page,
+  // where the camp is listed and bookable. Camps with no location still book direct.
   const handleSelect = (pkg: Package) => {
-    router.push(user ? `/book/${pkg.id}` : `/login?redirect=/book/${pkg.id}`);
+    const locations = pkg.locations ?? [];
+    if (locations.length === 1) {
+      goToLocation(locations[0].id, pkg.id);
+    } else if (locations.length > 1) {
+      setPickerPkg(pkg);
+    } else {
+      router.push(user ? `/book/${pkg.id}` : `/login?redirect=/book/${pkg.id}`);
+    }
+  };
+
+  const handlePickLocation = (location: LocationDetails) => {
+    if (!pickerPkg) return;
+    const pkgId = pickerPkg.id;
+    setPickerPkg(null);
+    goToLocation(location.id, pkgId);
   };
 
   if (!meta) {
@@ -421,6 +446,7 @@ export default function CampsByKindPage() {
                           pkg={pkg}
                           index={i}
                           highlighted={highlightedId === pkg.id}
+                          ctaLabel="View Camp →"
                           onSelect={handleSelect}
                         />
                       ))}
@@ -446,6 +472,7 @@ export default function CampsByKindPage() {
                           pkg={pkg}
                           index={i}
                           highlighted={highlightedId === pkg.id}
+                          ctaLabel="View Camp →"
                           onSelect={handleSelect}
                         />
                       ))}
@@ -457,6 +484,13 @@ export default function CampsByKindPage() {
           </AnimatePresence>
         </div>
       </div>
+
+      <LocationPickerModal
+        campName={pickerPkg?.name ?? null}
+        locations={pickerPkg?.locations ?? []}
+        onPick={handlePickLocation}
+        onClose={() => setPickerPkg(null)}
+      />
 
       <Footer />
     </div>

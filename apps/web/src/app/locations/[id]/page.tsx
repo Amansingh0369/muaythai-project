@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, MapPin, Navigation, Loader2, AlertCircle, Dumbbell } from "lucide-react";
 import { locationService, type Location } from "@/services/location.service";
@@ -15,6 +15,7 @@ import PackageRow from "@/components/PackageRow";
 export default function LocationDetailPage() {
   const params = useParams();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { user } = useAuth();
   const id = Number(params.id);
 
@@ -22,6 +23,10 @@ export default function LocationDetailPage() {
   const [camps, setCamps] = useState<Package[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [highlightedId, setHighlightedId] = useState<number | null>(null);
+
+  // Set when arriving from a camps listing — the camp the user clicked.
+  const highlightParam = searchParams.get("highlight");
 
   useEffect(() => {
     if (!id || Number.isNaN(id)) {
@@ -53,11 +58,12 @@ export default function LocationDetailPage() {
       }
 
       // 2) Camps at this location — secondary: a failure just shows an empty list,
-      //    it must not blank out the whole page. We fetch all individual camps and
-      //    filter client-side (don't rely on the backend `?location=` filter being
+      //    it must not blank out the whole page. We fetch every camp (both kinds —
+      //    group camps route here too, one location at a time) and filter
+      //    client-side (don't rely on the backend `?location=` filter being
       //    supported/honoured).
       try {
-        const pkgs = await packageService.getPackages({ kind: "INDIVIDUAL" });
+        const pkgs = await packageService.getPackages();
         const here = pkgs.filter((p) => (p.locations ?? []).some((l) => l.id === id));
         if (!cancelled) setCamps(here);
       } catch (err) {
@@ -72,6 +78,23 @@ export default function LocationDetailPage() {
       cancelled = true;
     };
   }, [id]);
+
+  // Arriving from a camps listing: scroll the clicked camp into view and flash it,
+  // so the user immediately sees the camp they came here to book.
+  useEffect(() => {
+    if (isLoading || !highlightParam || camps.length === 0) return;
+    const highlightId = Number(highlightParam);
+    if (!camps.some((p) => p.id === highlightId)) return;
+    const scrollTimer = setTimeout(() => {
+      document.getElementById(`pkg-${highlightId}`)?.scrollIntoView({ behavior: "smooth", block: "center" });
+      setHighlightedId(highlightId);
+    }, 250);
+    const clearTimer = setTimeout(() => setHighlightedId(null), 3000);
+    return () => {
+      clearTimeout(scrollTimer);
+      clearTimeout(clearTimer);
+    };
+  }, [isLoading, highlightParam, camps]);
 
   const handleSelectCamp = (pkg: Package) => {
     router.push(user ? `/book/${pkg.id}` : `/login?redirect=/book/${pkg.id}`);
@@ -195,7 +218,13 @@ export default function LocationDetailPage() {
                   ) : (
                     <div className="flex flex-col gap-4">
                       {camps.map((pkg, i) => (
-                        <PackageRow key={pkg.id} pkg={pkg} index={i} onSelect={handleSelectCamp} />
+                        <PackageRow
+                          key={pkg.id}
+                          pkg={pkg}
+                          index={i}
+                          highlighted={highlightedId === pkg.id}
+                          onSelect={handleSelectCamp}
+                        />
                       ))}
                     </div>
                   )}
