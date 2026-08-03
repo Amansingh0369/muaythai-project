@@ -52,7 +52,7 @@ const Navbar = () => {
           <div className="h-full max-w-[1440px] mx-auto flex items-stretch justify-between">
 
             {/* ── LEFT: LOGO & HOME BADGES ── */}
-            <div className="relative flex items-center z-10 h-full">
+            <div className="relative flex items-center z-10 h-full shrink-0">
               {/* Logo Badge */}
               {/* Logo lockup: icon (logo1) + wordmark (logo2), full height, no gap */}
               <motion.a href="/" className="relative h-full flex items-center z-20">
@@ -64,25 +64,27 @@ const Navbar = () => {
               <div className="absolute top-1/2 left-0 -translate-y-1/2 w-48 h-20 bg-primary/20 blur-3xl rounded-full -z-10" />
             </div>
 
-            {/* ── RIGHT: NAV LINKS + CTA ── */}
-            <div className="hidden md:flex items-stretch">
+            {/* ── CENTER: NAV LINKS (spread across available space) ── */}
+            <div className="hidden md:flex items-stretch flex-1 min-w-0">
               {navLinks.filter(item => item.label !== "Home").map((item, i) => (
                 <motion.a
                   key={item.label}
                   href={item.href}
-                  className="h-full flex items-center px-8 lg:px-10 border-l border-white/[0.04] font-barlow font-bold text-[13px] tracking-[0.18em] uppercase text-white/65 hover:text-white transition-colors duration-300 group relative overflow-hidden"
+                  className="flex-1 min-w-0 h-full flex items-center justify-center px-4 border-l border-white/[0.04] font-barlow font-bold text-[13px] tracking-[0.18em] uppercase text-white/65 hover:text-white transition-colors duration-300 group relative overflow-hidden"
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: i * 0.05 + 0.1 }}
                 >
-                  <span className="relative z-10">{item.label}</span>
+                  <span className="relative z-10 truncate">{item.label}</span>
                   <div className="absolute inset-x-0 bottom-0 h-[2px] bg-primary scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-right" />
                   <div className="absolute inset-0 bg-white/[0.02] opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                 </motion.a>
               ))}
+            </div>
 
-              {/* Auth Section */}
-              <div className="h-full flex items-center px-10 border-l border-white/[0.1]">
+            {/* ── RIGHT: AUTH ── */}
+            <div className="hidden md:flex items-stretch shrink-0">
+              <div className="h-full flex items-center px-6 lg:px-10 border-l border-white/[0.1]">
                 {user ? (
                   <div className="flex items-center gap-5">
                     <a href="/profile" className="flex items-center gap-3 group">
