@@ -43,10 +43,8 @@ class PackageSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 {'location_ids': 'An individual package must have exactly one location.'}
             )
-        if kind == PackageKind.GROUP and len(locations) < 2:
-            raise serializers.ValidationError(
-                {'location_ids': 'A group package must span at least two locations.'}
-            )
+        # Group packages are group activities: they may run at a single location
+        # or span several, so no location-count rule applies to them.
 
     def _validate_sections(self, attrs):
         for field in LIST_SECTIONS:
