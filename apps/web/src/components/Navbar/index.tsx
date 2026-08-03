@@ -3,7 +3,8 @@
 import { motion, AnimatePresence } from "motion/react";
 import { useState } from "react";
 import { Menu, X, LogOut, User as UserIcon, ArrowUpRight } from "lucide-react";
-import logo from "@/assets/logo.png";
+import logo1 from "@/assets/logo1.jpeg";
+import logo2 from "@/assets/logo2.png";
 import { SITE_CONFIG } from "@repo/utils";
 import { useAuth } from "@/context/AuthContext";
 import WhatsAppIcon from "@/components/WhatsAppIcon";
@@ -53,27 +54,10 @@ const Navbar = () => {
             {/* ── LEFT: LOGO & HOME BADGES ── */}
             <div className="relative flex items-center z-10 h-full">
               {/* Logo Badge */}
-              <motion.a
-                href="/"
-                className="relative h-full flex items-center justify-center bg-primary px-10 group overflow-hidden shadow-[0_0_40px_hsl(var(--primary)/0.35)] z-20"
-                style={{
-                  clipPath: "polygon(0% 0%, 100% 0%, calc(100% - 20px) 100%, 0% 100%)"
-                }}
-                whileHover={{ backgroundColor: "hsl(16 100% 55%)" }} // Using the new primary hue
-                transition={{ duration: 0.2 }}
-              >
-                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-gradient-to-tr from-transparent via-white/30 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] delay-100" />
-                <div className="absolute inset-0 bg-black mix-blend-overlay opacity-20" />
-
-                <div className="relative">
-                  <motion.img
-                    src={logo.src}
-                    alt={SITE_CONFIG.brand}
-                    className="h-9 w-9 object-cover rounded-full border-2 border-black/30"
-                    whileHover={{ scale: 1.08, rotate: 5 }}
-                    transition={{ type: "spring", stiffness: 400, damping: 15 }}
-                  />
-                </div>
+              {/* Logo lockup: icon (logo1) + wordmark (logo2), full height, no gap */}
+              <motion.a href="/" className="relative h-full flex items-center z-20">
+                <img src={logo1.src} alt="" className="h-full w-auto object-contain" />
+                <img src={logo2.src} alt={SITE_CONFIG.brand} className="h-full w-auto object-contain" />
               </motion.a>
 
 

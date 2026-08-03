@@ -22,7 +22,7 @@ export const SITE_CONFIG = {
 
   contact: {
     email: "Info@thisismuaythai.fit",
-    phone: "+91 9811933367",
+    phone: "+91 9711933367",
     whatsappMessage: "Hi! I'm interested in This Is Muay Thai training camps.",
     instagram: "https://www.instagram.com/thisismuaythai.fit?igsh=dmYwZnU0aHl3d3Jw",
     youtube: "https://youtube.com/@thisismuaythai?si=fHtpofHMLbcmKC-f",

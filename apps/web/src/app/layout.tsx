@@ -22,9 +22,6 @@ const spaceGrotesk = Space_Grotesk({
 export const metadata: Metadata = {
   title: SITE_CONFIG.brand + " | Forge Your Legacy",
   description: SITE_CONFIG.taglines.heroDesc,
-  icons: {
-    icon: "/favicon.ico",
-  },
   appleWebApp: {
     capable: true,
     title: "This Is Muay Thai",
