@@ -2,8 +2,7 @@
 
 import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
 import { useRef, useState, useEffect } from "react";
-import Image from "next/image";
-import heroGroupImg from "@/assets/hero-group.jpg";
+import heroPosterImg from "@/assets/hero-poster.jpg";
 import { SITE_CONFIG } from "@repo/utils";
 import { ArrowDown } from "lucide-react";
 
@@ -38,21 +37,28 @@ const HeroSection = () => {
       ref={ref}
       className="relative h-[100svh] min-h-[640px] overflow-hidden bg-black"
     >
-      {/* Background image with parallax */}
+      {/* Background video with parallax */}
       <motion.div className="absolute inset-0" style={{ y: bgY, scale: bgScale }}>
-        <Image
-          src={heroGroupImg}
-          alt="Muay Thai training group"
-          fill
-          priority
-          className="object-cover object-center"
-          sizes="100vw"
+        {/* Self-hosted loop. `poster` is the clip's own first frame, so the
+            handoff into playback is invisible rather than a change of image. */}
+        <video
+          className="absolute inset-0 h-full w-full object-cover object-center"
+          src="/hero.mp4"
+          poster={heroPosterImg.src}
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="auto"
+          aria-hidden
+          tabIndex={-1}
         />
 
-        {/* Layered overlays */}
-        <div className="absolute inset-0 bg-black/35" />
-        <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/20 to-transparent" />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-black/30" />
+        {/* Layered overlays — kept light so the footage reads, with the bottom
+            gradient still carrying enough weight for the headline to sit on. */}
+        <div className="absolute inset-0 bg-black/15" />
+        <div className="absolute inset-0 bg-gradient-to-r from-black/45 via-black/10 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-black/15" />
       </motion.div>
 
       {/* Noise grain texture */}
