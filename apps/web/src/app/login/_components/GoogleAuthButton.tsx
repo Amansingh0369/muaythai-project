@@ -25,7 +25,8 @@ export default function GoogleAuthButton({ redirectPath }: GoogleAuthButtonProps
       const credential = extractCredential(credentialResponse);
       if (credential) {
         await login(credential);
-        router.push(redirectPath);
+        // replace, not push — Back from the destination should never land on the login page
+        router.replace(redirectPath);
       }
     } catch (err: any) {
       setError(err.message || "Google authentication failed.");

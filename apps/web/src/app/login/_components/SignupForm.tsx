@@ -11,10 +11,11 @@ import FormField from "./FormField";
 import { signupSchema, SignupFormValues } from "../auth.helpers";
 
 interface SignupFormProps {
-  redirectPath: string;
+  /** Copy shown under the "check your inbox" state — booking flow explains what happens next. */
+  verifiedNextStepHint?: string;
 }
 
-export default function SignupForm({ redirectPath }: SignupFormProps) {
+export default function SignupForm({ verifiedNextStepHint }: SignupFormProps) {
   const { register: registerUser } = useAuth();
   const [serverError, setServerError] = useState<string | null>(null);
   const [registeredEmail, setRegisteredEmail] = useState<string | null>(null);
@@ -73,6 +74,11 @@ export default function SignupForm({ redirectPath }: SignupFormProps) {
             <span className="text-white font-semibold">{registeredEmail}</span>.
             Click it to activate your account.
           </p>
+          {verifiedNextStepHint && (
+            <p className="font-grotesk text-[13px] text-primary/80 leading-relaxed max-w-xs mt-2">
+              {verifiedNextStepHint}
+            </p>
+          )}
         </div>
 
         {/* Resend button */}

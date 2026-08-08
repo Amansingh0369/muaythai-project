@@ -6,7 +6,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, MapPin, Navigation, Loader2, AlertCircle, Dumbbell } from "lucide-react";
 import { locationService, type Location } from "@/services/location.service";
 import { packageService, type Package } from "@/services/package.service";
-import { useAuth } from "@/context/AuthContext";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ImageCarousel from "@/components/ImageCarousel";
@@ -16,7 +15,6 @@ export default function LocationDetailPage() {
   const params = useParams();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { user } = useAuth();
   const id = Number(params.id);
 
   const [location, setLocation] = useState<Location | null>(null);
@@ -96,8 +94,9 @@ export default function LocationDetailPage() {
     };
   }, [isLoading, highlightParam, camps]);
 
+  // No auth gate here — /book/[id] opens on the public camp details step.
   const handleSelectCamp = (pkg: Package) => {
-    router.push(user ? `/book/${pkg.id}` : `/login?redirect=/book/${pkg.id}`);
+    router.push(`/book/${pkg.id}`);
   };
 
   const hasCoords = location?.latitude != null && location?.longitude != null;

@@ -5,7 +5,6 @@ import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, Loader2, AlertCircle, User, Users, Clock, MapPin, ChevronDown, SlidersHorizontal, CalendarDays } from "lucide-react";
 import { packageService, type Package, type LocationDetails } from "@/services/package.service";
-import { useAuth } from "@/context/AuthContext";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import PackageRow from "@/components/PackageRow";
@@ -57,7 +56,6 @@ export default function CampsByKindPage() {
   const params = useParams();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { user } = useAuth();
 
   const kind = resolveKind(params.kind as string);
   const meta = kind ? KIND_META[kind] : null;
@@ -193,7 +191,7 @@ export default function CampsByKindPage() {
     } else if (locations.length > 1) {
       setPickerPkg(pkg);
     } else {
-      router.push(user ? `/book/${pkg.id}` : `/login?redirect=/book/${pkg.id}`);
+      router.push(`/book/${pkg.id}`);
     }
   };
 

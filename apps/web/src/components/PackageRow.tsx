@@ -20,7 +20,7 @@ interface PackageRowProps {
   pkg: Package;
   index: number;
   highlighted?: boolean;
-  /** CTA copy — listings that lead to a location page pass "View Camp →". */
+  /** CTA copy — every listing leads to the camp's public details page first. */
   ctaLabel?: string;
   onSelect: (pkg: Package) => void;
 }
@@ -30,7 +30,7 @@ const PackageRow = ({
   pkg,
   index,
   highlighted = false,
-  ctaLabel = "Book Now →",
+  ctaLabel = "View Camp →",
   onSelect,
 }: PackageRowProps) => {
   return (
