@@ -56,9 +56,9 @@ const HeroSection = () => {
 
         {/* Layered overlays — kept light so the footage reads, with the bottom
             gradient still carrying enough weight for the headline to sit on. */}
-        <div className="absolute inset-0 bg-black/15" />
-        <div className="absolute inset-0 bg-gradient-to-r from-black/45 via-black/10 to-transparent" />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-black/15" />
+        <div className="absolute inset-0 bg-black/[0.06]" />
+        <div className="absolute inset-0 bg-gradient-to-r from-black/30 via-black/[0.04] to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-transparent to-black/[0.08]" />
       </motion.div>
 
       {/* Noise grain texture */}
