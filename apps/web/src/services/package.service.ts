@@ -10,6 +10,8 @@ export interface LocationDetails {
   city: string;
   latitude: number | null;
   longitude: number | null;
+  /** The gym's photos — served inline with the package, same shape as `LocationImage`. */
+  images?: { id: number; image: string; caption?: string | null }[];
 }
 
 export interface Package {

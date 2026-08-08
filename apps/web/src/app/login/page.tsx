@@ -18,6 +18,9 @@ function AuthCard() {
   const initialTab: Tab = searchParams?.get("tab") === "signup" ? "signup" : "login";
   const [tab, setTab] = useState<Tab>(initialTab);
 
+  // Arriving mid-booking — say so, so the login page doesn't feel like a dead end.
+  const isBookingFlow = redirect.startsWith("/book/");
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -51,9 +54,13 @@ function AuthCard() {
             transition={{ duration: 0.2 }}
             className="font-grotesk text-white/70 text-sm mt-2"
           >
-            {tab === "login"
-              ? "Sign in to access your bookings"
-              : "Create your account to book a camp"}
+            {isBookingFlow
+              ? tab === "login"
+                ? "Sign in and we'll take you straight back to your camp"
+                : "Create your account to finish booking your camp"
+              : tab === "login"
+                ? "Sign in to access your bookings"
+                : "Create your account to book a camp"}
           </motion.p>
         </AnimatePresence>
       </div>
@@ -98,7 +105,13 @@ function AuthCard() {
             {tab === "login" ? (
               <LoginForm redirectPath={redirect} />
             ) : (
-              <SignupForm redirectPath={redirect} />
+              <SignupForm
+                verifiedNextStepHint={
+                  isBookingFlow
+                    ? "Once verified, sign in here to finish booking your camp."
+                    : undefined
+                }
+              />
             )}
           </motion.div>
         </AnimatePresence>

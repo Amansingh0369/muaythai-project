@@ -32,7 +32,8 @@ export default function LoginForm({ redirectPath }: LoginFormProps) {
     setServerError(null);
     try {
       await loginWithEmail(values.email, values.password);
-      router.push(redirectPath);
+      // replace, not push — Back from the destination should never land on the login page
+      router.replace(redirectPath);
     } catch (err: any) {
       setServerError(err.message || "Incorrect email or password.");
     }
