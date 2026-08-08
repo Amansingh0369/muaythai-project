@@ -120,22 +120,36 @@ const GroupBatchPopup = () => {
             role="dialog"
             aria-modal="true"
             aria-label="Upcoming group departure"
-            className="relative w-full max-w-md bg-background border-2 border-primary rounded-2xl shadow-[0_30px_80px_rgba(0,0,0,0.65)] overflow-hidden"
+            className="relative flex flex-col w-full max-w-md max-h-[92vh] bg-background border-2 border-primary rounded-2xl shadow-[0_30px_80px_rgba(0,0,0,0.65)] overflow-hidden"
             initial={{ scale: 0.94, opacity: 0, y: 12 }}
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ scale: 0.96, opacity: 0, y: 8 }}
             transition={{ type: "spring", stiffness: 320, damping: 28 }}
           >
-            <div className="p-6 md:p-8">
-              {/* Close */}
-              <button
-                onClick={close}
-                aria-label="Close"
-                className="absolute top-4 right-4 text-white/60 hover:text-white transition-colors"
-              >
-                <X size={18} />
-              </button>
+            {/* Close — pinned above the poster, so it stays put while the
+                details below scroll on short viewports. */}
+            <button
+              onClick={close}
+              aria-label="Close"
+              className="absolute top-3 right-3 z-20 grid place-items-center w-9 h-9 rounded-full bg-black/55 backdrop-blur-sm text-white/75 hover:text-white hover:bg-black/80 transition-colors"
+            >
+              <X size={18} />
+            </button>
 
+            {/* Poster — container matches the asset's native 4:3, so it scales
+                with the card width without cropping the headline or CTA. */}
+            <div className="relative shrink-0 w-full aspect-[4/3] overflow-hidden">
+              <img
+                src="/image.png"
+                alt="Phuket Camp — 12 September 2026"
+                width={1280}
+                height={960}
+                className="w-full h-full object-cover"
+              />
+              <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-background to-transparent pointer-events-none" />
+            </div>
+
+            <div className="p-6 md:p-8 overflow-y-auto">
               {/* Eyebrow */}
               <div className="flex items-center flex-wrap gap-3 mb-5">
                 <div className="flex items-center gap-2">
