@@ -1,9 +1,9 @@
 "use client";
 
 import { motion } from "motion/react";
-import { Mail, Instagram, Youtube, ArrowUpRight } from "lucide-react";
+import { Mail, ArrowUpRight } from "lucide-react";
 import { SITE_CONFIG } from "@repo/utils";
-import WhatsAppIcon from "@/components/WhatsAppIcon";
+import { InstagramIcon, WhatsAppIcon, YouTubeIcon } from "@/components/BrandIcons";
 
 const { contact } = SITE_CONFIG;
 
@@ -13,6 +13,8 @@ const channels = [
     label: "Email",
     value: contact.email,
     href: `mailto:${contact.email}`,
+    // Email has no brand mark, so it keeps the site's own accent.
+    iconClassName: "text-primary",
   },
   {
     icon: WhatsAppIcon,
@@ -22,14 +24,14 @@ const channels = [
     external: true,
   },
   {
-    icon: Instagram,
+    icon: InstagramIcon,
     label: "Instagram",
     value: "@thisismuaythai.fit",
     href: contact.instagram,
     external: true,
   },
   {
-    icon: Youtube,
+    icon: YouTubeIcon,
     label: "YouTube",
     value: "@thisismuaythai",
     href: contact.youtube,
@@ -65,8 +67,9 @@ const ContactDetails = () => {
                 transition={{ duration: 0.4, delay: i * 0.08 }}
                 className="group relative flex items-center gap-5 border border-white/10 bg-white/[0.02] p-6 md:p-7 hover:border-primary/50 hover:bg-white/[0.04] transition-all duration-300"
               >
-                <span className="flex h-12 w-12 shrink-0 items-center justify-center bg-primary/10 border border-primary/30 text-primary group-hover:bg-primary group-hover:text-black transition-colors duration-300">
-                  <Icon size={20} />
+                {/* Neutral tile — the brand marks bring their own colour. */}
+                <span className="flex h-12 w-12 shrink-0 items-center justify-center bg-white/[0.05] border border-white/10 group-hover:bg-white/[0.10] group-hover:border-white/20 transition-colors duration-300">
+                  <Icon size={20} className={channel.iconClassName} />
                 </span>
                 <span className="flex flex-col">
                   <span className="font-grotesk text-[12px] tracking-[0.3em] uppercase text-white/60 mb-1">

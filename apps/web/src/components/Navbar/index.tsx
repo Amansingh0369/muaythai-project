@@ -7,7 +7,7 @@ import logo1 from "@/assets/logo1.jpeg";
 import logo2 from "@/assets/logo2.png";
 import { SITE_CONFIG } from "@repo/utils";
 import { useAuth } from "@/context/AuthContext";
-import WhatsAppIcon from "@/components/WhatsAppIcon";
+import { WhatsAppIcon } from "@/components/BrandIcons";
 
 const Navbar = () => {
   const { user, logout } = useAuth();
