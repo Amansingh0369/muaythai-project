@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { userService, FullUser, UserOrder } from "@/services/user.service";
+import Navbar from "@/components/Navbar";
 
 // ── Types ───────────────────────────────────────────────────────────────────
 
@@ -197,7 +198,8 @@ export default function ProfilePage() {
 
   if (isLoading || fetching) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="min-h-screen bg-background pt-[98px] flex items-center justify-center">
+        <Navbar />
         <Loader2 className="text-primary animate-spin" size={32} />
       </div>
     );
@@ -206,6 +208,7 @@ export default function ProfilePage() {
   if (fetchError || !fullUser) {
     return (
       <div className="min-h-screen bg-background pt-[98px] flex items-center justify-center">
+        <Navbar />
         <div className="text-center flex flex-col items-center gap-4">
           <AlertCircle size={32} className="text-red-400" />
           <p className="font-grotesk text-white/60 text-sm">{fetchError ?? "Could not load profile."}</p>
@@ -224,6 +227,7 @@ export default function ProfilePage() {
 
   return (
     <div className="min-h-screen bg-background pt-[98px]">
+      <Navbar />
 
       {/* ── HERO BANNER ──────────────────────────────────────────────────── */}
       <div className="relative border-b border-white/[0.06] overflow-hidden">
