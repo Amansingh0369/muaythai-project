@@ -299,6 +299,9 @@ EMAIL_USE_SSL = os.environ.get('EMAIL_USE_SSL', 'False') == 'True'
 EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', '')
 EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
 DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'noreply@muaythai.com')
+# Brand name in the email subject/body, and an optional monitored Reply-To.
+EMAIL_SITE_NAME = os.environ.get('EMAIL_SITE_NAME', 'This Is Muay Thai')
+EMAIL_REPLY_TO = os.environ.get('EMAIL_REPLY_TO', '')
 
 # Frontend URL configuration for email links
 FRONTEND_URL = os.environ.get('FRONTEND_URL', 'http://localhost:3000')
