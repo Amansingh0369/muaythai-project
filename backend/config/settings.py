@@ -169,6 +169,10 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
+# With DEBUG=False Django no longer serves static files; nginx serves them from
+# here (`location /static/` with root at BASE_DIR). Run `collectstatic` on deploy.
+STATIC_ROOT = BASE_DIR / 'static'
+
 # Media files (user uploads) — stored on Amazon S3 via django-storages.
 # https://django-storages.readthedocs.io/en/latest/backends/amazon-S3.html
 AWS_ACCESS_KEY_ID = os.environ['AWS_ACCESS_KEY_ID']
@@ -262,6 +266,22 @@ SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
 SECURE_BROWSER_XSS_FILTER = True
 SECURE_CONTENT_TYPE_NOSNIFF = True
+
+# Requests arrive over a unix socket from nginx, which terminates TLS and sets
+# X-Forwarded-Proto. Without this Django reads them as plain HTTP, and
+# SECURE_SSL_REDIRECT below would redirect to https forever.
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+# Origins allowed to send unsafe (POST/PUT/DELETE) requests — required by Django
+# 4+ for the admin login and any cross-origin form POST.
+CSRF_TRUSTED_ORIGINS = [
+    origin.strip()
+    for origin in os.environ.get(
+        'CSRF_TRUSTED_ORIGINS',
+        'https://api.thisismuaythai.fit,https://thisismuaythai.fit',
+    ).split(',')
+    if origin.strip()
+]
 
 # Production-only security settings
 if not DEBUG:
