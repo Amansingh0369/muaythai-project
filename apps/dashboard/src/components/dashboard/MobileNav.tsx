@@ -11,6 +11,7 @@ import {
   ClipboardList,
   Star,
   CreditCard,
+  TicketPercent,
   Menu,
   X,
   ArrowUpRight,
@@ -30,6 +31,7 @@ const menuItems = [
   { icon: MapPin, label: "Locations", href: "/dashboard/locations" },
   { icon: Star, label: "Reviews", href: "/dashboard/reviews" },
   { icon: CreditCard, label: "Financials", href: "/dashboard/financials" },
+  { icon: TicketPercent, label: "Coupons", href: "/dashboard/coupons" },
 ];
 
 export default function MobileNav() {

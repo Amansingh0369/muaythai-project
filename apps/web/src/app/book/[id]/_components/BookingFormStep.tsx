@@ -4,12 +4,15 @@ import { AnimatePresence, motion } from "framer-motion";
 import { AlertCircle, ChevronRight, Loader2, Lock, Phone, Plane, ShieldAlert, User } from "lucide-react";
 import type { EnrichedPackage } from "@/components/FightCampsSection/FightCampsSection.helpers";
 import {
+  AppliedCoupon,
   BookingField,
   BookingValues,
   ContentSection,
   FormErrors,
   SHELL,
+  fmtDiscount,
   fmtPrice,
+  hasDiscount,
   missingFieldLabels,
   sectionCompletion,
 } from "../booking.helpers";
@@ -27,6 +30,11 @@ interface BookingFormStepProps {
   errors: FormErrors;
   submitting: boolean;
   submitError: string | null;
+  coupon: AppliedCoupon | null;
+  /** Coupons can only change while the order is still PENDING. */
+  couponLocked: boolean;
+  onCouponApplied: (coupon: AppliedCoupon) => void;
+  onCouponRemoved: () => void;
   onFieldChange: (field: BookingField, value: string) => void;
   onSubmit: (e: React.FormEvent) => void;
   onBackToDetails: () => void;
@@ -43,12 +51,18 @@ export default function BookingFormStep({
   errors,
   submitting,
   submitError,
+  coupon,
+  couponLocked,
+  onCouponApplied,
+  onCouponRemoved,
   onFieldChange,
   onSubmit,
   onBackToDetails,
 }: BookingFormStepProps) {
   const missing = missingFieldLabels(values);
   const complete = sectionCompletion(values);
+  // What they'll actually be charged — the discounted total once a coupon is validated.
+  const payable = hasDiscount(coupon) ? coupon.total_amount : pkg.price;
 
   /** Every text input is the same wiring — label, field key, placeholder. */
   const text = (field: BookingField, placeholder: string) => ({
@@ -103,6 +117,10 @@ export default function BookingFormStep({
             sections={sections}
             locationName={locationName}
             startDateLabel={startDateLabel}
+            coupon={coupon}
+            couponLocked={couponLocked}
+            onCouponApplied={onCouponApplied}
+            onCouponRemoved={onCouponRemoved}
             onBackToDetails={onBackToDetails}
           />
 
@@ -178,9 +196,19 @@ export default function BookingFormStep({
                 <SummaryRow label="Camp" value={pkg.title} bold />
                 <SummaryRow label={isMultiLocation ? "Locations" : "Location"} value={locationName} />
                 <SummaryRow label="Duration" value={`${pkg.duration_days} Days`} />
+                {hasDiscount(coupon) && (
+                  <>
+                    <SummaryRow label="Package price" value={fmtPrice(coupon.subtotal_amount)} />
+                    <SummaryRow
+                      label={`Discount (${coupon.code})`}
+                      value={fmtDiscount(coupon.discount_amount)}
+                      accent
+                    />
+                  </>
+                )}
                 <div className="flex justify-between items-center pt-3">
                   <span className="font-grotesk text-base text-white font-bold">Total</span>
-                  <span className="font-barlow font-black italic text-3xl text-white">{fmtPrice(pkg.price)}</span>
+                  <span className="font-barlow font-black italic text-3xl text-white">{fmtPrice(payable)}</span>
                 </div>
               </div>
 
@@ -210,7 +238,7 @@ export default function BookingFormStep({
                   </>
                 ) : (
                   <>
-                    Secure Your Spot · {fmtPrice(pkg.price)}
+                    Secure Your Spot · {fmtPrice(payable)}
                     <span className="transition-transform duration-300 group-hover:translate-x-1">→</span>
                   </>
                 )}
@@ -234,11 +262,25 @@ function FormCard({ children }: { children: React.ReactNode }) {
   return <div className="border border-white/[0.08] bg-white/[0.015] p-5 sm:p-6 md:p-8">{children}</div>;
 }
 
-function SummaryRow({ label, value, bold }: { label: string; value: string; bold?: boolean }) {
+function SummaryRow({
+  label,
+  value,
+  bold,
+  accent,
+}: {
+  label: string;
+  value: string;
+  bold?: boolean;
+  accent?: boolean;
+}) {
   return (
-    <div className="flex justify-between items-center py-2.5 border-b border-white/[0.05]">
-      <span className="font-grotesk text-sm text-white/70">{label}</span>
-      <span className={`font-grotesk text-sm text-white ${bold ? "font-bold" : ""}`}>{value}</span>
+    <div className="flex justify-between items-center gap-3 py-2.5 border-b border-white/[0.05]">
+      <span className={`font-grotesk text-sm truncate ${accent ? "text-primary" : "text-white/70"}`}>{label}</span>
+      <span
+        className={`font-grotesk text-sm shrink-0 ${accent ? "text-primary" : "text-white"} ${bold ? "font-bold" : ""}`}
+      >
+        {value}
+      </span>
     </div>
   );
 }

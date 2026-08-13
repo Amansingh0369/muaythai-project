@@ -21,6 +21,16 @@ export interface BookingValues {
   allergies: string;
 }
 
+/** A coupon the customer has validated against the package, before any order exists. */
+export interface AppliedCoupon {
+  code: string;
+  subtotal_amount: string;
+  discount_amount: string;
+  total_amount: string;
+  /** True when the discount was trimmed to keep the total at the ₹1 floor. */
+  isCapped: boolean;
+}
+
 export type BookingField = keyof BookingValues;
 export type FormErrors = Partial<Record<BookingField, string>>;
 
@@ -40,6 +50,48 @@ export const EMPTY_VALUES: BookingValues = {
 
 export function fmtPrice(price: string | number): string {
   return `₹${Number(price).toLocaleString("en-IN")}`;
+}
+
+/** Discounts read as a subtraction in the summary — "−₹9,000". */
+export function fmtDiscount(amount: string | number): string {
+  return `−${fmtPrice(amount)}`;
+}
+
+/** The backend sends "0.00" when nothing was taken off, and the summary stays single-line. */
+export function hasDiscount(coupon: AppliedCoupon | null): coupon is AppliedCoupon {
+  return !!coupon && Number(coupon.discount_amount) > 0;
+}
+
+/** Razorpay refuses anything under ₹1. */
+export const MIN_PAYABLE_AMOUNT = 1;
+
+const toPaise = (amount: string | number): number => Math.round(Number(amount) * 100);
+const toAmount = (paise: number): string => (paise / 100).toFixed(2);
+
+/**
+ * Mirrors `Order.recalculate_totals`, which trims a discount so the total never falls below
+ * the ₹1 floor. `/coupons/preview/` skips that trim, so a coupon worth the full package price
+ * previews as ₹0 and then bills ₹1 once applied to a real order. Re-deriving the cap here keeps
+ * the summary honest about what will actually be charged — the order endpoints stay
+ * authoritative, this only stops the pre-order estimate from contradicting them.
+ * Integer paise throughout, so no float drift creeps into a displayed amount.
+ */
+export function capPreviewToMinimum(
+  preview: { subtotal_amount: string; discount_amount: string },
+  code: string
+): AppliedCoupon {
+  const subtotal = toPaise(preview.subtotal_amount);
+  const requested = toPaise(preview.discount_amount);
+  const headroom = Math.max(subtotal - MIN_PAYABLE_AMOUNT * 100, 0);
+  const discount = Math.min(requested, headroom);
+
+  return {
+    code,
+    subtotal_amount: toAmount(subtotal),
+    discount_amount: toAmount(discount),
+    total_amount: toAmount(subtotal - discount),
+    isCapped: discount < requested,
+  };
 }
 
 export function fmtDate(date: string | null): string | null {

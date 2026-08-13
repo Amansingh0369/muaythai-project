@@ -20,6 +20,7 @@ export const API_ENDPOINTS = {
   LOCATIONS: "/locations",
   PACKAGES: "/packages",
   ORDERS: "/orders",
+  COUPONS: "/coupons",
   PAYMENTS: {
     CREATE_ORDER: "/payments/create-order/",
     VERIFY: "/payments/verify/",

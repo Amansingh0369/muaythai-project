@@ -2,7 +2,16 @@
 
 import { Clock, MapPin } from "lucide-react";
 import type { EnrichedPackage } from "@/components/FightCampsSection/FightCampsSection.helpers";
-import { ContentSection, NOISE_OVERLAY, fmtPrice, splitPoints } from "../booking.helpers";
+import {
+  AppliedCoupon,
+  ContentSection,
+  NOISE_OVERLAY,
+  fmtDiscount,
+  fmtPrice,
+  hasDiscount,
+  splitPoints,
+} from "../booking.helpers";
+import CouponField from "./CouponField";
 import PointList from "./PointList";
 
 interface BookingSummaryCardProps {
@@ -10,6 +19,10 @@ interface BookingSummaryCardProps {
   sections: ContentSection[];
   locationName: string;
   startDateLabel: string | null;
+  coupon: AppliedCoupon | null;
+  couponLocked: boolean;
+  onCouponApplied: (coupon: AppliedCoupon) => void;
+  onCouponRemoved: () => void;
   onBackToDetails: () => void;
 }
 
@@ -19,10 +32,15 @@ export default function BookingSummaryCard({
   sections,
   locationName,
   startDateLabel,
+  coupon,
+  couponLocked,
+  onCouponApplied,
+  onCouponRemoved,
   onBackToDetails,
 }: BookingSummaryCardProps) {
   const Icon = pkg.icon;
   const highlight = sections[sections.length - 1];
+  const discounted = hasDiscount(coupon);
 
   return (
     <div className="w-full lg:w-[360px] xl:w-[400px] shrink-0 lg:sticky lg:top-28">
@@ -52,14 +70,36 @@ export default function BookingSummaryCard({
           <div className="border border-white/[0.08] bg-white/[0.03] p-5">
             <div className="flex items-end justify-between mb-3">
               <span className="font-grotesk text-[13px] tracking-[0.35em] uppercase text-white/60">Total Amount</span>
-              <span className="font-barlow font-black italic text-3xl text-white">{fmtPrice(pkg.price)}</span>
+              {/* Every amount below is rendered straight from the API — never recomputed here. */}
+              <span className="font-barlow font-black italic text-3xl text-white">
+                {fmtPrice(discounted ? coupon.total_amount : pkg.price)}
+              </span>
             </div>
             <div className="space-y-1.5">
-              <PriceRow label="Camp fee" value={fmtPrice(pkg.price)} />
+              {discounted ? (
+                <>
+                  <PriceRow label="Package price" value={fmtPrice(coupon.subtotal_amount)} />
+                  <PriceRow
+                    label={`Discount (${coupon.code})`}
+                    value={fmtDiscount(coupon.discount_amount)}
+                    accent
+                  />
+                </>
+              ) : (
+                <PriceRow label="Camp fee" value={fmtPrice(pkg.price)} />
+              )}
               <PriceRow label="Duration" value={`${pkg.duration_days} days`} />
               {startDateLabel && <PriceRow label="Start date" value={startDateLabel} />}
             </div>
           </div>
+
+          <CouponField
+            packageId={pkg.id}
+            coupon={coupon}
+            locked={couponLocked}
+            onApplied={onCouponApplied}
+            onRemoved={onCouponRemoved}
+          />
 
           {/* Condensed reminder of what they just read */}
           {highlight && (
@@ -88,11 +128,11 @@ export default function BookingSummaryCard({
   );
 }
 
-function PriceRow({ label, value }: { label: string; value: string }) {
+function PriceRow({ label, value, accent }: { label: string; value: string; accent?: boolean }) {
   return (
-    <div className="flex justify-between">
-      <span className="font-grotesk text-[13px] text-white/60">{label}</span>
-      <span className="font-grotesk text-[13px] text-white/60">{value}</span>
+    <div className="flex justify-between gap-3">
+      <span className={`font-grotesk text-[13px] truncate ${accent ? "text-primary" : "text-white/60"}`}>{label}</span>
+      <span className={`font-grotesk text-[13px] shrink-0 ${accent ? "text-primary" : "text-white/60"}`}>{value}</span>
     </div>
   );
 }

@@ -15,6 +15,7 @@ import Navbar from "@/components/Navbar";
 import BookingFormStep from "./_components/BookingFormStep";
 import CampDetailsStep from "./_components/CampDetailsStep";
 import {
+  AppliedCoupon,
   BookingField,
   BookingValues,
   EMPTY_VALUES,
@@ -48,6 +49,9 @@ export default function BookingPage() {
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+
+  // Priced by /coupons/preview/ while no order exists yet; applied to the real order at submit.
+  const [coupon, setCoupon] = useState<AppliedCoupon | null>(null);
 
   // Draft key is per-camp so two half-filled bookings never overwrite each other.
   const clearDraft = useBookingDraft(`booking-draft-${packageId}`, values, setValues);
@@ -121,7 +125,20 @@ export default function BookingPage() {
     try {
       await userService.updateProfile(profileUpdatePayload(v));
 
-      const order = await orderService.createOrder({ package: pkg.id });
+      let order = await orderService.createOrder({ package: pkg.id });
+
+      // Applying a coupon re-prices the order and clears its razorpay_order_id, so it has to
+      // settle before the Razorpay order is created — otherwise the customer is charged full price.
+      if (coupon) {
+        try {
+          order = await orderService.applyCoupon(order.id, coupon.code);
+        } catch (err: any) {
+          // The code went stale between preview and submit. Drop it and stop here rather than
+          // let the customer pay an amount they didn't agree to.
+          setCoupon(null);
+          throw new Error(err?.message || "That coupon is no longer valid. Please check your total and try again.");
+        }
+      }
 
       const scriptReady = await loadRazorpayScript();
       if (!scriptReady) throw new Error("Could not load payment gateway. Check your connection.");
@@ -276,6 +293,13 @@ export default function BookingPage() {
                 errors={errors}
                 submitting={submitting}
                 submitError={submitError}
+                coupon={coupon}
+                couponLocked={submitting || success}
+                onCouponApplied={(applied) => {
+                  setCoupon(applied);
+                  setSubmitError(null);
+                }}
+                onCouponRemoved={() => setCoupon(null)}
                 onFieldChange={setField}
                 onSubmit={handleSubmit}
                 onBackToDetails={() => goToStep("details")}
