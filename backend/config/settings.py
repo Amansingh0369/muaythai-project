@@ -71,6 +71,7 @@ INSTALLED_APPS = [
     'core',
     'locations',
     'packages',
+    'coupons',
     'orders',
     'payments',
     'reviews',

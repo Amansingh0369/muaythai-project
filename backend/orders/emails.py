@@ -88,6 +88,12 @@ def booking_details(order, payment=None):
     if start_date and package.duration_days:
         end_date = start_date + timedelta(days=package.duration_days - 1)
         rows.append({'label': 'Ends', 'value': _format_date(end_date)})
+    # Only itemise when a discount actually applied — a "₹0 off" line on every
+    # full-price receipt is noise.
+    if order.discount_amount:
+        rows.append({'label': 'Package price', 'value': _format_amount(order.subtotal_amount)})
+        discount_label = f'Discount ({order.coupon.code})' if order.coupon else 'Discount'
+        rows.append({'label': discount_label, 'value': f'− {_format_amount(order.discount_amount)}'})
     rows.append({'label': 'Amount', 'value': _format_amount(order.total_amount)})
     if payment and payment.razorpay_payment_id:
         rows.append({'label': 'Payment ID', 'value': payment.razorpay_payment_id})
