@@ -37,7 +37,11 @@ export const authService = {
     });
     let data: any;
     try { data = await response.json(); } catch { data = {}; }
-    if (!response.ok) throw new Error(data.detail || data.message || "Login failed");
+    // `error` is a string only for view-level errors (e.g. unverified email); the exception
+    // handler sets it to `true` and puts a raw serializer repr in `message`, so never use that.
+    if (!response.ok) {
+      throw new Error(typeof data.error === "string" ? data.error : "Invalid email or password.");
+    }
     return data as AuthResponse;
   },
 
