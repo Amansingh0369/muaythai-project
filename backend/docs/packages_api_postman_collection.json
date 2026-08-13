@@ -14,9 +14,9 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "https://muaythai-test.duckdns.org/api/locations/",
+              "raw": "https://api.thisismuaythai.fit/api/locations/",
               "protocol": "https",
-              "host": ["muaythai-test", "duckdns", "org"],
+              "host": ["api", "thisismuaythai", "fit"],
               "path": ["api", "locations", ""]
             }
           }
@@ -40,9 +40,9 @@
               "raw": "{\n    \"name\": \"Main Muay Thai Center\",\n    \"address\": \"123 Combat Street\",\n    \"city\": \"Bangkok\",\n    \"latitude\": \"13.7563\",\n    \"longitude\": \"100.5018\"\n}"
             },
             "url": {
-              "raw": "https://muaythai-test.duckdns.org/api/locations/",
+              "raw": "https://api.thisismuaythai.fit/api/locations/",
               "protocol": "https",
-              "host": ["muaythai-test", "duckdns", "org"],
+              "host": ["api", "thisismuaythai", "fit"],
               "path": ["api", "locations", ""]
             }
           }
@@ -66,9 +66,9 @@
               "raw": "{\n    \"city\": \"Chiang Mai\"\n}"
             },
             "url": {
-              "raw": "https://muaythai-test.duckdns.org/api/locations/1/",
+              "raw": "https://api.thisismuaythai.fit/api/locations/1/",
               "protocol": "https",
-              "host": ["muaythai-test", "duckdns", "org"],
+              "host": ["api", "thisismuaythai", "fit"],
               "path": ["api", "locations", "1", ""]
             }
           }
@@ -84,9 +84,9 @@
               }
             ],
             "url": {
-              "raw": "https://muaythai-test.duckdns.org/api/locations/1/",
+              "raw": "https://api.thisismuaythai.fit/api/locations/1/",
               "protocol": "https",
-              "host": ["muaythai-test", "duckdns", "org"],
+              "host": ["api", "thisismuaythai", "fit"],
               "path": ["api", "locations", "1", ""]
             }
           }
@@ -102,9 +102,9 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "https://muaythai-test.duckdns.org/api/packages/",
+              "raw": "https://api.thisismuaythai.fit/api/packages/",
               "protocol": "https",
-              "host": ["muaythai-test", "duckdns", "org"],
+              "host": ["api", "thisismuaythai", "fit"],
               "path": ["api", "packages", ""]
             }
           }
@@ -115,9 +115,9 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "https://muaythai-test.duckdns.org/api/packages/?location=1&type=BEGINNER",
+              "raw": "https://api.thisismuaythai.fit/api/packages/?location=1&type=BEGINNER",
               "protocol": "https",
-              "host": ["muaythai-test", "duckdns", "org"],
+              "host": ["api", "thisismuaythai", "fit"],
               "path": ["api", "packages", ""],
               "query": [
                 {"key": "location", "value": "1"},
@@ -145,9 +145,9 @@
               "raw": "{\n    \"name\": \"Beginner Thai Boxing\",\n    \"type\": \"BEGINNER\",\n    \"description\": \"Perfect for newcomers.\",\n    \"price\": \"150.00\",\n    \"start_date\": \"2026-07-01\",\n    \"location\": 1,\n    \"is_active\": true\n}"
             },
             "url": {
-              "raw": "https://muaythai-test.duckdns.org/api/packages/",
+              "raw": "https://api.thisismuaythai.fit/api/packages/",
               "protocol": "https",
-              "host": ["muaythai-test", "duckdns", "org"],
+              "host": ["api", "thisismuaythai", "fit"],
               "path": ["api", "packages", ""]
             }
           }
@@ -171,9 +171,9 @@
               "raw": "{\n    \"price\": \"140.00\"\n}"
             },
             "url": {
-              "raw": "https://muaythai-test.duckdns.org/api/packages/1/",
+              "raw": "https://api.thisismuaythai.fit/api/packages/1/",
               "protocol": "https",
-              "host": ["muaythai-test", "duckdns", "org"],
+              "host": ["api", "thisismuaythai", "fit"],
               "path": ["api", "packages", "1", ""]
             }
           }
@@ -189,9 +189,9 @@
               }
             ],
             "url": {
-              "raw": "https://muaythai-test.duckdns.org/api/packages/1/",
+              "raw": "https://api.thisismuaythai.fit/api/packages/1/",
               "protocol": "https",
-              "host": ["muaythai-test", "duckdns", "org"],
+              "host": ["api", "thisismuaythai", "fit"],
               "path": ["api", "packages", "1", ""]
             }
           }
@@ -220,9 +220,9 @@
               "raw": "{\n    \"full_name\": \"Sanket Mishra\",\n    \"phone\": \"1234567890\",\n    \"age\": 25,\n    \"gender\": \"MALE\",\n    \"bio\": \"fgfgf6767\",\n    \"experience\": \"BEGINNER\",\n    \"weight\": 75.50,\n    \"height\": 180.00,\n    \"emergency_contact_name\": \"Jane Doe\",\n    \"emergency_contact_phone\": \"0987654321\",\n    \"passport\": \"A1234567\"\n}"
             },
             "url": {
-              "raw": "https://muaythai-test.duckdns.org/api/users/me/",
+              "raw": "https://api.thisismuaythai.fit/api/users/me/",
               "protocol": "https",
-              "host": ["muaythai-test", "duckdns", "org"],
+              "host": ["api", "thisismuaythai", "fit"],
               "path": ["api", "users", "me", ""]
             }
           }

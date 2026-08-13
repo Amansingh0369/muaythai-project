@@ -3,7 +3,7 @@
 ## 📦 Project Info
 
 * Project Path: `/home/ubuntu/muaythai-project/backend`
-* Domain: `muaythai-test.duckdns.org`
+* Domain: `api.thisismuaythai.fit`
 * WSGI: `config.wsgi:application`
 
 ---
@@ -36,7 +36,7 @@ Create `.env` file:
 ```env
 SECRET_KEY=your_secret
 DEBUG=False
-ALLOWED_HOSTS=muaythai-test.duckdns.org
+ALLOWED_HOSTS=api.thisismuaythai.fit
 
 # AWS S3 (media storage — required; app fails to start if unset)
 AWS_ACCESS_KEY_ID=your_key
@@ -104,7 +104,7 @@ sudo nano /etc/nginx/sites-available/mauythai
 ```nginx
 server {
     listen 80;
-    server_name muaythai-test.duckdns.org;
+    server_name api.thisismuaythai.fit;
 
     # Allow larger multipart uploads (e.g. location image galleries).
     # nginx defaults to 1M, which returns 413 Request Entity Too Large on
@@ -140,7 +140,7 @@ sudo systemctl restart nginx
 
 ```bash
 sudo apt install certbot python3-certbot-nginx -y
-sudo certbot --nginx -d muaythai-test.duckdns.org
+sudo certbot --nginx -d api.thisismuaythai.fit
 ```
 
 ---
