@@ -23,3 +23,27 @@ class Order(models.Model):
 
     class Meta:
         ordering = ['-created_at']
+
+
+class ReminderKind(models.TextChoices):
+    SEVEN_DAY = 'SEVEN_DAY', '7 days before start'
+    ONE_DAY = 'ONE_DAY', '1 day before start'
+
+
+class OrderReminder(models.Model):
+    """One row per pre-arrival reminder actually sent.
+
+    The unique constraint is what makes `send_package_reminders` safe to run
+    repeatedly — a second run the same day, or a retry after a partial failure,
+    cannot re-send a reminder the customer already received.
+    """
+    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='reminders')
+    kind = models.CharField(max_length=20, choices=ReminderKind.choices)
+    sent_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('order', 'kind')
+        ordering = ['-sent_at']
+
+    def __str__(self):
+        return f"{self.get_kind_display()} for Order #{self.order_id}"

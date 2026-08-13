@@ -1,3 +1,5 @@
+import logging
+
 from django.conf import settings
 from django.db import transaction
 from rest_framework import viewsets, permissions, status, response
@@ -5,8 +7,11 @@ from rest_framework.decorators import action
 from .models import Payment, PaymentStatus
 from .serializers import PaymentSerializer, RazorpayOrderSerializer, RazorpayVerifySerializer
 from .services import RazorpayService
+from orders.emails import send_order_confirmation_email, send_payment_failed_email
 from orders.models import Order, OrderStatus
 from core.permissions import IsAdmin
+
+logger = logging.getLogger(__name__)
 
 class PaymentViewSet(viewsets.ModelViewSet):
     """
@@ -94,6 +99,11 @@ class PaymentViewSet(viewsets.ModelViewSet):
         )
         
         if not verified:
+            self._record_failed_payment(
+                user=request.user,
+                data=data,
+                reason='We could not verify the payment signature returned by our payment provider.',
+            )
             return response.Response({'error': 'Signature verification failed'}, status=status.HTTP_400_BAD_REQUEST)
 
         # Update Order and create the Payment record atomically. Locking the row
@@ -118,7 +128,7 @@ class PaymentViewSet(viewsets.ModelViewSet):
                 order.status = OrderStatus.PAID
                 order.save(update_fields=['status', 'updated_at'])
 
-                Payment.objects.create(
+                payment = Payment.objects.create(
                     order=order,
                     razorpay_payment_id=data['razorpay_payment_id'],
                     razorpay_order_id=data['razorpay_order_id'],
@@ -127,9 +137,48 @@ class PaymentViewSet(viewsets.ModelViewSet):
                     status=PaymentStatus.SUCCESS,
                 )
 
+                # on_commit so the receipt is only sent once the payment is
+                # durably recorded — a rolled-back transaction must not leave the
+                # customer holding a confirmation for a booking that doesn't exist.
+                transaction.on_commit(
+                    lambda: send_order_confirmation_email(order=order, payment=payment)
+                )
+
             return response.Response({'message': 'Payment successful', 'order_id': order.id})
         except Order.DoesNotExist:
             return response.Response({'error': 'Order not found for given razorpay_order_id'}, status=status.HTTP_404_NOT_FOUND)
+
+    def _record_failed_payment(self, *, user, data, reason):
+        """Log a failed attempt against the order and let the customer know.
+
+        The order is deliberately left PENDING so the customer can retry from
+        the same booking. Never raises: a failure here must not mask the
+        payment error we are already returning to the caller.
+        """
+        try:
+            order = Order.objects.select_related('package', 'user').get(
+                razorpay_order_id=data['razorpay_order_id'],
+                user=user,
+            )
+        except Order.DoesNotExist:
+            logger.warning(
+                'Failed payment for unknown razorpay_order_id=%s', data.get('razorpay_order_id')
+            )
+            return
+
+        try:
+            Payment.objects.create(
+                order=order,
+                razorpay_payment_id=data.get('razorpay_payment_id'),
+                razorpay_order_id=data['razorpay_order_id'],
+                razorpay_signature=data.get('razorpay_signature'),
+                amount=order.total_amount,
+                status=PaymentStatus.FAILED,
+            )
+        except Exception:
+            logger.exception('Could not record failed payment for order #%s', order.id)
+
+        send_payment_failed_email(order=order, reason=reason)
 
     @action(detail=False, methods=['get'], url_path='history')
     def history(self, request):
