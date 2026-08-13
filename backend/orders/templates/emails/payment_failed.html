@@ -1,0 +1,14 @@
+{% extends "emails/base_email.html" %}
+{% block content %}
+<p style="margin:0 0 16px 0; font-size:15px; line-height:1.6; color:#3f3f46;">
+  We could not complete your payment for <strong style="color:#18181b;">{{ package_name }}</strong>, so this booking has not been confirmed.
+</p>
+{% if failure_reason %}
+<p style="margin:0 0 16px 0; font-size:14px; line-height:1.6; color:#71717a;">
+  Reason given: {{ failure_reason }}
+</p>
+{% endif %}
+<p style="margin:0 0 8px 0; font-size:15px; line-height:1.6; color:#3f3f46;">
+  Your place has not been released — you can retry the payment from your bookings page. This usually resolves on a second attempt, or with a different card.
+</p>
+{% endblock %}

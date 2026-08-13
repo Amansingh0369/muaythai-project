@@ -15,12 +15,22 @@
       <td align="center" style="padding:32px 16px;">
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:520px; background-color:#ffffff; border-radius:16px; overflow:hidden; box-shadow:0 1px 3px rgba(0,0,0,0.08);">
 
-          <!-- Header / brand bar -->
+          <!-- Header / brand bar. Background matches the logo artwork (#cc5126)
+               so the lockup sits flush, mirroring the site navbar. -->
           <tr>
-            <td style="background:linear-gradient(135deg,#b91c1c 0%,#7f1d1d 100%); padding:28px 32px; text-align:center;">
+            <td style="background-color:#cc5126; padding:22px 32px; text-align:center;">
+              {% if logo_mark_cid and logo_wordmark_cid %}
+              <table role="presentation" cellpadding="0" cellspacing="0" border="0" align="center" style="border-collapse:collapse;">
+                <tr>
+                  <td style="padding:0; font-size:0; line-height:0;"><img src="cid:{{ logo_mark_cid }}" width="70" height="64" alt="" style="display:block; border:0; outline:none; text-decoration:none;"></td>
+                  <td style="padding:0; font-size:0; line-height:0;"><img src="cid:{{ logo_wordmark_cid }}" width="132" height="64" alt="{{ site_name }}" style="display:block; border:0; outline:none; text-decoration:none;"></td>
+                </tr>
+              </table>
+              {% else %}
               <span style="display:inline-block; font-size:22px; font-weight:800; letter-spacing:0.5px; color:#ffffff;">
-                🥊 {{ site_name }}
+                {{ site_name }}
               </span>
+              {% endif %}
             </td>
           </tr>
 
@@ -33,13 +43,47 @@
             </td>
           </tr>
 
+          <!-- Highlight panel: the one fact the reader most needs (e.g. start date) -->
+          {% if highlight_value %}
+          <tr>
+            <td style="padding:8px 32px 4px 32px;">
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#fdf3ef; border-left:4px solid #cc5126; border-radius:8px;">
+                <tr>
+                  <td style="padding:16px 20px;">
+                    {% if highlight_label %}<p style="margin:0 0 4px 0; font-size:12px; font-weight:600; letter-spacing:0.6px; text-transform:uppercase; color:#b0421d;">{{ highlight_label }}</p>{% endif %}
+                    <p style="margin:0; font-size:17px; font-weight:700; color:#18181b;">{{ highlight_value }}</p>
+                    {% if highlight_note %}<p style="margin:4px 0 0 0; font-size:13px; line-height:1.5; color:#71717a;">{{ highlight_note }}</p>{% endif %}
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          {% endif %}
+
+          <!-- Details table: label/value rows, e.g. booking summary -->
+          {% if details %}
+          <tr>
+            <td style="padding:20px 32px 4px 32px;">
+              {% if details_title %}<p style="margin:0 0 10px 0; font-size:12px; font-weight:600; letter-spacing:0.6px; text-transform:uppercase; color:#71717a;">{{ details_title }}</p>{% endif %}
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #e4e4e7; border-radius:8px; border-collapse:separate;">
+                {% for row in details %}
+                <tr>
+                  <td style="padding:11px 16px; font-size:13px; line-height:1.5; color:#71717a; vertical-align:top; white-space:nowrap;{% if not forloop.first %} border-top:1px solid #f4f4f5;{% endif %}">{{ row.label }}</td>
+                  <td style="padding:11px 16px; font-size:13px; line-height:1.5; color:#18181b; font-weight:600; text-align:right; vertical-align:top;{% if not forloop.first %} border-top:1px solid #f4f4f5;{% endif %}">{{ row.value }}</td>
+                </tr>
+                {% endfor %}
+              </table>
+            </td>
+          </tr>
+          {% endif %}
+
           <!-- CTA button -->
           {% if cta_url %}
           <tr>
             <td style="padding:8px 32px 32px 32px;" align="center">
               <table role="presentation" cellpadding="0" cellspacing="0">
                 <tr>
-                  <td style="border-radius:10px; background-color:#b91c1c;">
+                  <td style="border-radius:10px; background-color:#b0421d;">
                     <a href="{{ cta_url }}" target="_blank"
                        style="display:inline-block; padding:14px 34px; font-size:15px; font-weight:600; color:#ffffff; text-decoration:none; border-radius:10px;">
                       {{ cta_label }}
@@ -57,7 +101,7 @@
                 If the button above doesn't work, copy and paste this link into your browser:
               </p>
               <p style="margin:0; font-size:12px; line-height:1.5; word-break:break-all;">
-                <a href="{{ cta_url }}" target="_blank" style="color:#b91c1c; text-decoration:underline;">{{ cta_url }}</a>
+                <a href="{{ cta_url }}" target="_blank" style="color:#b0421d; text-decoration:underline;">{{ cta_url }}</a>
               </p>
             </td>
           </tr>
@@ -85,7 +129,7 @@
                 &copy; {{ site_name }}. All rights reserved.
               </p>
               <p style="margin:0; font-size:12px; color:#a1a1aa;">
-                This is an automated message — please do not reply to this email.
+                {% if can_reply %}Questions? Reply to this email and a member of our team will get back to you.{% else %}This is an automated message — please do not reply to this email.{% endif %}
               </p>
             </td>
           </tr>

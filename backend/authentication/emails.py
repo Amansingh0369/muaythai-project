@@ -1,53 +1,9 @@
-"""Reusable transactional email helpers.
+"""Account-lifecycle emails (verification, password reset).
 
-Every email is sent as a multipart message: a nicely styled HTML body plus a
-plain-text fallback (auto-derived from the HTML) so it renders everywhere.
+The rendering/sending machinery lives in `core.emails`; this module only owns
+the copy and context for auth-related messages.
 """
-import re
-
-from django.conf import settings
-from django.core.mail import EmailMultiAlternatives
-from django.template.loader import render_to_string
-from django.utils.html import strip_tags
-
-SITE_NAME = getattr(settings, 'EMAIL_SITE_NAME', 'Muay Thai Training')
-
-
-def send_html_email(*, to_email, subject, template, context, preheader=''):
-    """Render `template` (which extends emails/base_email.html) and send it.
-
-    context is merged with sensible brand defaults so individual callers only
-    need to pass what differs (heading, cta_url, etc.).
-    """
-    base_context = {
-        'site_name': SITE_NAME,
-        'subject': subject,
-        'preheader': preheader or subject,
-        'cta_label': 'Open',
-        'greeting': '',
-        'footer_note': '',
-    }
-    base_context.update(context)
-
-    html_body = render_to_string(template, base_context)
-    # Plain-text fallback: strip tags and collapse the runs of whitespace left
-    # behind by the HTML layout, then append the action URL so text-only clients
-    # still get a usable link.
-    text_body = strip_tags(html_body)
-    text_body = re.sub(r'[ \t]+', ' ', text_body)
-    text_body = re.sub(r'\n\s*\n\s*', '\n\n', text_body).strip()
-    cta_url = base_context.get('cta_url')
-    if cta_url and cta_url not in text_body:
-        text_body = f"{text_body}\n\n{cta_url}"
-
-    message = EmailMultiAlternatives(
-        subject=subject,
-        body=text_body,
-        from_email=settings.DEFAULT_FROM_EMAIL,
-        to=[to_email],
-    )
-    message.attach_alternative(html_body, 'text/html')
-    message.send(fail_silently=False)
+from core.emails import send_html_email
 
 
 def send_verification_email(*, user, verification_link):
