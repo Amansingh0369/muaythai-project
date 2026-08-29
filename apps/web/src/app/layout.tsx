@@ -4,6 +4,7 @@ import "./globals.css";
 import { Providers } from "@/components/Providers";
 import { SITE_CONFIG } from "@repo/utils";
 import StickyReveal from "@/components/StickyReveal";
+import { TrackingNoScript, TrackingScripts } from "@/components/Tracking";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const oswald = Oswald({ subsets: ["latin"], variable: "--font-oswald" });
@@ -45,6 +46,8 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <body className={`${inter.variable} ${oswald.variable} ${bebasNeue.variable} ${barlowCondensed.variable} ${spaceGrotesk.variable} font-body antialiased selection:bg-primary selection:text-black`}>
+        <TrackingNoScript />
+        <TrackingScripts />
         <Providers>
           <StickyReveal>
             {children}
