@@ -1,6 +1,11 @@
+import io
 from decimal import Decimal
+from unittest import mock
 
+from django.core.files.uploadedfile import SimpleUploadedFile
+from django.test import override_settings
 from django.urls import reverse
+from PIL import Image
 from rest_framework import status
 from rest_framework.test import APITestCase
 
@@ -44,6 +49,21 @@ def complete_card_payload(**overrides):
     return payload
 
 
+def image_file(name='fighter.jpg', fmt='JPEG', size=(80, 80), content_type='image/jpeg'):
+    """A real, decodable image — ImageField validates with Pillow, so a stub
+    of arbitrary bytes would be rejected for the wrong reason."""
+    buffer = io.BytesIO()
+    Image.new('RGB', size, color=(120, 20, 20)).save(buffer, format=fmt)
+    return SimpleUploadedFile(name, buffer.getvalue(), content_type=content_type)
+
+
+# Uploads must never reach the real S3 bucket configured in settings. Applied
+# to the base class so every test in this module is safe, whichever settings
+# module it is run under.
+@override_settings(STORAGES={
+    'default': {'BACKEND': 'django.core.files.storage.InMemoryStorage'},
+    'staticfiles': {'BACKEND': 'django.contrib.staticfiles.storage.StaticFilesStorage'},
+})
 class FighterCardTestBase(APITestCase):
     def setUp(self):
         self.fighter = User.objects.create_user(email='fighter@example.com', password='pass12345')
@@ -55,10 +75,28 @@ class FighterCardTestBase(APITestCase):
         self.me_url = reverse('fighter-card-me')
         self.options_url = reverse('fighter-card-options')
         self.list_url = reverse('fighter-card-admin-list')
+        self.photo_url = reverse('fighter-card-me-photo')
 
     def patch_me(self, payload):
         self.client.force_authenticate(user=self.fighter)
         return self.client.patch(self.me_url, payload, format='json')
+
+    def upload_photo(self, file=None):
+        self.client.force_authenticate(user=self.fighter)
+        return self.client.put(
+            self.photo_url, {'photo': file if file is not None else image_file()},
+            format='multipart',
+        )
+
+    def complete_the_card(self, **overrides):
+        """Every required answer, photo included.
+
+        The photo is required for completion but cannot ride on the card
+        PATCH, so completing a card always takes the same two calls the
+        frontend makes.
+        """
+        self.upload_photo()
+        return self.patch_me(complete_card_payload(**overrides))
 
 
 class MyFighterCardTests(FighterCardTestBase):
@@ -115,16 +153,24 @@ class MyFighterCardTests(FighterCardTestBase):
         self.assertFalse(response.data['is_complete'])
 
     def test_answering_everything_completes_the_card(self):
-        response = self.patch_me(complete_card_payload())
+        response = self.complete_the_card()
 
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self.assertTrue(response.data['is_complete'])
         self.assertEqual(response.data['missing_fields'], [])
         self.assertIsNotNone(response.data['completed_at'])
 
+    def test_the_answers_alone_do_not_complete_the_card(self):
+        # Every question answered but no photo — the photo is required too.
+        response = self.patch_me(complete_card_payload())
+
+        self.assertFalse(response.data['is_complete'])
+        self.assertEqual(response.data['missing_fields'], ['photo'])
+
     def test_completed_at_is_not_reset_by_later_edits(self):
-        self.patch_me(complete_card_payload())
+        self.complete_the_card()
         completed_at = FighterCard.objects.get(user=self.fighter).completed_at
+        self.assertIsNotNone(completed_at)
 
         self.patch_me({'city': 'Bristol'})
 
@@ -401,3 +447,191 @@ class AdminFighterCardTests(FighterCardTestBase):
         response = self.client.post(self.list_url, {'city': 'Leeds'}, format='json')
 
         self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
+
+
+class FighterCardPhotoTests(FighterCardTestBase):
+    def test_upload_requires_authentication(self):
+        response = self.client.put(self.photo_url, {'photo': image_file()}, format='multipart')
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_a_fighter_can_upload_a_photo(self):
+        response = self.upload_photo()
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        card = FighterCard.objects.get(user=self.fighter)
+        self.assertTrue(card.photo)
+        self.assertIn('fighter-cards/', card.photo.name)
+
+    def test_uploading_creates_the_card_if_it_does_not_exist_yet(self):
+        self.assertFalse(FighterCard.objects.filter(user=self.fighter).exists())
+        self.upload_photo()
+        self.assertTrue(FighterCard.objects.filter(user=self.fighter).exists())
+
+    def test_the_photo_comes_back_on_the_card(self):
+        self.upload_photo()
+        self.client.force_authenticate(user=self.fighter)
+        response = self.client.get(self.me_url)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(response.data['photo'])
+
+    def test_a_card_without_a_photo_reports_null(self):
+        self.client.force_authenticate(user=self.fighter)
+        response = self.client.get(self.me_url)
+        self.assertIsNone(response.data['photo'])
+
+    def test_replacing_a_photo_removes_the_old_file(self):
+        self.upload_photo(image_file(name='first.jpg'))
+        card = FighterCard.objects.get(user=self.fighter)
+        first_name = card.photo.name
+        storage = card.photo.storage
+        self.assertTrue(storage.exists(first_name))
+
+        self.upload_photo(image_file(name='second.jpg'))
+        card.refresh_from_db()
+
+        self.assertNotEqual(card.photo.name, first_name)
+        self.assertFalse(storage.exists(first_name))
+
+    def test_a_photo_can_be_removed(self):
+        self.upload_photo()
+        card = FighterCard.objects.get(user=self.fighter)
+        name, storage = card.photo.name, card.photo.storage
+
+        self.client.force_authenticate(user=self.fighter)
+        response = self.client.delete(self.photo_url)
+
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        card.refresh_from_db()
+        self.assertFalse(card.photo)
+        self.assertFalse(storage.exists(name))
+
+    def test_removing_a_photo_that_is_not_there_is_not_an_error(self):
+        self.client.force_authenticate(user=self.fighter)
+        response = self.client.delete(self.photo_url)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+    def test_deleting_the_card_removes_the_photo_file(self):
+        self.upload_photo()
+        card = FighterCard.objects.get(user=self.fighter)
+        name, storage = card.photo.name, card.photo.storage
+
+        card.delete()
+
+        self.assertFalse(storage.exists(name))
+
+    def test_an_oversized_photo_is_rejected(self):
+        # A genuine, decodable image that is simply too big — so the failure
+        # can only come from the size cap, not from the image check upstream
+        # of it. The cap is patched rather than the image inflated to 5 MB.
+        photo = image_file()
+        with mock.patch.object(c, 'MAX_PHOTO_BYTES', photo.size - 1):
+            response = self.upload_photo(photo)
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('photo', response.data['data'])
+
+    def test_a_photo_at_the_size_limit_is_accepted(self):
+        photo = image_file()
+        with mock.patch.object(c, 'MAX_PHOTO_BYTES', photo.size):
+            response = self.upload_photo(photo)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_a_file_that_is_not_an_image_is_rejected(self):
+        not_an_image = SimpleUploadedFile(
+            'notes.txt', b'plain text, not a photo', content_type='text/plain',
+        )
+        response = self.upload_photo(not_an_image)
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('photo', response.data['data'])
+
+    def test_an_unsupported_image_format_is_rejected(self):
+        # A real, decodable image Pillow names GIF — proof the format check is
+        # doing the work, not the "is this an image at all" check.
+        response = self.upload_photo(image_file(name='animation.gif', fmt='GIF', content_type='image/gif'))
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('photo', response.data['data'])
+
+    def test_png_and_webp_are_accepted(self):
+        for name, fmt, content_type in (
+            ('fighter.png', 'PNG', 'image/png'),
+            ('fighter.webp', 'WEBP', 'image/webp'),
+        ):
+            with self.subTest(format=fmt):
+                response = self.upload_photo(image_file(name=name, fmt=fmt, content_type=content_type))
+                self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_a_card_is_not_complete_until_a_photo_is_uploaded(self):
+        self.patch_me(complete_card_payload())
+        self.client.force_authenticate(user=self.fighter)
+        before = self.client.get(self.me_url)
+
+        self.assertFalse(before.data['is_complete'])
+        self.assertIn('photo', before.data['missing_fields'])
+
+        self.upload_photo()
+        after = self.client.get(self.me_url)
+
+        self.assertTrue(after.data['is_complete'])
+        self.assertEqual(after.data['missing_fields'], [])
+        self.assertIsNotNone(after.data['completed_at'])
+
+    def test_removing_the_photo_makes_a_complete_card_incomplete_again(self):
+        self.complete_the_card()
+        completed_at = FighterCard.objects.get(user=self.fighter).completed_at
+
+        self.client.force_authenticate(user=self.fighter)
+        self.client.delete(self.photo_url)
+        response = self.client.get(self.me_url)
+
+        self.assertFalse(response.data['is_complete'])
+        self.assertEqual(response.data['missing_fields'], ['photo'])
+        # completed_at records when the card was first usable and never moves.
+        self.assertEqual(FighterCard.objects.get(user=self.fighter).completed_at, completed_at)
+
+    def test_the_photo_cannot_be_set_through_the_card_endpoint(self):
+        # Read-only there: a stray `photo` in a section save is ignored rather
+        # than silently blanking the real one.
+        self.upload_photo()
+        response = self.patch_me({'photo': None, 'city': 'Manchester'})
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        card = FighterCard.objects.get(user=self.fighter)
+        self.assertTrue(card.photo)
+        self.assertEqual(card.city, 'Manchester')
+
+    def test_a_fighter_cannot_touch_another_fighters_photo(self):
+        self.upload_photo()
+        other_card = FighterCard.objects.create(user=self.other)
+
+        self.client.force_authenticate(user=self.other)
+        self.client.delete(self.photo_url)
+
+        # The other fighter's DELETE hit their own card, not the first one.
+        other_card.refresh_from_db()
+        self.assertFalse(other_card.photo)
+        self.assertTrue(FighterCard.objects.get(user=self.fighter).photo)
+
+    def test_the_admin_roster_and_detail_carry_the_photo(self):
+        self.upload_photo()
+        card = FighterCard.objects.get(user=self.fighter)
+
+        self.client.force_authenticate(user=self.admin)
+        roster = self.client.get(self.list_url)
+        detail = self.client.get(reverse('fighter-card-admin-detail', args=[card.id]))
+
+        self.assertTrue(roster.data[0]['photo'])
+        self.assertTrue(detail.data['photo'])
+
+
+class PhotoOptionsTests(FighterCardTestBase):
+    def test_options_publish_the_photo_constraints(self):
+        response = self.client.get(self.options_url)
+
+        photo = response.data['photo']
+        self.assertEqual(photo['max_bytes'], c.MAX_PHOTO_BYTES)
+        self.assertIn('image/jpeg', photo['content_types'])
+        self.assertIn('jpg', photo['extensions'])

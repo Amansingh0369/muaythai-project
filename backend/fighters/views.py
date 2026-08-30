@@ -1,6 +1,7 @@
 from django.db.models import Q
 from drf_spectacular.utils import OpenApiParameter, extend_schema
-from rest_framework import generics, permissions, response, views, viewsets
+from rest_framework import generics, permissions, response, status, views, viewsets
+from rest_framework.parsers import FormParser, MultiPartParser
 
 from core.permissions import IsAdmin
 
@@ -9,6 +10,7 @@ from .countries import COUNTRIES
 from .models import FighterCard
 from .serializers import (
     FighterCardAdminSerializer,
+    FighterCardPhotoSerializer,
     FighterCardSerializer,
     FighterCardSummarySerializer,
 )
@@ -66,20 +68,26 @@ class FighterCardOptionsView(views.APIView):
                     'labels': {str(k): v for k, v in c.INTENSITY_SCALE_LABELS.items()},
                 },
             },
+            # So the file input's `accept` and the client-side size check come
+            # from the same place as the rules the API actually enforces.
+            'photo': {
+                'max_bytes': c.MAX_PHOTO_BYTES,
+                'content_types': list(c.ALLOWED_PHOTO_CONTENT_TYPES),
+                'extensions': list(c.ALLOWED_PHOTO_EXTENSIONS),
+            },
             'private_fields': list(FighterCard.PRIVATE_FIELDS),
             'required_for_completion': list(FighterCard.REQUIRED_FOR_COMPLETION),
         })
 
 
-class MyFighterCardView(generics.RetrieveUpdateAPIView):
-    """The signed-in fighter's own card.
+class OwnFighterCardMixin:
+    """Resolves `/me/` to the signed-in fighter's card, creating it if needed.
 
-    GET creates the card on first read instead of making the client POST an
-    empty one, so the form always has something to PATCH into as the fighter
-    works through it.
+    Shared by the card and its photo so that either can be the first thing a
+    client touches: whichever arrives first brings the card into being, on the
+    same terms.
     """
 
-    serializer_class = FighterCardSerializer
     permission_classes = [permissions.IsAuthenticated]
 
     def get_object(self):
@@ -95,6 +103,44 @@ class MyFighterCardView(generics.RetrieveUpdateAPIView):
                 card.camp = camp
                 card.save(update_fields=['camp'])
         return card
+
+
+class MyFighterCardView(OwnFighterCardMixin, generics.RetrieveUpdateAPIView):
+    """The signed-in fighter's own card.
+
+    GET creates the card on first read instead of making the client POST an
+    empty one, so the form always has something to PATCH into as the fighter
+    works through it.
+    """
+
+    serializer_class = FighterCardSerializer
+
+
+class MyFighterCardPhotoView(OwnFighterCardMixin, generics.GenericAPIView):
+    """The photo on the signed-in fighter's own card.
+
+    A sub-resource rather than a field on `/me/`: the form saves one section at
+    a time as JSON, and a file field on that endpoint would drag every partial
+    save onto multipart. PUT replaces whatever is there, DELETE removes it.
+    """
+
+    serializer_class = FighterCardPhotoSerializer
+    parser_classes = [MultiPartParser, FormParser]
+
+    def put(self, request):
+        serializer = self.get_serializer(self.get_object(), data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return response.Response(serializer.data)
+
+    @extend_schema(request=None, responses={204: None})
+    def delete(self, request):
+        card = self.get_object()
+        if card.photo:
+            # save=True clears the column as well as the stored file.
+            card.photo.delete(save=True)
+        # Idempotent: removing a photo that is not there is not an error.
+        return response.Response(status=status.HTTP_204_NO_CONTENT)
 
 
 @extend_schema(parameters=[

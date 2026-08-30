@@ -256,3 +256,23 @@ INTENSITY_SCALE_LABELS = {1: 'Keep it light', 5: 'Challenging but manageable', 1
 
 SCALE_MIN = 1
 SCALE_MAX = 10
+
+
+# --- Photo ---------------------------------------------------------------
+
+#: An optional head-and-shoulders photo, so a trainer can put a face to the
+#: card before the fighter walks in. Capped because it is normally taken on a
+#: phone, where an untouched original runs well past 10 MB.
+MAX_PHOTO_BYTES = 5 * 1024 * 1024
+
+#: Pillow format names accepted on upload. HEIC — what an iPhone shoots by
+#: default — is deliberately absent: Pillow cannot decode it without an extra
+#: system library, so it is refused with a readable message rather than a 500.
+#: iOS converts to JPEG on upload from a browser file picker, so this is not
+#: the wall it looks like.
+ALLOWED_PHOTO_FORMATS = ('JPEG', 'PNG', 'WEBP')
+
+#: The same list in the two shapes the frontend needs: `accept` on the file
+#: input, and the extensions to name in the error copy.
+ALLOWED_PHOTO_CONTENT_TYPES = ('image/jpeg', 'image/png', 'image/webp')
+ALLOWED_PHOTO_EXTENSIONS = ('jpg', 'jpeg', 'png', 'webp')

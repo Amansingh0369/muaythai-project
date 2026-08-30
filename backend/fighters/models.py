@@ -1,6 +1,9 @@
 from django.conf import settings
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
+from django.db.models.fields.files import FieldFile
+from django.db.models.signals import post_delete
+from django.dispatch import receiver
 from django.utils import timezone
 
 from locations.models import Location
@@ -27,7 +30,7 @@ class FighterCard(models.Model):
     #: Answers that must all be present before a card counts as complete.
     #: `camp` is excluded: it comes from the booking, not from the fighter.
     REQUIRED_FOR_COMPLETION = (
-        'nationality', 'city',
+        'photo', 'nationality', 'city',
         'training_duration', 'training_frequency', 'trained_in_thailand',
         'other_combat_sports', 'competition_experience', 'sparring_experience',
         'exercise_frequency', 'cardio_level', 'five_round_capability', 'overall_fitness',
@@ -58,6 +61,11 @@ class FighterCard(models.Model):
     )
 
     # --- Basic profile ---------------------------------------------------
+    # Required for completion, but still nullable: like every other answer it
+    # is filled in partway through, so a card without one has to be saveable.
+    # Written through `/me/photo/` rather than the card endpoint — see
+    # `FighterCardPhotoSerializer`.
+    photo = models.ImageField(upload_to='fighter-cards/', null=True, blank=True)
     # ISO 3166-1 alpha-2; the frontend renders names from the options endpoint.
     nationality = models.CharField(max_length=2, choices=COUNTRIES, blank=True)
     city = models.CharField(max_length=100, blank=True)
@@ -137,6 +145,11 @@ class FighterCard(models.Model):
 
     def _is_unanswered(self, name):
         value = getattr(self, name)
+        # An empty file field is a FieldFile carrying no name — it matches
+        # none of the emptiness checks below, so without this a missing photo
+        # would silently count as answered.
+        if isinstance(value, FieldFile):
+            return not value
         # False is a real answer to a yes/no question; only None and empty
         # strings/lists count as unanswered.
         return value is None or value == '' or value == []
@@ -178,3 +191,15 @@ class FighterCard(models.Model):
             if location:
                 return location
         return None
+
+
+@receiver(post_delete, sender=FighterCard)
+def delete_fighter_card_photo(sender, instance, **kwargs):
+    """Remove the backing file from storage (S3) when the card is deleted.
+
+    Neither QuerySet.delete() (the admin's bulk delete) nor the cascade from
+    deleting a user calls FieldFile.delete(), so without this the photo would
+    outlive the card it belongs to. Mirrors `delete_location_image_file`.
+    """
+    if instance.photo:
+        instance.photo.delete(save=False)

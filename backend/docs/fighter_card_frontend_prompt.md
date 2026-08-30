@@ -37,7 +37,9 @@ read it to plan sessions.
 | --- | --- | --- |
 | `GET` | `/fighter-cards/options/` | Public. Every choice set, caps, scale labels. Cache it. |
 | `GET` | `/fighter-cards/me/` | Creates the card on first read — safe to call on page load. |
-| `PATCH` | `/fighter-cards/me/` | Partial save. Send only changed fields. |
+| `PATCH` | `/fighter-cards/me/` | Partial save. Send only changed fields. JSON only. |
+| `PUT` | `/fighter-cards/me/photo/` | Upload/replace the photo. `multipart/form-data`, field name `photo`. |
+| `DELETE` | `/fighter-cards/me/photo/` | Remove the photo. `204`, idempotent. |
 | `GET` | `/fighter-cards/` | Admin only. Compact roster. |
 | `GET` / `PATCH` / `DELETE` | `/fighter-cards/{id}/` | Admin only. Full card + `profile_medical`. |
 
@@ -58,7 +60,9 @@ field it belongs to.
    `camp_detail.name` read-only and **do not ask which camp they are joining**.
    Only show a camp picker if `camp` comes back `null` (options from
    `/locations/`). `nationality` = searchable single Select (249 countries,
-   ISO alpha-2 codes). `city` = text input.
+   ISO alpha-2 codes). `city` = text input. `photo` = avatar-style upload,
+   required for completion — see **The photo** below; it does not go through
+   the section PATCH.
 2. **Training background** — `training_duration`, `training_frequency`,
    `sparring_experience`, `competition_experience` are single-select;
    `trained_in_thailand` is Yes/No; `other_combat_sports` is multi-select.
@@ -78,6 +82,52 @@ Prefer radio groups over dropdowns for short single-selects, chips/toggles for
 multi-selects, and Radix `Slider` for the two scales. The form must not feel
 like an interrogation — one section per step or accordion panel, not one long
 wall of checkboxes.
+
+### The photo
+
+A photo on the card, shown in the **Basic profile** section as an avatar-style
+control: current photo (or an initials placeholder), a *Change photo* button
+and a *Remove* button once one exists.
+
+It is **required for completion** — `photo` is in `required_for_completion` and
+stays in `missing_fields` until one is uploaded, so the progress bar already
+accounts for it with no special-casing. It is also the one required answer that
+is not written through the section `PATCH`, so a card cannot be finished by
+filling in the form alone.
+
+It does **not** travel with the section `PATCH` — that endpoint stays JSON and
+ignores a `photo` key. Use the dedicated sub-resource instead:
+
+- **Upload / replace** — `PUT /fighter-cards/me/photo/` as `multipart/form-data`
+  with the file under the key `photo`. Responds `200 { photo: string }`.
+  `PUT` replaces; there is no need to delete an existing photo first.
+- **Remove** — `DELETE /fighter-cards/me/photo/` → `204`.
+
+`fetchWithAuth` must send the `FormData` **without** a hand-set
+`Content-Type` header — let the browser set the multipart boundary. If the
+helper hard-codes `application/json`, add an option to skip it rather than
+calling `fetch` directly.
+
+Read the constraints from `options.photo` (`max_bytes`, `content_types`,
+`extensions`) rather than hard-coding them — use `content_types` for the file
+input's `accept` and check `file.size` against `max_bytes` before uploading so
+the user is not made to wait for a 5 MB round trip to be told no. The server
+enforces both regardless, and a `400` comes back keyed on `photo`.
+
+Two behaviours worth getting right:
+
+- **HEIC**: iPhone photos chosen through a normal file picker arrive as JPEG
+  and are fine, but a raw `.heic` is rejected. Surface the server's message
+  rather than a generic failure.
+- **The URL expires.** `photo` is a signed S3 link with a lifetime (7 days by
+  default). Render it from the card you just fetched; never persist it in
+  local state, a cache or a cookie as though it were stable.
+- **Removing the photo un-completes the card.** After an upload or a delete,
+  re-read `/fighter-cards/me/` (or use the upload response) so `is_complete`
+  and `missing_fields` on screen match the server.
+
+Show optimistic local preview via `URL.createObjectURL` while the upload is in
+flight, then swap to the returned URL — and revoke the object URL afterwards.
 
 ### Behaviour
 
@@ -109,7 +159,8 @@ wall of checkboxes.
 ## Part 2 — Admin roster (`apps/dashboard`)
 
 - A **Fighter Cards** page listing `GET /fighter-cards/` (plain array, no
-  pagination). Columns: fighter name/email, camp, nationality/city, training
+  pagination). Columns: the `photo` as a small avatar (initials when `null`),
+  fighter name/email, camp, nationality/city, training
   duration, cardio level, `coach_intensity`, and badges for `has_injury`,
   `train_around_limitations` and `is_complete`.
 - Filters wired to the query params: `camp` (location id), `is_complete`,
@@ -130,6 +181,7 @@ export type FighterCard = {
   camp: number | null;
   camp_detail: { id: number; name: string; city: string } | null;
 
+  photo: string | null;        // signed URL, expires — do not persist; required for completion
   nationality: string; city: string;
 
   training_duration: string; training_frequency: string;
@@ -168,6 +220,9 @@ export type ChoiceOption = { value: string; label: string };
 - Hard-code choice labels, country lists or codes — read `/options/`.
 - Re-ask which camp they are joining when `camp` is already set.
 - Persist any part of the private/medical section in `localStorage` or logs.
+- Persist or cache the `photo` URL — it is signed and expires; re-read the card.
+- Send the photo through the section `PATCH`, or set `Content-Type` by hand on
+  the multipart upload.
 - Treat client-side validation as sufficient, or swallow a 400 into a generic toast.
 - Change anything under `backend/`, or invent endpoints that are not listed above.
 
@@ -177,6 +232,10 @@ export type ChoiceOption = { value: string; label: string };
   progress, and reload without losing answers.
 - Every cap, exclusive option and conditional question behaves as described, and
   a server 400 surfaces on the field that caused it.
+- A fighter can add, replace and remove their photo, and an oversized or
+  unsupported file is refused with the server's message on the photo control.
+- A card with every question answered but no photo still reads as incomplete,
+  with `photo` shown as the outstanding item.
 - The private section is visually unmistakable on both the form and the dashboard.
 - An admin can filter the roster and open a full card including `profile_medical`.
 - `pnpm type-check` and `pnpm lint` pass.

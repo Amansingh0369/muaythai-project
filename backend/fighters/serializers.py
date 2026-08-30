@@ -91,7 +91,7 @@ class FighterCardSerializer(serializers.ModelSerializer):
         fields = (
             'id', 'user', 'user_email', 'user_full_name', 'camp', 'camp_detail',
             # Basic profile
-            'nationality', 'city',
+            'photo', 'nationality', 'city',
             # Training background
             'training_duration', 'training_frequency', 'trained_in_thailand',
             'thailand_trips', 'other_combat_sports', 'competition_experience',
@@ -109,8 +109,10 @@ class FighterCardSerializer(serializers.ModelSerializer):
             # Status
             'is_complete', 'missing_fields', 'completed_at', 'created_at', 'updated_at',
         )
+        # `photo` is read-only here on purpose: it is written through
+        # `/me/photo/`, so the section saves on this endpoint stay JSON.
         read_only_fields = (
-            'id', 'user', 'is_complete', 'completed_at', 'created_at', 'updated_at',
+            'id', 'user', 'photo', 'is_complete', 'completed_at', 'created_at', 'updated_at',
         )
 
     def validate_overall_fitness(self, value):
@@ -211,6 +213,46 @@ class FighterCardSerializer(serializers.ModelSerializer):
                 attrs[field] = empty
 
 
+class FighterCardPhotoSerializer(serializers.ModelSerializer):
+    """The card photo, written on its own.
+
+    Kept off `FighterCardSerializer` so the section-by-section saves stay JSON:
+    a file field there would force every partial save onto multipart, whether
+    or not it touched the photo.
+    """
+
+    photo = serializers.ImageField(required=True)
+
+    class Meta:
+        model = FighterCard
+        fields = ('photo',)
+
+    def validate_photo(self, value):
+        if value.size > c.MAX_PHOTO_BYTES:
+            megabytes = c.MAX_PHOTO_BYTES // (1024 * 1024)
+            raise serializers.ValidationError(f'Keep the photo under {megabytes} MB.')
+
+        # ImageField has already opened the upload with Pillow to prove it is
+        # an image at all; this only narrows which formats we are willing to
+        # store. `format` is absent if Pillow could not name it — treat that as
+        # unrecognised rather than trusting it.
+        image_format = getattr(getattr(value, 'image', None), 'format', None)
+        if image_format is None or image_format.upper() not in c.ALLOWED_PHOTO_FORMATS:
+            accepted = ', '.join(fmt.upper() for fmt in c.ALLOWED_PHOTO_FORMATS)
+            raise serializers.ValidationError(f'Upload a {accepted} image.')
+
+        return value
+
+    def update(self, instance, validated_data):
+        # Hold on to the outgoing file: replacing a photo must not leave the
+        # old S3 object behind, and reassigning the field forgets it.
+        previous = instance.photo if instance.photo else None
+        instance = super().update(instance, validated_data)
+        if previous is not None and previous.name != instance.photo.name:
+            previous.delete(save=False)
+        return instance
+
+
 class FighterCardSummarySerializer(serializers.ModelSerializer):
     """Compact card for admin list views.
 
@@ -228,7 +270,7 @@ class FighterCardSummarySerializer(serializers.ModelSerializer):
         model = FighterCard
         fields = (
             'id', 'user', 'user_email', 'user_full_name', 'camp', 'camp_detail',
-            'nationality', 'city', 'training_duration', 'competition_experience',
+            'photo', 'nationality', 'city', 'training_duration', 'competition_experience',
             'cardio_level', 'overall_fitness', 'coach_intensity',
             'has_injury', 'train_around_limitations', 'is_complete', 'updated_at',
         )
