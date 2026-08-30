@@ -9,7 +9,7 @@ import heroImg from "@/assets/hero-fighter.jpg";
 export const metadata: Metadata = {
   title: `Fight Camps | ${SITE_CONFIG.brand}`,
   description:
-    "Choose from our intensive Muay Thai fight camp programs — from your first camp to fighter-level training in Thailand.",
+    "Browse our group Muay Thai fight camps across Thailand — filter by month, duration, and city.",
 };
 
 const CampsPage = () => {
@@ -19,11 +19,11 @@ const CampsPage = () => {
       <PageHero
         title="Fight Camps"
         label="Camps"
-        subtitle="Structured Muay Thai programs for every level — from your first camp to fighter-level intensity."
+        subtitle="Group Muay Thai camps across Thailand — browse by month, duration, and city."
         image={heroImg.src}
       />
 
-      {/* Fight Camps Programs */}
+      {/* Group camps, filterable by month / duration / city */}
       <FightCampsSection />
 
       <Footer />
