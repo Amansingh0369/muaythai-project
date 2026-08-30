@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, AnimatePresence } from "motion/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Menu, X, LogOut, User as UserIcon, ArrowUpRight } from "lucide-react";
 import logo1 from "@/assets/logo1.jpeg";
 import logo2 from "@/assets/logo2.png";
@@ -10,7 +10,18 @@ import { useAuth } from "@/context/AuthContext";
 import { WhatsAppIcon } from "@/components/BrandIcons";
 
 const Navbar = () => {
-  const { user, logout } = useAuth();
+  const { user, logout, fighterPhoto } = useAuth();
+  /**
+   * The photo URL is signed and expires. If a session outlives it the image
+   * 404s, so fall back to initials rather than showing a broken avatar.
+   */
+  const [photoBroken, setPhotoBroken] = useState(false);
+  useEffect(() => setPhotoBroken(false), [fighterPhoto]);
+  const avatar = !photoBroken ? fighterPhoto : null;
+
+  const initials = user?.full_name
+    ? user.full_name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2)
+    : (user?.email?.[0]?.toUpperCase() ?? "");
   const [isOpen, setIsOpen] = useState(false);
 
   const navLinks = SITE_CONFIG.navigation;
@@ -88,8 +99,22 @@ const Navbar = () => {
                 {user ? (
                   <div className="flex items-center gap-5">
                     <a href="/profile" className="flex items-center gap-3 group">
-                      <div className="w-7 h-7 rounded-full bg-primary/20 border border-primary/40 flex items-center justify-center group-hover:bg-primary/30 group-hover:border-primary/60 transition-colors">
-                        <UserIcon size={12} className="text-primary" />
+                      <div className="w-8 h-8 rounded-full bg-primary/20 border border-primary/40 flex items-center justify-center overflow-hidden shrink-0 group-hover:border-primary/60 transition-colors">
+                        {avatar ? (
+                          // eslint-disable-next-line @next/next/no-img-element -- signed S3 URL, expires
+                          <img
+                            src={avatar}
+                            alt=""
+                            onError={() => setPhotoBroken(true)}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : initials ? (
+                          <span className="font-barlow font-black text-[12px] text-primary leading-none">
+                            {initials}
+                          </span>
+                        ) : (
+                          <UserIcon size={12} className="text-primary" />
+                        )}
                       </div>
                       <span className="font-barlow font-bold text-[13px] text-white/70 tracking-[0.15em] uppercase truncate max-w-[100px] group-hover:text-white/80 transition-colors">
                         {user.full_name?.split(" ")[0] ?? user.email}
@@ -182,7 +207,24 @@ const Navbar = () => {
                       onClick={() => setIsOpen(false)}
                       className="flex items-center gap-3 text-white/60 font-barlow font-bold uppercase tracking-widest hover:text-white transition-colors"
                     >
-                      <UserIcon size={20} /> My Profile
+                      <span className="w-8 h-8 rounded-full bg-primary/20 border border-primary/40 flex items-center justify-center overflow-hidden shrink-0">
+                        {avatar ? (
+                          // eslint-disable-next-line @next/next/no-img-element -- signed S3 URL, expires
+                          <img
+                            src={avatar}
+                            alt=""
+                            onError={() => setPhotoBroken(true)}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : initials ? (
+                          <span className="font-barlow font-black text-[12px] text-primary leading-none">
+                            {initials}
+                          </span>
+                        ) : (
+                          <UserIcon size={18} className="text-primary" />
+                        )}
+                      </span>
+                      My Profile
                     </a>
                     <button onClick={() => { logout(); setIsOpen(false); }} className="flex items-center gap-3 text-white/60 font-barlow font-bold uppercase tracking-widest hover:text-primary transition-colors">
                       <LogOut size={20} /> Logout

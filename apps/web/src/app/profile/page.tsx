@@ -14,7 +14,6 @@ import { useAuth } from "@/context/AuthContext";
 import { userService, FullUser, UserOrder } from "@/services/user.service";
 import Navbar from "@/components/Navbar";
 import FighterCardBuilder from "@/components/FighterCard/FighterCardBuilder";
-import { fighterCardService } from "@/services/fighter-card.service";
 
 // ── Types ───────────────────────────────────────────────────────────────────
 
@@ -121,7 +120,7 @@ const EditSelect = forwardRef<HTMLSelectElement, React.SelectHTMLAttributes<HTML
 // ── Main Page ─────────────────────────────────────────────────────────────────
 
 export default function ProfilePage() {
-  const { user, logout, isLoading } = useAuth();
+  const { user, logout, isLoading, fighterPhoto, setFighterPhoto } = useAuth();
   const router = useRouter();
   const [fullUser, setFullUser] = useState<FullUser | null>(null);
   const [fetching, setFetching] = useState(true);
@@ -130,11 +129,6 @@ export default function ProfilePage() {
   const [saveError, setSaveError] = useState<string | null>(null);
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [activeTab, setActiveTab] = useState<TabId>("profile");
-  /**
-   * The fighter card photo, mirrored here for the avatar. Signed and expiring,
-   * so it is only ever held for this render — never cached or persisted.
-   */
-  const [cardPhoto, setCardPhoto] = useState<string | null>(null);
 
   const { register, handleSubmit, reset, formState: { isSubmitting } } = useForm<ProfileForm>();
 
@@ -169,21 +163,6 @@ export default function ProfilePage() {
       })
       .finally(() => setFetching(false));
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user]);
-
-  // The card is created on first read, so this is safe on page load.
-  useEffect(() => {
-    if (!user) return;
-    let cancelled = false;
-    fighterCardService
-      .getMyCard()
-      .then((c) => !cancelled && setCardPhoto(c.photo))
-      .catch(() => {
-        /* the avatar just falls back to initials */
-      });
-    return () => {
-      cancelled = true;
-    };
   }, [user]);
 
   const onSave = async (values: ProfileForm) => {
@@ -282,9 +261,9 @@ export default function ProfilePage() {
             {/* Avatar */}
             <div className="relative shrink-0">
               <div className="w-20 h-20 md:w-24 md:h-24 bg-primary/20 border-2 border-primary/60 flex items-center justify-center overflow-hidden shadow-[0_0_30px_-8px_hsl(var(--primary)/0.8)]">
-                {cardPhoto ? (
+                {fighterPhoto ? (
                   // eslint-disable-next-line @next/next/no-img-element -- signed S3 URL, expires
-                  <img src={cardPhoto} alt="" className="w-full h-full object-cover" />
+                  <img src={fighterPhoto} alt="" className="w-full h-full object-cover" />
                 ) : (
                   <span className="font-barlow font-black italic text-3xl md:text-4xl text-primary">
                     {initials(fullUser.full_name, fullUser.email)}
@@ -601,7 +580,7 @@ export default function ProfilePage() {
 
         {/* ── FIGHTER CARD TAB ───────────────────────────────────────── */}
         {activeTab === "fighter-card" && (
-          <FighterCardBuilder onCardChange={(c) => setCardPhoto(c.photo)} />
+          <FighterCardBuilder onCardChange={(c) => setFighterPhoto(c.photo)} />
         )}
       </div>
     </div>
