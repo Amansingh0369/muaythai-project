@@ -8,11 +8,12 @@ import {
   User, Mail, Phone, Calendar, Shield, LogOut,
   Edit2, Check, X, Loader2, Package,
   Activity, AlertCircle, Contact,
-  Plane, BadgeCheck,
+  Plane, BadgeCheck, Swords,
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { userService, FullUser, UserOrder } from "@/services/user.service";
 import Navbar from "@/components/Navbar";
+import FighterCardBuilder from "@/components/FighterCard/FighterCardBuilder";
 
 // ── Types ───────────────────────────────────────────────────────────────────
 
@@ -50,6 +51,14 @@ const STATUS_META: Record<string, StatusMeta> = {
   CANCELLED: { label: "Cancelled",        tone: "text-rose-200",    dot: "bg-rose-300",    card: "border-rose-400/30 bg-gradient-to-br from-rose-500/25 to-rose-500/[0.07] hover:from-rose-500/30 hover:to-rose-500/10" },
 };
 const STATUS_FALLBACK: StatusMeta = { label: "—", tone: "text-white/60", dot: "bg-white/50", card: "border-white/15 bg-white/[0.05] hover:bg-white/[0.08]" };
+
+type TabId = "profile" | "bookings" | "fighter-card";
+
+const TABS: { id: TabId; label: string; icon: React.ElementType }[] = [
+  { id: "profile", label: "Profile", icon: User },
+  { id: "bookings", label: "My Bookings", icon: Package },
+  { id: "fighter-card", label: "Fighter Card", icon: Swords },
+];
 
 // ── Sub-components ────────────────────────────────────────────────────────────
 
@@ -119,6 +128,7 @@ export default function ProfilePage() {
   const [fetchError, setFetchError] = useState<string | null>(null);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [saveSuccess, setSaveSuccess] = useState(false);
+  const [activeTab, setActiveTab] = useState<TabId>("profile");
 
   const { register, handleSubmit, reset, formState: { isSubmitting } } = useForm<ProfileForm>();
 
@@ -277,7 +287,7 @@ export default function ProfilePage() {
 
             {/* Actions */}
             <div className="flex items-center gap-3 shrink-0">
-              {!editing && (
+              {!editing && activeTab === "profile" && (
                 <button
                   onClick={() => setEditing(true)}
                   className="flex items-center gap-2 px-5 py-2.5 font-barlow font-bold text-[13px] tracking-[0.2em] uppercase border border-white/15 text-white/60 hover:border-primary/50 hover:text-primary transition-all duration-200"
@@ -307,7 +317,40 @@ export default function ProfilePage() {
       </div>
 
       {/* ── BODY ─────────────────────────────────────────────────────────── */}
-      <div className="max-w-6xl mx-auto px-6 md:px-10 py-10 md:py-14">
+      {/* ── TABS ─────────────────────────────────────────────────────────── */}
+      <div className="max-w-6xl mx-auto px-6 md:px-10 pt-8">
+        <div className="flex gap-1 border-b border-white/[0.08] overflow-x-auto">
+          {TABS.map((tab) => {
+            const TabIcon = tab.icon;
+            const active = activeTab === tab.id;
+            return (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`relative flex items-center gap-2 px-5 py-3.5 font-barlow font-bold text-[13px] tracking-[0.2em] uppercase whitespace-nowrap transition-colors duration-200 ${
+                  active ? "text-primary" : "text-white/45 hover:text-white/75"
+                }`}
+              >
+                <TabIcon size={14} />
+                {tab.label}
+                {tab.id === "bookings" && fullUser.orders.length > 0 && (
+                  <span className={`font-grotesk text-[11px] px-1.5 py-0.5 tabular-nums ${active ? "bg-primary text-black" : "bg-white/10 text-white/60"}`}>
+                    {fullUser.orders.length}
+                  </span>
+                )}
+                {active && (
+                  <motion.span
+                    layoutId="profile-tab-underline"
+                    className="absolute left-0 right-0 -bottom-px h-[2px] bg-primary"
+                  />
+                )}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      <div className="max-w-6xl mx-auto px-6 md:px-10 py-8 md:py-12">
 
         {/* Success toast */}
         <AnimatePresence>
@@ -323,11 +366,11 @@ export default function ProfilePage() {
           )}
         </AnimatePresence>
 
-        <form onSubmit={handleSubmit(onSave)}>
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-10">
+        {/* ── PROFILE TAB ────────────────────────────────────────────── */}
+        {activeTab === "profile" && (
+          <form onSubmit={handleSubmit(onSave)}>
+            <div className="flex flex-col gap-10 max-w-3xl">
 
-            {/* ── LEFT COL: editable info ────────────────────────────── */}
-            <div className="lg:col-span-2 flex flex-col gap-10">
 
               {/* Personal Info */}
               <div className="border border-white/[0.07] p-6 md:p-8">
@@ -452,52 +495,60 @@ export default function ProfilePage() {
                 )}
               </AnimatePresence>
             </div>
+          </form>
+        )}
 
-            {/* ── RIGHT COL: orders + liked ──────────────────────────── */}
-            <div className="flex flex-col gap-8">
-
-              {/* Orders */}
-              <div className="border border-white/[0.07] p-6">
-                <SectionHeader icon={<Package size={14} />} title="My Bookings" />
-                {fullUser.orders.length === 0 ? (
-                  <div className="py-8 flex flex-col items-center gap-3 text-center">
-                    <Package size={28} className="text-white/15" />
-                    <p className="font-grotesk text-[13px] text-white/55">No bookings yet.</p>
-                    <a href="/camps" className="font-grotesk text-[13px] text-primary hover:underline">Browse camps →</a>
-                  </div>
-                ) : (
-                  <div className="flex flex-col gap-3">
-                    {fullUser.orders.map((order: UserOrder) => {
-                      const meta = STATUS_META[order.status] ?? STATUS_FALLBACK;
-                      return (
-                        <div
-                          key={order.id}
-                          className={`group relative overflow-hidden border p-4 transition-all duration-300 ${meta.card}`}
-                        >
-                          {/* status + date */}
-                          <div className="flex items-center justify-between mb-2.5">
-                            <span className="inline-flex items-center gap-1.5">
-                              <span className={`w-1.5 h-1.5 rounded-full ${meta.dot}`} />
-                              <span className={`font-grotesk text-[13px] font-bold uppercase tracking-[0.28em] ${meta.tone}`}>{meta.label}</span>
-                            </span>
-                            <span className="font-grotesk text-[13px] text-white/65 tracking-wide">{formatDate(order.created_at)}</span>
-                          </div>
-
-                          {/* name + price */}
-                          <div className="flex items-end justify-between gap-3">
-                            <p className="font-barlow font-black italic text-xl uppercase text-white truncate leading-[0.95]">{order.package_name}</p>
-                            <span className="font-barlow font-black text-base text-white shrink-0 tabular-nums">₹{Number(order.total_amount).toLocaleString("en-IN")}</span>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
+        {/* ── BOOKINGS TAB ───────────────────────────────────────────── */}
+        {activeTab === "bookings" && (
+          <div>
+            <SectionHeader icon={<Package size={14} />} title="My Bookings" />
+            {fullUser.orders.length === 0 ? (
+              <div className="py-20 flex flex-col items-center gap-3 text-center border border-white/[0.07]">
+                <Package size={32} className="text-white/12" />
+                <p className="font-grotesk text-sm text-white/55">You have not booked a camp yet.</p>
+                <a
+                  href="/camps"
+                  className="mt-2 px-7 py-2.5 font-barlow font-bold text-[13px] tracking-[0.2em] uppercase bg-primary text-black hover:shadow-[0_0_25px_-6px_hsl(var(--primary)/0.7)] transition-all duration-300"
+                >
+                  Browse Camps
+                </a>
               </div>
-
-            </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {fullUser.orders.map((order: UserOrder) => {
+                  const meta = STATUS_META[order.status] ?? STATUS_FALLBACK;
+                  return (
+                    <div
+                      key={order.id}
+                      className={`group relative overflow-hidden border p-5 transition-all duration-300 ${meta.card}`}
+                    >
+                      <div className="flex items-center justify-between mb-3">
+                        <span className="inline-flex items-center gap-1.5">
+                          <span className={`w-1.5 h-1.5 rounded-full ${meta.dot}`} />
+                          <span className={`font-grotesk text-[12px] font-bold uppercase tracking-[0.28em] ${meta.tone}`}>
+                            {meta.label}
+                          </span>
+                        </span>
+                        <span className="font-grotesk text-[12px] text-white/60 tracking-wide">
+                          {formatDate(order.created_at)}
+                        </span>
+                      </div>
+                      <p className="font-barlow font-black italic text-xl uppercase text-white leading-[0.95] mb-3">
+                        {order.package_name}
+                      </p>
+                      <span className="font-barlow font-black text-lg text-white tabular-nums">
+                        ₹{Number(order.total_amount).toLocaleString("en-IN")}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
-        </form>
+        )}
+
+        {/* ── FIGHTER CARD TAB ───────────────────────────────────────── */}
+        {activeTab === "fighter-card" && <FighterCardBuilder />}
       </div>
     </div>
   );

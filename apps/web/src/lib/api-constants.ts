@@ -17,6 +17,12 @@ export const API_ENDPOINTS = {
     LOGOUT: "/auth/logout/",
     ME: "/users/me/",
   },
+  FIGHTER_CARDS: {
+    /** Public. Every choice set, caps, scale labels — cache it. */
+    OPTIONS: "/fighter-cards/options/",
+    /** Creates the card on first read, so it is safe to call on page load. */
+    ME: "/fighter-cards/me/",
+  },
   LOCATIONS: "/locations",
   PACKAGES: "/packages",
   ORDERS: "/orders",
