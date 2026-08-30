@@ -180,9 +180,24 @@ export default function DynamicMap({ onMapReady }: DynamicMapProps) {
         attributionControl={false}
         worldCopyJump={true}
       >
+        {/*
+          Esri's dark canvas, not CARTO's. CARTO now require an API key for the
+          raster basemaps and watermark unauthenticated tiles, and are retiring
+          raster in favour of vector. This one needs no key.
+
+          Note the axis order: Esri serves {z}/{y}/{x}, not the {z}/{x}/{y} that
+          almost every other tile provider uses. Swapping them silently returns
+          the wrong part of the world rather than an error.
+        */}
+        {/*
+          Crushed to black by .map-tiles-black in globals.css: Esri's canvas is
+          a dark grey whose darkest pixel measures 23/255, so on its own it sits
+          well above the near-black the rest of the site uses.
+        */}
         <TileLayer
-          attribution=""
-          url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+          className="map-tiles-black"
+          attribution="&copy; Esri, HERE, Garmin, &copy; OpenStreetMap contributors"
+          url="https://services.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}"
         />
 
         <CenterDetector locations={locations} onSelect={handleSelect} />

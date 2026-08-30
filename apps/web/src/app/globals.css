@@ -370,3 +370,18 @@ div[style*="background-color: white"] {
     transform: none;
   }
 }
+
+/*
+  Black basemap.
+
+  CARTO's dark_all needed no key until they began watermarking unauthenticated
+  raster tiles, so the map is on Esri's dark canvas instead. Esri's is a dark
+  *grey* — measured, its darkest pixel is 23/255 against the 5/255 this site
+  sits on — so it is crushed here rather than left looking washed out.
+
+  The filter lands on the tile layer only. Markers live in a sibling Leaflet
+  pane, so the orange pins keep their colour.
+*/
+.map-tiles-black {
+  filter: brightness(0.65) contrast(1.2);
+}
