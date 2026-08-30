@@ -164,7 +164,7 @@ const LocationsSection = () => {
                 style={{ backgroundColor: activeLocation?.themeColor }}
               />
               <a
-                href={`/camps/individual?date=any&duration=all&city=${encodeURIComponent(activeLocation?.city ?? "")}`}
+                href={`/camps?city=${encodeURIComponent(activeLocation?.city ?? "")}`}
                 className="flex flex-col items-center gap-3 md:gap-4 w-full h-full justify-center relative z-10"
               >
                 <div
