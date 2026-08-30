@@ -31,7 +31,12 @@ import {
   sectionGaps,
 } from "./fighter-card.helpers";
 
-export default function FighterCardBuilder() {
+interface FighterCardBuilderProps {
+  /** Lets the page above mirror card state — the avatar uses the photo. */
+  onCardChange?: (card: FighterCard) => void;
+}
+
+export default function FighterCardBuilder({ onCardChange }: FighterCardBuilderProps) {
   const [options, setOptions] = useState<FighterCardOptions | null>(null);
   const [card, setCard] = useState<FighterCard | null>(null);
   const [locations, setLocations] = useState<Location[]>([]);
@@ -62,6 +67,7 @@ export default function FighterCardBuilder() {
         if (cancelled) return;
         setOptions(opts);
         setCard(myCard);
+        onCardChange?.(myCard);
 
         // The camp picker is only offered when the booking did not set one.
         if (myCard.camp == null) {
@@ -88,6 +94,29 @@ export default function FighterCardBuilder() {
     return () => {
       cancelled = true;
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- load once on mount
+  }, []);
+
+  /**
+   * Re-reads the card. Used after a photo upload or delete: `photo` is a
+   * required field, so both change `is_complete` and `missing_fields`.
+   */
+  const refreshCard = useCallback(async () => {
+    try {
+      const fresh = await fighterCardService.getMyCard();
+      setCard(fresh);
+      setDirtyCount((n) => n + 1);
+      onCardChange?.(fresh);
+    } catch {
+      toast.error("Saved, but could not refresh the card. Reload to see the latest.");
+    }
+  }, [onCardChange]);
+
+  const setPhotoError = useCallback((message: string | null) => {
+    setFieldErrors((errs) => {
+      const { photo: _dropped, ...rest } = errs;
+      return message ? { ...rest, photo: [message] } : rest;
+    });
   }, []);
 
   // ── Edit ───────────────────────────────────────────────────────────────
@@ -116,6 +145,8 @@ export default function FighterCardBuilder() {
   const buildPatch = useCallback((current: FighterCard, fields: string[]): FighterCardPatch => {
     const patch: Record<string, unknown> = {};
     fields.forEach((field) => {
+      // The photo has its own sub-resource; this endpoint is JSON only.
+      if (field === "photo") return;
       if (!dirtyRef.current.has(field)) return;
       // Sending a closed follow-up's value is a 400 — the server clears it for us.
       if (!isFieldOpen(current, field)) return;
@@ -135,6 +166,7 @@ export default function FighterCardBuilder() {
       try {
         const updated = await fighterCardService.updateMyCard(patch);
         setCard(updated);
+        onCardChange?.(updated);
         fields.forEach((f) => dirtyRef.current.delete(f));
         setDirtyCount((n) => n + 1);
         return true;
@@ -156,7 +188,7 @@ export default function FighterCardBuilder() {
         setIsSaving(false);
       }
     },
-    [card, buildPatch]
+    [card, buildPatch, onCardChange]
   );
 
   const goToStep = useCallback(
@@ -284,9 +316,9 @@ export default function FighterCardBuilder() {
       </div>
 
       {/* ── Form + live card ── */}
-      <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 xl:gap-10 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 xl:gap-12 items-start">
         {/* Form */}
-        <div className="lg:col-span-3">
+        <div>
           <div
             className={`border p-6 md:p-8 ${
               section.isPrivate
@@ -304,7 +336,7 @@ export default function FighterCardBuilder() {
                   {section.title}
                 </h3>
               </div>
-              <p className="font-grotesk text-[13px] text-white/45">{section.blurb}</p>
+              <p className="font-grotesk text-[13px] text-white/60">{section.blurb}</p>
             </div>
 
             <AnimatePresence mode="wait">
@@ -322,6 +354,8 @@ export default function FighterCardBuilder() {
                   errors={fieldErrors}
                   onChange={handleChange}
                   locations={locations}
+                  onCardRefresh={refreshCard}
+                  onPhotoError={setPhotoError}
                 />
               </motion.div>
             </AnimatePresence>
@@ -369,7 +403,7 @@ export default function FighterCardBuilder() {
         </div>
 
         {/* Live card */}
-        <div className="lg:col-span-2 lg:sticky lg:top-24">
+        <div className="lg:sticky lg:top-24">
           <div className="flex items-center gap-2 mb-3">
             <span className="w-1.5 h-1.5 bg-primary animate-pulse" />
             <p className="font-grotesk text-[11px] tracking-[0.35em] uppercase text-white/45">

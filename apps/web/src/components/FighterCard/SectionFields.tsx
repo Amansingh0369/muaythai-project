@@ -15,6 +15,7 @@ import {
   TextField,
   YesNo,
 } from "./fields";
+import PhotoUpload from "./PhotoUpload";
 import { capReason, isFieldOpen, toggleMultiValue } from "./fighter-card.helpers";
 
 interface SectionFieldsProps {
@@ -26,6 +27,9 @@ interface SectionFieldsProps {
   onChange: (field: string, value: unknown) => void;
   /** Only needed when the card has no camp assigned yet. */
   locations: Location[];
+  /** Re-read the card — the photo lives outside the section PATCH. */
+  onCardRefresh: () => void | Promise<void>;
+  onPhotoError: (message: string | null) => void;
 }
 
 /** Follow-ups slide in and out rather than appearing abruptly. */
@@ -54,6 +58,8 @@ export default function SectionFields({
   errors,
   onChange,
   locations,
+  onCardRefresh,
+  onPhotoError,
 }: SectionFieldsProps) {
   const err = (field: string) => errors[field]?.[0];
 
@@ -97,6 +103,18 @@ export default function SectionFields({
                 placeholder="Choose the camp you are joining…"
               />
             )}
+          </FieldShell>
+
+          <FieldShell label="Fighter Photo" required error={undefined}>
+            <PhotoUpload
+              photo={card.photo}
+              fullName={card.user_full_name}
+              email={card.user_email}
+              constraints={options.photo}
+              error={err("photo")}
+              onChanged={onCardRefresh}
+              onError={onPhotoError}
+            />
           </FieldShell>
 
           <FieldShell label="Nationality" required error={err("nationality")}>

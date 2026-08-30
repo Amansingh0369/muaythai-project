@@ -25,7 +25,7 @@ export const SECTIONS: SectionDef[] = [
     step: "01",
     title: "Identify Your Fighter",
     blurb: "Who is stepping into the ring.",
-    fields: ["camp", "nationality", "city"],
+    fields: ["camp", "photo", "nationality", "city"],
   },
   {
     id: "background",

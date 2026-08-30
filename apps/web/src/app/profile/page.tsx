@@ -14,6 +14,7 @@ import { useAuth } from "@/context/AuthContext";
 import { userService, FullUser, UserOrder } from "@/services/user.service";
 import Navbar from "@/components/Navbar";
 import FighterCardBuilder from "@/components/FighterCard/FighterCardBuilder";
+import { fighterCardService } from "@/services/fighter-card.service";
 
 // ── Types ───────────────────────────────────────────────────────────────────
 
@@ -56,8 +57,8 @@ type TabId = "profile" | "bookings" | "fighter-card";
 
 const TABS: { id: TabId; label: string; icon: React.ElementType }[] = [
   { id: "profile", label: "Profile", icon: User },
-  { id: "bookings", label: "My Bookings", icon: Package },
   { id: "fighter-card", label: "Fighter Card", icon: Swords },
+  { id: "bookings", label: "My Bookings", icon: Package },
 ];
 
 // ── Sub-components ────────────────────────────────────────────────────────────
@@ -129,6 +130,11 @@ export default function ProfilePage() {
   const [saveError, setSaveError] = useState<string | null>(null);
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [activeTab, setActiveTab] = useState<TabId>("profile");
+  /**
+   * The fighter card photo, mirrored here for the avatar. Signed and expiring,
+   * so it is only ever held for this render — never cached or persisted.
+   */
+  const [cardPhoto, setCardPhoto] = useState<string | null>(null);
 
   const { register, handleSubmit, reset, formState: { isSubmitting } } = useForm<ProfileForm>();
 
@@ -163,6 +169,21 @@ export default function ProfilePage() {
       })
       .finally(() => setFetching(false));
   // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user]);
+
+  // The card is created on first read, so this is safe on page load.
+  useEffect(() => {
+    if (!user) return;
+    let cancelled = false;
+    fighterCardService
+      .getMyCard()
+      .then((c) => !cancelled && setCardPhoto(c.photo))
+      .catch(() => {
+        /* the avatar just falls back to initials */
+      });
+    return () => {
+      cancelled = true;
+    };
   }, [user]);
 
   const onSave = async (values: ProfileForm) => {
@@ -240,17 +261,35 @@ export default function ProfilePage() {
       <Navbar />
 
       {/* ── HERO BANNER ──────────────────────────────────────────────────── */}
-      <div className="relative border-b border-white/[0.06] overflow-hidden">
-        <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse 60% 100% at 30% 50%, hsl(16 100% 50% / 0.1) 0%, transparent 70%)" }} />
+      <div className="relative border-b border-primary/25 overflow-hidden">
+        {/* The site's fire palette, the way the burn sections carry it */}
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/35 via-orange-deep/20 to-transparent pointer-events-none" />
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{ background: "radial-gradient(ellipse 70% 120% at 20% 40%, hsl(16 100% 50% / 0.4) 0%, transparent 70%)" }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/45 to-transparent pointer-events-none" />
+        <div
+          className="absolute inset-0 opacity-[0.05] pointer-events-none mix-blend-overlay"
+          style={{
+            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
+            backgroundSize: "128px 128px",
+          }}
+        />
         <div className="max-w-6xl mx-auto px-6 md:px-10 py-10 md:py-14 relative z-10">
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
 
             {/* Avatar */}
             <div className="relative shrink-0">
-              <div className="w-20 h-20 md:w-24 md:h-24 bg-primary/20 border-2 border-primary/40 flex items-center justify-center">
-                <span className="font-barlow font-black italic text-3xl md:text-4xl text-primary">
-                  {initials(fullUser.full_name, fullUser.email)}
-                </span>
+              <div className="w-20 h-20 md:w-24 md:h-24 bg-primary/20 border-2 border-primary/60 flex items-center justify-center overflow-hidden shadow-[0_0_30px_-8px_hsl(var(--primary)/0.8)]">
+                {cardPhoto ? (
+                  // eslint-disable-next-line @next/next/no-img-element -- signed S3 URL, expires
+                  <img src={cardPhoto} alt="" className="w-full h-full object-cover" />
+                ) : (
+                  <span className="font-barlow font-black italic text-3xl md:text-4xl text-primary">
+                    {initials(fullUser.full_name, fullUser.email)}
+                  </span>
+                )}
               </div>
               {fullUser.role === "ADMIN" && (
                 <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-primary flex items-center justify-center">
@@ -319,7 +358,7 @@ export default function ProfilePage() {
       {/* ── BODY ─────────────────────────────────────────────────────────── */}
       {/* ── TABS ─────────────────────────────────────────────────────────── */}
       <div className="max-w-6xl mx-auto px-6 md:px-10 pt-8">
-        <div className="flex gap-1 border-b border-white/[0.08] overflow-x-auto">
+        <div className="flex items-center gap-1.5 border-b border-white/[0.08] overflow-x-auto">
           {TABS.map((tab) => {
             const TabIcon = tab.icon;
             const active = activeTab === tab.id;
@@ -327,18 +366,27 @@ export default function ProfilePage() {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`relative flex items-center gap-2 px-5 py-3.5 font-barlow font-bold text-[13px] tracking-[0.2em] uppercase whitespace-nowrap transition-colors duration-200 ${
-                  active ? "text-primary" : "text-white/45 hover:text-white/75"
+                className={`relative flex items-center gap-2 px-5 py-3.5 font-barlow tracking-[0.18em] uppercase whitespace-nowrap transition-all duration-300 ${
+                  tab.id === "fighter-card"
+                    ? // Its own weight and colour — white on the orange box either way
+                      `font-black text-[16px] text-white ${
+                        active
+                          ? "bg-primary shadow-[0_0_30px_-6px_hsl(var(--primary)/0.85)]"
+                          : "bg-primary/25 border border-primary/50 hover:bg-primary/40"
+                      }`
+                    : `font-bold text-[15px] ${
+                        active ? "text-primary" : "text-white/45 hover:text-white/75"
+                      }`
                 }`}
               >
-                <TabIcon size={14} />
+                <TabIcon size={tab.id === "fighter-card" ? 17 : 16} />
                 {tab.label}
                 {tab.id === "bookings" && fullUser.orders.length > 0 && (
-                  <span className={`font-grotesk text-[11px] px-1.5 py-0.5 tabular-nums ${active ? "bg-primary text-black" : "bg-white/10 text-white/60"}`}>
+                  <span className={`font-grotesk text-[12px] font-bold px-1.5 py-0.5 tabular-nums ${active ? "bg-primary text-black" : "bg-white/10 text-white/60"}`}>
                     {fullUser.orders.length}
                   </span>
                 )}
-                {active && (
+                {active && tab.id !== "fighter-card" && (
                   <motion.span
                     layoutId="profile-tab-underline"
                     className="absolute left-0 right-0 -bottom-px h-[2px] bg-primary"
@@ -350,7 +398,11 @@ export default function ProfilePage() {
         </div>
       </div>
 
-      <div className="max-w-6xl mx-auto px-6 md:px-10 py-8 md:py-12">
+      <div
+        className={`mx-auto px-6 md:px-10 py-8 md:py-12 transition-[max-width] duration-300 ${
+          activeTab === "fighter-card" ? "max-w-7xl" : "max-w-6xl"
+        }`}
+      >
 
         {/* Success toast */}
         <AnimatePresence>
@@ -548,7 +600,9 @@ export default function ProfilePage() {
         )}
 
         {/* ── FIGHTER CARD TAB ───────────────────────────────────────── */}
-        {activeTab === "fighter-card" && <FighterCardBuilder />}
+        {activeTab === "fighter-card" && (
+          <FighterCardBuilder onCardChange={(c) => setCardPhoto(c.photo)} />
+        )}
       </div>
     </div>
   );

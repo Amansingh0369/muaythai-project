@@ -21,11 +21,11 @@ export function FieldShell({ label, hint, error, required, children }: FieldShel
   return (
     <div className="flex flex-col gap-2.5">
       <div className="flex items-baseline gap-2 flex-wrap">
-        <label className="font-grotesk text-[12px] tracking-[0.3em] uppercase text-white/60 font-bold">
+        <label className="font-barlow font-black text-[15px] tracking-[0.12em] uppercase text-white">
           {label}
         </label>
         {required && <span className="text-primary text-[13px] leading-none">*</span>}
-        {hint && <span className="font-grotesk text-[12px] text-white/40 normal-case">{hint}</span>}
+        {hint && <span className="font-grotesk text-[12px] text-white/50 normal-case">{hint}</span>}
       </div>
       {children}
       {error && (
@@ -57,10 +57,10 @@ export function ChoiceChips({ options, value, onChange }: ChoiceChipsProps) {
             type="button"
             aria-pressed={active}
             onClick={() => onChange(active ? "" : option.value)}
-            className={`font-grotesk text-[13px] px-3.5 py-2 border transition-all duration-200 text-left ${
+            className={`font-grotesk text-[13px] font-semibold px-3.5 py-2 border transition-all duration-200 text-left ${
               active
                 ? "bg-primary text-black border-primary font-bold shadow-[0_0_20px_-6px_hsl(var(--primary)/0.7)]"
-                : "bg-white/[0.04] border-white/15 text-white/70 hover:text-white hover:border-white/35"
+                : "bg-white/[0.05] border-white/20 text-white/90 hover:text-white hover:border-white/40"
             }`}
           >
             {option.label}
@@ -99,12 +99,12 @@ export function MultiChips({ options, value, onToggle, disabledReason, limit }: 
               disabled={blocked}
               title={reason}
               onClick={() => onToggle(option.value)}
-              className={`inline-flex items-center gap-1.5 font-grotesk text-[13px] px-3.5 py-2 border transition-all duration-200 ${
+              className={`inline-flex items-center gap-1.5 font-grotesk text-[13px] font-semibold px-3.5 py-2 border transition-all duration-200 ${
                 active
                   ? "bg-primary text-black border-primary font-bold shadow-[0_0_20px_-6px_hsl(var(--primary)/0.7)]"
                   : blocked
                     ? "bg-white/[0.02] border-white/[0.07] text-white/25 cursor-not-allowed"
-                    : "bg-white/[0.04] border-white/15 text-white/70 hover:text-white hover:border-white/35"
+                    : "bg-white/[0.05] border-white/20 text-white/90 hover:text-white hover:border-white/40"
               }`}
             >
               {active && <Check size={12} className="shrink-0" />}
@@ -173,7 +173,7 @@ export function SearchSelect({ options, value, onChange, placeholder = "Search�
         }}
         className="w-full flex items-center justify-between gap-2 bg-white/[0.05] border border-white/15 px-4 py-3 font-grotesk text-sm text-left transition-colors hover:border-white/30 focus:outline-none focus:border-primary/60"
       >
-        <span className={selected ? "text-white" : "text-white/40"}>
+        <span className={`font-semibold ${selected ? "text-white/90" : "text-white/45"}`}>
           {selected?.label ?? placeholder}
         </span>
         <ChevronDown size={15} className={`text-white/40 shrink-0 transition-transform ${open ? "rotate-180" : ""}`} />
@@ -259,7 +259,7 @@ export function YesNo({
             className={`px-7 py-2 font-barlow font-bold text-[13px] tracking-[0.2em] uppercase border transition-all duration-200 ${
               active
                 ? "bg-primary text-black border-primary shadow-[0_0_20px_-6px_hsl(var(--primary)/0.7)]"
-                : "bg-white/[0.04] border-white/15 text-white/60 hover:text-white hover:border-white/35"
+                : "bg-white/[0.05] border-white/20 text-white/85 hover:text-white hover:border-white/40"
             }`}
           >
             {label}
@@ -357,7 +357,7 @@ export function SwitchField({
 // ── Text ─────────────────────────────────────────────────────────────────────
 
 const textBase =
-  "w-full bg-white/[0.05] border border-white/15 px-4 py-3 font-grotesk text-sm text-white placeholder:text-white/35 outline-none focus:border-primary/60 transition-colors";
+  "w-full bg-white/[0.05] border border-white/20 px-4 py-3 font-grotesk text-sm font-medium text-white/90 placeholder:text-white/35 placeholder:font-normal outline-none focus:border-primary/60 transition-colors";
 
 export function TextField({
   value,

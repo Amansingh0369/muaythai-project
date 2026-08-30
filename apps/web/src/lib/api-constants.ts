@@ -22,6 +22,8 @@ export const API_ENDPOINTS = {
     OPTIONS: "/fighter-cards/options/",
     /** Creates the card on first read, so it is safe to call on page load. */
     ME: "/fighter-cards/me/",
+    /** PUT multipart to upload/replace, DELETE to remove. Never part of the PATCH. */
+    PHOTO: "/fighter-cards/me/photo/",
   },
   LOCATIONS: "/locations",
   PACKAGES: "/packages",

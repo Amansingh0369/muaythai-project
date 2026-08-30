@@ -46,6 +46,14 @@ export interface FighterCardOptions {
   scales: Record<string, ScaleSpec>;
   private_fields: string[];
   required_for_completion: string[];
+  photo: PhotoConstraints;
+}
+
+/** Server-declared upload limits — never hard-code these. */
+export interface PhotoConstraints {
+  max_bytes: number;
+  content_types: string[];
+  extensions: string[];
 }
 
 export interface CampDetail {
@@ -62,6 +70,11 @@ export interface FighterCard {
   camp: number | null;
   camp_detail: CampDetail | null;
 
+  /**
+   * Signed S3 URL with a lifetime (7 days by default). Render it from the card
+   * you just fetched — never persist or cache it as though it were stable.
+   */
+  photo: string | null;
   nationality: string;
   city: string;
 
@@ -112,6 +125,7 @@ export type FighterCardPatch = Partial<
   Omit<
     FighterCard,
     | "id" | "user" | "user_email" | "user_full_name" | "camp_detail"
+    | "photo"
     | "is_complete" | "missing_fields" | "completed_at" | "created_at" | "updated_at"
   >
 >;
@@ -180,6 +194,25 @@ export const fighterCardService = {
     const res = await fetchWithAuth(API_ENDPOINTS.FIGHTER_CARDS.ME);
     if (!res.ok) throw await toApiError(res);
     return res.json();
+  },
+
+  /**
+   * Upload or replace the photo. PUT replaces, so an existing one need not be
+   * deleted first. The body is FormData and `fetchWithAuth` sets no
+   * Content-Type, which lets the browser write the multipart boundary itself.
+   */
+  async uploadPhoto(file: File): Promise<{ photo: string }> {
+    const body = new FormData();
+    body.append("photo", file);
+    const res = await fetchWithAuth(API_ENDPOINTS.FIGHTER_CARDS.PHOTO, { method: "PUT", body });
+    if (!res.ok) throw await toApiError(res);
+    return res.json();
+  },
+
+  /** Remove the photo. 204, and idempotent. */
+  async deletePhoto(): Promise<void> {
+    const res = await fetchWithAuth(API_ENDPOINTS.FIGHTER_CARDS.PHOTO, { method: "DELETE" });
+    if (!res.ok) throw await toApiError(res);
   },
 
   /** Partial save — send only the fields that changed. */
