@@ -13,6 +13,8 @@ import {
 
 interface CouponFieldProps {
   packageId: number;
+  /** Buyer plus guests — the code is priced against the whole booking. */
+  participantCount: number;
   coupon: AppliedCoupon | null;
   /** True once the booking is in flight or done — a coupon can only change while PENDING. */
   locked: boolean;
@@ -22,7 +24,14 @@ interface CouponFieldProps {
 
 /** Coupon entry on the form step. No order exists yet here, so this only ever previews —
  *  the code is actually applied to the order at submit time. */
-export default function CouponField({ packageId, coupon, locked, onApplied, onRemoved }: CouponFieldProps) {
+export default function CouponField({
+  packageId,
+  participantCount,
+  coupon,
+  locked,
+  onApplied,
+  onRemoved,
+}: CouponFieldProps) {
   const [open, setOpen] = useState(false);
   const [code, setCode] = useState("");
   const [checking, setChecking] = useState(false);
@@ -34,9 +43,9 @@ export default function CouponField({ packageId, coupon, locked, onApplied, onRe
     setChecking(true);
     setError(null);
     try {
-      const preview = await couponService.preview(trimmed, packageId);
+      const preview = await couponService.preview(trimmed, packageId, participantCount);
       setCode(preview.coupon.code);
-      onApplied(capPreviewToMinimum(preview, preview.coupon.code));
+      onApplied(capPreviewToMinimum(preview, preview.coupon.code, participantCount));
     } catch (err: any) {
       // The backend writes this copy for the customer — show it as-is, and keep what they
       // typed so a typo can be corrected instead of retyped.

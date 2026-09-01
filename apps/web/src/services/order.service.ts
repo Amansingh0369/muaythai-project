@@ -1,6 +1,7 @@
 import { fetchWithAuth } from "@/lib/api";
 import { API_ENDPOINTS } from "@/lib/api-constants";
 import { apiErrorMessage } from "./coupon.service";
+import type { Package } from "./package.service";
 
 /** A friend the buyer is booking alongside themselves. */
 export interface GuestInput {
@@ -69,6 +70,10 @@ export interface Order {
   /** Everyone the booking covers — the buyer first. */
   participants: OrderParticipant[];
   participant_count: number;
+  /** The whole camp, serialised inline — locations, duration, content. */
+  package_details: Package;
+  /** Who placed and paid for the booking. */
+  user_email: string;
 }
 
 export const orderService = {
@@ -141,6 +146,22 @@ export const orderService = {
     let data: any;
     try { data = await res.json(); } catch { data = {}; }
     if (!res.ok) throw new Error(apiErrorMessage(data, "Could not remove that coupon."));
+    return data as Order;
+  },
+
+  /**
+   * One booking in full.
+   *
+   * Readable by everyone the booking covers, not just the buyer — a friend
+   * needs to see which camp they are joining. Note that this endpoint returns
+   * the amounts to a guest as well; the booking page deliberately does not
+   * render them, since a group total covers someone else's place too.
+   */
+  async getOrder(orderId: number): Promise<Order> {
+    const res = await fetchWithAuth(`${API_ENDPOINTS.ORDERS}/${orderId}/`, { method: "GET" });
+    let data: any;
+    try { data = await res.json(); } catch { data = {}; }
+    if (!res.ok) throw new Error(apiErrorMessage(data, "Failed to load this booking"));
     return data as Order;
   },
 

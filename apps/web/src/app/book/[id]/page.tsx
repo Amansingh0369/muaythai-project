@@ -9,6 +9,7 @@ import { packageService, packageLocationNames } from "@/services/package.service
 import { userService, FullUser } from "@/services/user.service";
 import { orderService, OrderApiError, type GuestInput } from "@/services/order.service";
 import { paymentService } from "@/services/payment.service";
+import { couponService } from "@/services/coupon.service";
 import { loadRazorpayScript } from "@/lib/razorpay";
 import { enrichPackages, EnrichedPackage } from "@/components/FightCampsSection/FightCampsSection.helpers";
 import Navbar from "@/components/Navbar";
@@ -23,10 +24,12 @@ import {
   GuestErrors,
   MAX_GUESTS,
   SHELL,
+  capPreviewToMinimum,
   contentSections,
   fillBlanks,
   fmtDate,
   hasGuestErrors,
+  participantCount,
   profileUpdatePayload,
   validateGuests,
   validateValues,
@@ -107,6 +110,36 @@ export default function BookingPage() {
     setGuestErrors({});
     setGuestServerErrors([]);
   };
+
+  // A coupon is priced for a booking of a particular size, so adding or removing
+  // a guest afterwards leaves the applied amounts describing a booking that no
+  // longer exists. Re-price against the new count rather than show a discount
+  // the order will not actually give.
+  const people = participantCount(values);
+  useEffect(() => {
+    if (!pkg || !coupon || coupon.participantCount === people) return;
+
+    let cancelled = false;
+    (async () => {
+      try {
+        const preview = await couponService.preview(coupon.code, pkg.id, people);
+        if (cancelled) return;
+        setCoupon(capPreviewToMinimum(preview, preview.coupon.code, people));
+      } catch (err: any) {
+        if (cancelled) return;
+        // The code may not survive the new size — a minimum-order coupon on a
+        // booking that just shrank, say. Drop it and say why.
+        setCoupon(null);
+        setSubmitError(
+          err?.message || "That coupon no longer applies to this booking."
+        );
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [pkg, coupon, people]);
 
   // ── Data ───────────────────────────────────────────────────────────────────
 

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, forwardRef } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { motion, AnimatePresence } from "motion/react";
@@ -606,9 +607,10 @@ export default function ProfilePage() {
                 {fullUser.orders.map((order: UserOrder) => {
                   const meta = STATUS_META[order.status] ?? STATUS_FALLBACK;
                   return (
-                    <div
+                    <Link
                       key={order.id}
-                      className={`group relative overflow-hidden border p-5 transition-all duration-300 ${meta.card}`}
+                      href={`/profile/bookings/${order.id}`}
+                      className={`group relative overflow-hidden border p-5 transition-all duration-300 block ${meta.card}`}
                     >
                       <div className="flex items-center justify-between mb-3">
                         <span className="inline-flex items-center gap-1.5">
@@ -643,7 +645,15 @@ export default function ProfilePage() {
                           </span>
                         )}
                       </div>
-                    </div>
+
+                      <span className="mt-3 pt-3 border-t border-white/10 flex items-center gap-1.5 font-grotesk text-[12px] uppercase tracking-[0.25em] text-white/60 group-hover:text-white transition-colors">
+                        View details
+                        <ArrowRight
+                          size={12}
+                          className="group-hover:translate-x-0.5 transition-transform duration-200"
+                        />
+                      </span>
+                    </Link>
                   );
                 })}
               </div>

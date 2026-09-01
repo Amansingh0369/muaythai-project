@@ -79,12 +79,10 @@ export default function BookingFormStep({
 }: BookingFormStepProps) {
   const missing = missingFieldLabels(values);
   const complete = sectionCompletion(values);
-  // One place per person. The server still owns the real figure — this only
-  // keeps the page honest about what is being bought.
+  // One place per person, discounted by whatever the coupon preview priced for
+  // this booking size. The server still owns the real figure — this only keeps
+  // the page honest about what is being bought.
   const price = priceView(pkg.price, coupon, participantCount(values));
-  const ctaAmount = price.discountPending
-    ? `Up to ${fmtPrice(price.total)}`
-    : fmtPrice(price.total);
 
   /** Every text input is the same wiring — label, field key, placeholder. */
   const text = (field: BookingField, placeholder: string) => ({
@@ -250,26 +248,12 @@ export default function BookingFormStep({
                     />
                   </>
                 )}
-                {price.discountPending && (
-                  <SummaryRow
-                    label={`Coupon (${price.couponCode})`}
-                    value="Applied at payment"
-                    accent
-                  />
-                )}
                 <div className="flex justify-between items-center pt-3">
-                  <span className="font-grotesk text-base text-white font-bold">
-                    {price.discountPending ? "Total before discount" : "Total"}
-                  </span>
+                  <span className="font-grotesk text-base text-white font-bold">Total</span>
                   <span className="font-barlow font-black italic text-3xl text-white">
                     {fmtPrice(price.total)}
                   </span>
                 </div>
-                {price.discountPending && (
-                  <p className="font-grotesk text-[13px] text-white/55 text-right">
-                    Your {price.couponCode} discount comes off the whole booking at payment.
-                  </p>
-                )}
               </div>
 
               <AnimatePresence>
@@ -298,7 +282,7 @@ export default function BookingFormStep({
                   </>
                 ) : (
                   <>
-                    Secure Your Spot · {ctaAmount}
+                    Secure Your Spot · {fmtPrice(price.total)}
                     <span className="transition-transform duration-300 group-hover:translate-x-1">→</span>
                   </>
                 )}
