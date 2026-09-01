@@ -1,8 +1,26 @@
 {% extends "emails/base_email.html" %}
 {% block content %}
+{% if is_buyer %}
 <p style="margin:0 0 16px 0; font-size:15px; line-height:1.6; color:#3f3f46;">
   Your payment has been received and your place on <strong style="color:#18181b;">{{ package_name }}</strong> is secured. Everything you need is summarised below.
 </p>
+{% else %}
+<p style="margin:0 0 16px 0; font-size:15px; line-height:1.6; color:#3f3f46;">
+  <strong style="color:#18181b;">{{ booked_by }}</strong> has booked and paid for your place on <strong style="color:#18181b;">{{ package_name }}</strong>. There is nothing to pay — your spot is confirmed.
+</p>
+{% endif %}
+
+{% if fighters|length > 1 %}
+<p style="margin:0 0 6px 0; font-size:12px; font-weight:600; letter-spacing:0.6px; text-transform:uppercase; color:#71717a;">
+  Training together
+</p>
+<p style="margin:0 0 16px 0; font-size:15px; line-height:1.6; color:#3f3f46;">
+  {% for fighter in fighters %}{{ fighter }}{% if not forloop.last %} · {% endif %}{% endfor %}
+</p>
+{% endif %}
+
+{% include "emails/_fighter_card_notice.html" %}
+
 <p style="margin:0 0 8px 0; font-size:15px; line-height:1.6; color:#3f3f46;">
   Our team will be in touch before your start date with arrival details and what to bring.
 </p>

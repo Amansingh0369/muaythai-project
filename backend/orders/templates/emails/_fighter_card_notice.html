@@ -1,0 +1,32 @@
+{% comment %}
+Amber callout telling one fighter their card still needs work. Rendered from
+`fighter_card_note`, which `orders.emails.fighter_card_note` leaves empty for a
+card that is already complete — so a finished fighter never sees this block.
+
+Someone whose account was created for them at a friend's checkout cannot reach
+the card until they have a password, so they are pointed at the button below
+(which is their set-password link) rather than at a login wall.
+{% endcomment %}
+{% if fighter_card_note %}
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 20px 0; background-color:#fffbeb; border-left:4px solid #d97706; border-radius:8px;">
+  <tr>
+    <td style="padding:16px 20px;">
+      <p style="margin:0 0 6px 0; font-size:12px; font-weight:600; letter-spacing:0.6px; text-transform:uppercase; color:#92400e;">
+        Before you join the camp
+      </p>
+      <p style="margin:0 0 10px 0; font-size:14px; line-height:1.6; color:#3f3f46;">
+        {{ fighter_card_note }}
+      </p>
+      {% if needs_account_setup %}
+      <p style="margin:0; font-size:14px; line-height:1.6; color:#3f3f46;">
+        Set your password using the button below, then complete your fighter card — it takes a few minutes.
+      </p>
+      {% else %}
+      <p style="margin:0; font-size:14px; line-height:1.6;">
+        <a href="{{ fighter_card_url }}" target="_blank" style="color:#b0421d; font-weight:600; text-decoration:underline;">Log in and complete your fighter card</a>
+      </p>
+      {% endif %}
+    </td>
+  </tr>
+</table>
+{% endif %}

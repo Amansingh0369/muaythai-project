@@ -9,7 +9,7 @@ from .models import Payment, PaymentStatus
 from .serializers import PaymentSerializer, RazorpayOrderSerializer, RazorpayVerifySerializer
 from .services import RazorpayService
 from coupons.models import Coupon
-from orders.emails import send_order_confirmation_email, send_payment_failed_email
+from orders.emails import send_order_confirmation_emails, send_payment_failed_email
 from orders.models import Order, OrderStatus
 from core.constants import MIN_PAYABLE_PAISE
 from core.permissions import IsAdmin
@@ -183,11 +183,13 @@ class PaymentViewSet(viewsets.ModelViewSet):
                     Coupon.objects.filter(pk=order.coupon_id).update(
                         times_redeemed=F('times_redeemed') + 1)
 
-                # on_commit so the receipt is only sent once the payment is
+                # on_commit so the receipts are only sent once the payment is
                 # durably recorded — a rolled-back transaction must not leave the
                 # customer holding a confirmation for a booking that doesn't exist.
+                # One email per participant: a group booking confirms everybody
+                # it covers, not just whoever paid.
                 transaction.on_commit(
-                    lambda: send_order_confirmation_email(order=order, payment=payment)
+                    lambda: send_order_confirmation_emails(order=order, payment=payment)
                 )
 
             return response.Response({'message': 'Payment successful', 'order_id': order.id})

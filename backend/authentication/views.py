@@ -1,6 +1,6 @@
 from django.conf import settings
-from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
-from django.utils.encoding import force_bytes, force_str
+from django.utils.http import urlsafe_base64_decode
+from django.utils.encoding import force_str
 from django.contrib.auth.tokens import default_token_generator
 from rest_framework import status, views, response, permissions
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -8,6 +8,7 @@ from rest_framework_simplejwt.exceptions import TokenError, InvalidToken
 from rest_framework_simplejwt.views import TokenRefreshView
 from users.models import User
 from users.serializers import UserSerializer
+from .links import email_verification_link, password_reset_link
 from .services import GoogleAuthService
 from .emails import send_verification_email, send_password_reset_email
 from .serializers import (
@@ -117,13 +118,8 @@ class RegisterView(views.APIView):
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
 
-        # Generate token and send email
-        token = default_token_generator.make_token(user)
-        uid = urlsafe_base64_encode(force_bytes(user.pk))
-        
-        verification_link = f"{settings.FRONTEND_URL}/verify-email?token={token}&uid={uid}"
-
-        send_verification_email(user=user, verification_link=verification_link)
+        send_verification_email(
+            user=user, verification_link=email_verification_link(user))
 
         return response.Response({
             'message': 'Registration successful. Please check your email to verify your account.'
@@ -174,12 +170,8 @@ class ResendVerificationEmailView(views.APIView):
                 'error': 'This email address is already verified.'
             }, status=status.HTTP_400_BAD_REQUEST)
             
-        token = default_token_generator.make_token(user)
-        uid = urlsafe_base64_encode(force_bytes(user.pk))
-        
-        verification_link = f"{settings.FRONTEND_URL}/verify-email?token={token}&uid={uid}"
-
-        send_verification_email(user=user, verification_link=verification_link)
+        send_verification_email(
+            user=user, verification_link=email_verification_link(user))
 
         return response.Response({
             'message': 'If an account exists with this email, a verification link has been sent.'
@@ -238,13 +230,9 @@ class PasswordResetRequestView(views.APIView):
             # We return a success message even if user doesn't exist for security
             return response.Response({'message': 'If an account exists with this email, a reset link has been sent.'}, status=status.HTTP_200_OK)
             
-        token = default_token_generator.make_token(user)
-        uid = urlsafe_base64_encode(force_bytes(user.pk))
-        
-        reset_link = f"{settings.FRONTEND_URL}/reset-password?token={token}&uid={uid}"
-
         expiry_minutes = max(1, settings.PASSWORD_RESET_TIMEOUT // 60)
-        send_password_reset_email(user=user, reset_link=reset_link, expiry_minutes=expiry_minutes)
+        send_password_reset_email(
+            user=user, reset_link=password_reset_link(user), expiry_minutes=expiry_minutes)
 
         return response.Response({'message': 'If an account exists with this email, a reset link has been sent.'}, status=status.HTTP_200_OK)
 
@@ -267,6 +255,12 @@ class PasswordResetConfirmView(views.APIView):
 
         if default_token_generator.check_token(user, token):
             user.set_password(new_password)
+            # Following a link sent to that address proves control of it. This
+            # is also how an account created for someone at a friend's checkout
+            # becomes usable: it starts unverified with no password, and login
+            # refuses an unverified address, so verifying here is what turns the
+            # invite into an account they can actually sign in to.
+            user.is_email_verified = True
             user.save()
             return response.Response({'message': 'Password has been reset successfully.'}, status=status.HTTP_200_OK)
         else:

@@ -5,7 +5,9 @@ Intended to run once a day from cron:
     0 9 * * *  cd /app && python manage.py send_package_reminders
 
 Safe to run more than once a day, and safe to re-run after a failure: every
-reminder sent is recorded, and the record is what gates the next send.
+reminder sent is recorded per participant, and the record is what gates the next
+send. A booking that covers three people reminds all three, and a send that
+fails for one of them is retried for that person alone on the next run.
 """
 from django.core.management.base import BaseCommand
 from django.db import IntegrityError, transaction
@@ -39,8 +41,8 @@ class Command(BaseCommand):
 
         orders = (
             Order.objects.filter(status=OrderStatus.PAID)
-            .select_related('package', 'user')
-            .prefetch_related('package__locations', 'reminders')
+            .select_related('package')
+            .prefetch_related('package__locations', 'participants__user', 'reminders')
         )
 
         sent = skipped = failed = 0
@@ -53,48 +55,58 @@ class Command(BaseCommand):
             if days_until < 0:
                 continue  # already under way
 
-            already_sent = {r.kind for r in order.reminders.all()}
-            due = [
-                kind for kind, window in REMINDER_WINDOWS
-                if days_until <= window and kind not in already_sent
-            ]
-            if not due:
-                skipped += 1
-                continue
+            for participant in order.participants.all():
+                # Read from the prefetched reminders rather than querying per
+                # participant: a booking's reminders are a handful of rows, and
+                # the alternative is two queries per person per run.
+                already_sent = {
+                    reminder.kind for reminder in order.reminders.all()
+                    if reminder.participant_id == participant.id
+                }
+                due = [
+                    kind for kind, window in REMINDER_WINDOWS
+                    if days_until <= window and kind not in already_sent
+                ]
+                if not due:
+                    skipped += 1
+                    continue
 
-            # REMINDER_WINDOWS is ordered most-urgent-first, so due[0] is the
-            # tightest window that applies. A booking made three days out is past
-            # the 7-day mark, so it gets the next-day nudge and nothing else —
-            # marking every due kind sent stops the looser one firing later.
-            if dry_run:
-                self.stdout.write(
-                    f'[dry-run] Order #{order.id} ({order.user.email}) '
-                    f'starts in {days_until}d → would send {due[0]}, marking {due}'
-                )
-                sent += 1
-                continue
+                # REMINDER_WINDOWS is ordered most-urgent-first, so due[0] is the
+                # tightest window that applies. A booking made three days out is
+                # past the 7-day mark, so it gets the next-day nudge and nothing
+                # else — marking every due kind sent stops the looser one firing
+                # later.
+                if dry_run:
+                    self.stdout.write(
+                        f'[dry-run] Order #{order.id} ({participant.email}) '
+                        f'starts in {days_until}d → would send {due[0]}, marking {due}'
+                    )
+                    sent += 1
+                    continue
 
-            if send_package_reminder_email(order=order, days_until=days_until):
-                self._record(order, due)
-                sent += 1
-                self.stdout.write(
-                    f'Order #{order.id} ({order.user.email}): sent {due[0]} '
-                    f'({days_until}d to start)'
-                )
-            else:
-                # send_package_reminder_email logs the traceback. Leaving it
-                # unrecorded means tomorrow's run retries it.
-                failed += 1
-                self.stderr.write(f'Order #{order.id} ({order.user.email}): send failed')
+                if send_package_reminder_email(
+                        order=order, participant=participant, days_until=days_until):
+                    self._record(order, participant, due)
+                    sent += 1
+                    self.stdout.write(
+                        f'Order #{order.id} ({participant.email}): sent {due[0]} '
+                        f'({days_until}d to start)'
+                    )
+                else:
+                    # send_package_reminder_email logs the traceback. Leaving it
+                    # unrecorded means tomorrow's run retries it.
+                    failed += 1
+                    self.stderr.write(f'Order #{order.id} ({participant.email}): send failed')
 
         summary = f'Reminders sent: {sent}, up to date: {skipped}, failed: {failed}'
         self.stdout.write(self.style.SUCCESS(summary) if not failed else self.style.WARNING(summary))
 
-    def _record(self, order, kinds):
+    def _record(self, order, participant, kinds):
         """Mark reminders as sent, tolerating a concurrent run that beat us to it."""
         for kind in kinds:
             try:
                 with transaction.atomic():
-                    OrderReminder.objects.create(order=order, kind=kind)
+                    OrderReminder.objects.create(
+                        order=order, participant=participant, kind=kind)
             except IntegrityError:
                 pass

@@ -1,3 +1,4 @@
+from django.db.models import Q
 from rest_framework import serializers
 from .models import User, Profile, ProfileShare
 from .sharing import SECTION_KEYS
@@ -15,11 +16,33 @@ class ProfileSerializer(serializers.ModelSerializer):
         )
 
 class OrderSummarySerializer(serializers.ModelSerializer):
+    """A booking as it appears on someone's own profile.
+
+    Written for one viewer at a time: `for_user_id` in the context says who is
+    looking, which decides whether they are the buyer and therefore whether the
+    amount is any of their business.
+    """
     package_name = serializers.CharField(source='package.name', read_only=True)
-    
+    is_buyer = serializers.SerializerMethodField()
+    total_amount = serializers.SerializerMethodField()
+
     class Meta:
         model = Order
-        fields = ('id', 'package_name', 'total_amount', 'status', 'created_at')
+        fields = ('id', 'package_name', 'total_amount', 'status', 'created_at',
+                  'is_buyer', 'participant_count')
+
+    def get_is_buyer(self, order) -> bool:
+        """False when a friend booked this person in rather than the other way round."""
+        return order.user_id == self.context.get('for_user_id')
+
+    def get_total_amount(self, order) -> str:
+        """Null for a guest: the booking is theirs, the payment is not.
+
+        A group total covers their friend's place as well as their own, so
+        showing it would tell them what someone else spent — the same reason
+        their confirmation email carries no money.
+        """
+        return str(order.total_amount) if self.get_is_buyer(order) else None
 
 class LikedPackageSerializer(serializers.ModelSerializer):
     package_name = serializers.CharField(source='package.name', read_only=True)
@@ -31,13 +54,30 @@ class LikedPackageSerializer(serializers.ModelSerializer):
 
 class UserSerializer(serializers.ModelSerializer):
     profile = ProfileSerializer(required=False)
-    orders = OrderSummarySerializer(many=True, read_only=True)
+    orders = serializers.SerializerMethodField()
     liked_packages = LikedPackageSerializer(source='package_likes', many=True, read_only=True)
 
     class Meta:
         model = User
         fields = ('id', 'email', 'full_name', 'profile', 'orders', 'liked_packages', 'role', 'google_id', 'is_active', 'created_at')
         read_only_fields = ('id', 'email', 'role', 'google_id', 'created_at', 'orders', 'liked_packages')
+
+    def get_orders(self, user):
+        """Bookings this user placed, plus any a friend booked them onto.
+
+        Being booked in by someone else is still being booked in, and the
+        profile page is where a guest finds the camp they are joining — listing
+        only what they paid for would leave them looking at an empty page.
+        """
+        orders = (
+            Order.objects
+            .filter(Q(user=user) | Q(participants__user=user))
+            .select_related('package')
+            .distinct()
+        )
+        return OrderSummarySerializer(
+            orders, many=True, context={**self.context, 'for_user_id': user.id},
+        ).data
 
     def to_representation(self, instance):
         representation = super().to_representation(instance)

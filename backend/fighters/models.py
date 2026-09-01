@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
+from django.db.models import Q
 from django.db.models.fields.files import FieldFile
 from django.db.models.signals import post_delete
 from django.dispatch import receiver
@@ -174,15 +175,23 @@ class FighterCard(models.Model):
         within each; a group package spanning several camps has no single
         answer, so the first of its locations is used as the best guess and the
         fighter can still override it.
+
+        Bookings a friend made on this user's behalf count the same as ones
+        they placed themselves — being booked in by someone else is still being
+        booked in, and it is exactly the case where nobody has typed the camp.
         """
         from orders.models import Order, OrderStatus
 
         orders = list(
             Order.objects
-            .filter(user=user, status__in=[OrderStatus.PAID, OrderStatus.COMPLETED, OrderStatus.PENDING])
+            .filter(
+                Q(user=user) | Q(participants__user=user),
+                status__in=[OrderStatus.PAID, OrderStatus.COMPLETED, OrderStatus.PENDING],
+            )
             .select_related('package')
             .prefetch_related('package__locations')
             .order_by('-created_at')
+            .distinct()
         )
         # Stable sort, so the newest order still wins inside each group.
         orders.sort(key=lambda o: 0 if o.status in (OrderStatus.PAID, OrderStatus.COMPLETED) else 1)
