@@ -5,6 +5,7 @@ import { Providers } from "@/components/Providers";
 import { SITE_CONFIG } from "@repo/utils";
 import StickyReveal from "@/components/StickyReveal";
 import { TrackingNoScript, TrackingScripts } from "@/components/Tracking";
+import { Analytics } from "@vercel/analytics/next";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const oswald = Oswald({ subsets: ["latin"], variable: "--font-oswald" });
@@ -53,6 +54,9 @@ export default function RootLayout({
             {children}
           </StickyReveal>
         </Providers>
+        {/* Vercel Web Analytics — page views and visitors. Only reports from
+            the deployed site; it is inert on localhost. */}
+        <Analytics />
       </body>
     </html>
   );
