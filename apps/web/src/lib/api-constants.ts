@@ -27,6 +27,8 @@ export const API_ENDPOINTS = {
   },
   LOCATIONS: "/locations",
   PACKAGES: "/packages",
+  /** Public `active/`; every other verb is admin-only (dashboard). */
+  POPUP_IMAGES: "/popup-images",
   ORDERS: "/orders",
   COUPONS: "/coupons",
   PAYMENTS: {

@@ -3,14 +3,27 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { X, MapPin, CalendarDays, Clock, ArrowUpRight } from "lucide-react";
+import { X, MapPin, CalendarDays, Clock, ArrowUpRight, ImageOff } from "lucide-react";
 import {
   packageService,
   packageLocationNames,
   type Package,
 } from "@/services/package.service";
+import {
+  popupImageService,
+  type PopupImage,
+} from "@/services/popup-image.service";
 
 const SESSION_KEY = "titmt_group_popup_shown";
+
+/**
+ * A departure stops being advertised once it is fewer than this many days
+ * away — a camp starting on the 15th is announced up to and including the
+ * 13th, then the popup moves on to the next one.
+ */
+const ANNOUNCE_LEAD_DAYS = 2;
+
+const DAY_MS = 24 * 60 * 60 * 1000;
 
 function fmtPrice(price: string | number) {
   return `₹${Number(price).toLocaleString("en-IN")}`;
@@ -24,24 +37,37 @@ function fmtDate(dateStr: string) {
   });
 }
 
-/** True if the package's start date is today or later (i.e. still upcoming). */
-function isUpcoming(dateStr: string): boolean {
+/**
+ * True while the departure is still far enough out to be worth announcing:
+ * at least ANNOUNCE_LEAD_DAYS clear days from today. Both dates are floored
+ * to midnight and the difference is rounded, so a DST shift can't turn two
+ * whole days into 1.96.
+ */
+function hasAnnouncementLead(dateStr: string): boolean {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const target = new Date(dateStr);
   target.setHours(0, 0, 0, 0);
-  return target.getTime() >= today.getTime();
+  const daysAway = Math.round((target.getTime() - today.getTime()) / DAY_MS);
+  return daysAway >= ANNOUNCE_LEAD_DAYS;
 }
 
 /**
  * One-time (per session) popup shown after the branding loader on the homepage.
- * Fetches every active package, keeps only those with an upcoming start date,
- * and highlights the single nearest departure.
+ * Fetches every active package, keeps only those still far enough out to
+ * announce, and highlights the single nearest departure. The poster is
+ * whichever image an admin has made live in the dashboard.
  */
 const GroupBatchPopup = () => {
   const router = useRouter();
   const [pkg, setPkg] = useState<Package | null>(null);
   const [open, setOpen] = useState(false);
+
+  // Poster state is deliberately separate from `pkg`: the two requests are
+  // independent and the image must never delay or suppress the popup.
+  const [poster, setPoster] = useState<PopupImage | null>(null);
+  const [posterResolved, setPosterResolved] = useState(false);
+  const [posterBroken, setPosterBroken] = useState(false);
 
   useEffect(() => {
     // Only once per browser session.
@@ -57,7 +83,7 @@ const GroupBatchPopup = () => {
         if (cancelled) return;
 
         const nearest = packages
-          .filter((p) => p.start_date && isUpcoming(p.start_date))
+          .filter((p) => p.start_date && hasAnnouncementLead(p.start_date))
           .sort(
             (a, b) =>
               new Date(a.start_date as string).getTime() -
@@ -73,6 +99,14 @@ const GroupBatchPopup = () => {
       .catch(() => {
         /* fail silently — no popup on error */
       });
+
+    // Fired alongside the package lookup, not after it: the popup opens as
+    // soon as a departure resolves, and the poster fills in when it lands.
+    popupImageService.getActivePopupImage().then((image) => {
+      if (cancelled) return;
+      setPoster(image);
+      setPosterResolved(true);
+    });
 
     return () => {
       cancelled = true;
@@ -98,6 +132,9 @@ const GroupBatchPopup = () => {
   };
 
   if (!pkg) return null;
+
+  // Narrowed here so the JSX below can read poster.image without a non-null assertion.
+  const hasPoster = poster !== null && !posterBroken;
 
   return (
     <AnimatePresence>
@@ -136,16 +173,36 @@ const GroupBatchPopup = () => {
               <X size={18} />
             </button>
 
-            {/* Poster — container matches the asset's native 4:3, so it scales
-                with the card width without cropping the headline or CTA. */}
+            {/* Poster — the image an admin made live in the dashboard. The 4:3
+                box is fixed regardless of what was uploaded, so an odd source
+                size can't reshape the card. */}
             <div className="relative shrink-0 w-full aspect-[4/3] overflow-hidden">
-              <img
-                src="/image.png"
-                alt="Phuket Camp — 12 September 2026"
-                width={1280}
-                height={960}
-                className="w-full h-full object-cover"
-              />
+              {hasPoster ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={poster.image}
+                  alt={poster.alt_text}
+                  width={1280}
+                  height={960}
+                  className="w-full h-full object-cover"
+                  // Pre-signed S3 URLs expire; a stale one shows the notice
+                  // rather than a broken-image icon.
+                  onError={() => setPosterBroken(true)}
+                />
+              ) : (
+                <div className="w-full h-full flex flex-col items-center justify-center gap-3 bg-white/[0.03] border-b border-white/10">
+                  {/* Stay blank until the request settles, so the notice never
+                      flashes in front of an image that is simply still loading. */}
+                  {posterResolved && (
+                    <>
+                      <ImageOff size={28} className="text-white/20" />
+                      <span className="font-grotesk text-[11px] tracking-[0.3em] uppercase text-white/30">
+                        Image not available
+                      </span>
+                    </>
+                  )}
+                </div>
+              )}
               <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-background to-transparent pointer-events-none" />
             </div>
 
