@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import {
   ShoppingBag,
@@ -9,11 +9,21 @@ import {
   RefreshCcw,
   CheckCircle2,
   Inbox,
+  X,
 } from "lucide-react";
 import { useOrders } from "./hooks/useOrders";
 import { OrderRow } from "./components/OrderRow";
 import { ConfirmModal } from "@/components/shared/ConfirmModal";
+import { SearchField } from "@/components/shared/SearchField";
+import { Pagination } from "@/components/shared/Pagination";
+import {
+  ShareProfileModal,
+  type ShareSubject,
+} from "@/components/shared/ShareProfileModal";
 import { Button } from "@repo/ui";
+import type { Order } from "@/services/order.service";
+
+const PAGE_SIZE = 10;
 
 function sumPaid(amounts: (number | string)[]): string {
   const total = amounts.reduce<number>((acc, a) => {
@@ -38,8 +48,41 @@ export default function OrdersPage() {
     fetchOrders,
   } = useOrders();
 
+  const [query, setQuery] = useState("");
+  const [page, setPage] = useState(1);
+  const [shareSubject, setShareSubject] = useState<ShareSubject | null>(null);
+  const [sharedWith, setSharedWith] = useState<string | null>(null);
+
+  // Totals stay on the whole ledger — a search narrows the list, not the books.
   const paidOrders = orders.filter((o) => o.status === "PAID" || o.status === "COMPLETED");
   const totalPaid = sumPaid(paidOrders.map((o) => o.total_amount));
+
+  // Searches every booking, not just the page on screen.
+  const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (!q) return orders;
+    // "#1042" and "1042" should both find order 1042.
+    const bare = q.replace(/^#/, "");
+    return orders.filter((order) =>
+      [order.package_name, order.user_email, order.status, String(order.id)]
+        .filter(Boolean)
+        .some((field) => String(field).toLowerCase().includes(bare))
+    );
+  }, [orders, query]);
+
+  const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+
+  // Deleting the last row of the last page would otherwise strand the pager.
+  useEffect(() => {
+    if (page > pageCount) setPage(pageCount);
+  }, [page, pageCount]);
+
+  const visible = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+
+  // The booking is the way in; what gets shared is the student on it.
+  const handleOpenShare = (order: Order) => {
+    setShareSubject({ id: order.user, label: order.user_email });
+  };
 
   return (
     <div className="min-h-screen bg-black text-white p-6 md:p-12 pb-32">
@@ -91,6 +134,35 @@ export default function OrdersPage() {
             </div>
           </div>
         </div>
+
+        <div className="mt-6">
+          <SearchField
+            value={query}
+            onChange={(value) => {
+              setQuery(value);
+              setPage(1);
+            }}
+            placeholder="Search every booking by order #, camp, customer or status..."
+            hint={`${filtered.length} of ${orders.length}`}
+          />
+        </div>
+
+        {/* Confirmation of a send — plain, and says exactly where it went. */}
+        {sharedWith && (
+          <div className="mt-6 flex items-start gap-4 p-5 rounded-3xl bg-emerald-500/10 border border-emerald-500/20">
+            <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />
+            <p className="text-emerald-300/90 text-sm leading-relaxed flex-1">
+              Profile shared with <span className="font-bold">{sharedWith}</span>.
+            </p>
+            <button
+              onClick={() => setSharedWith(null)}
+              aria-label="Dismiss"
+              className="text-emerald-400/60 hover:text-emerald-300 transition-colors shrink-0"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Main Content Area */}
@@ -114,8 +186,8 @@ export default function OrdersPage() {
       ) : (
         <div className="flex flex-col gap-4">
           <AnimatePresence mode="popLayout">
-            {orders.length > 0 ? (
-              orders.map((order, index) => (
+            {visible.length > 0 ? (
+              visible.map((order, index) => (
                 <OrderRow
                   key={order.id}
                   order={order}
@@ -123,6 +195,7 @@ export default function OrdersPage() {
                   isUpdating={updatingId === order.id}
                   onStatusChange={handleStatusChange}
                   onDelete={handleOpenDelete}
+                  onShare={handleOpenShare}
                 />
               ))
             ) : (
@@ -136,12 +209,27 @@ export default function OrdersPage() {
                   <Inbox className="text-white/20 w-10 h-10" />
                 </div>
                 <div className="flex flex-col items-center gap-1">
-                  <span className="text-white/40 font-black uppercase tracking-widest text-sm">No Bookings Yet</span>
-                  <span className="text-white/20 text-[10px] font-bold uppercase">Reservations will appear here as they come in</span>
+                  <span className="text-white/40 font-black uppercase tracking-widest text-sm">
+                    {query ? "No Matching Bookings" : "No Bookings Yet"}
+                  </span>
+                  <span className="text-white/20 text-[10px] font-bold uppercase">
+                    {query
+                      ? `Nothing matches "${query}"`
+                      : "Reservations will appear here as they come in"}
+                  </span>
                 </div>
               </motion.div>
             )}
           </AnimatePresence>
+
+          <Pagination
+            page={page}
+            pageCount={pageCount}
+            total={filtered.length}
+            pageSize={PAGE_SIZE}
+            onPageChange={setPage}
+            noun="bookings"
+          />
         </div>
       )}
 
@@ -154,6 +242,14 @@ export default function OrdersPage() {
         title="Delete Booking?"
         message="Are you sure you want to permanently remove this booking from the ledger? This operation cannot be reversed."
         confirmText="Delete"
+      />
+
+      {/* Share Modal — the student on the booking, never the booking itself */}
+      <ShareProfileModal
+        isOpen={shareSubject !== null}
+        subject={shareSubject}
+        onClose={() => setShareSubject(null)}
+        onShared={(share) => setSharedWith(share.recipient_email)}
       />
     </div>
   );

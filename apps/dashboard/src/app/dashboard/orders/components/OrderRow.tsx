@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "motion/react";
-import { Package as PackageIcon, Mail, Trash2, Loader2, ChevronDown } from "lucide-react";
+import { Package as PackageIcon, Mail, Trash2, Loader2, ChevronDown, Share2 } from "lucide-react";
 import { Order, OrderStatus } from "@/services/order.service";
 
 interface OrderRowProps {
@@ -10,6 +10,8 @@ interface OrderRowProps {
   isUpdating: boolean;
   onStatusChange: (id: number, status: OrderStatus) => void;
   onDelete: (id: number) => void;
+  /** Shares the student on this booking — their profile, not the booking. */
+  onShare: (order: Order) => void;
 }
 
 const STATUS_OPTIONS: OrderStatus[] = ["PENDING", "PAID", "COMPLETED", "CANCELLED"];
@@ -46,7 +48,7 @@ function formatDate(dateStr: string): string {
   });
 }
 
-export function OrderRow({ order, index, isUpdating, onStatusChange, onDelete }: OrderRowProps) {
+export function OrderRow({ order, index, isUpdating, onStatusChange, onDelete, onShare }: OrderRowProps) {
   return (
     <motion.div
       initial={{ opacity: 0, x: -20 }}
@@ -120,6 +122,17 @@ export function OrderRow({ order, index, isUpdating, onStatusChange, onDelete }:
             </>
           )}
         </div>
+
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            onShare(order);
+          }}
+          className="w-11 h-11 rounded-xl border border-white/5 bg-white/5 flex items-center justify-center text-white/40 hover:text-white hover:border-primary/50 hover:bg-primary/10 transition-all active:scale-95 shrink-0"
+          title="Share this student's profile"
+        >
+          <Share2 className="w-5 h-5" />
+        </button>
 
         <button
           onClick={(e) => {

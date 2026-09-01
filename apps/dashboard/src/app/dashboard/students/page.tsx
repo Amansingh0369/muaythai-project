@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import {
   Users,
@@ -9,12 +9,23 @@ import {
   Loader2,
   AlertCircle,
   RefreshCcw,
+  CheckCircle2,
+  X,
 } from "lucide-react";
 import { useStudents } from "./hooks/useStudents";
 import { StudentRow } from "./components/StudentRow";
 import { StudentModal } from "./components/StudentModal";
 import { ConfirmModal } from "@/components/shared/ConfirmModal";
+import { SearchField } from "@/components/shared/SearchField";
+import { Pagination } from "@/components/shared/Pagination";
+import {
+  ShareProfileModal,
+  type ShareSubject,
+} from "@/components/shared/ShareProfileModal";
 import { Button } from "@repo/ui";
+import type { AdminUser } from "@/services/user.service";
+
+const PAGE_SIZE = 10;
 
 export default function StudentsPage() {
   const {
@@ -39,8 +50,43 @@ export default function StudentsPage() {
     handleDelete,
   } = useStudents();
 
+  const [query, setQuery] = useState("");
+  const [page, setPage] = useState(1);
+  const [shareSubject, setShareSubject] = useState<ShareSubject | null>(null);
+  const [sharedWith, setSharedWith] = useState<string | null>(null);
+
+  // Stats stay on the whole roster — a search narrows the list, not the totals.
   const activeCount = users.filter((u) => u.is_active).length;
   const adminCount = users.filter((u) => u.role === "ADMIN").length;
+
+  // Search runs over every student, not just the page on screen; the pager
+  // then follows the matches.
+  const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (!q) return users;
+    return users.filter((user) =>
+      [user.full_name, user.email, user.phone]
+        .filter(Boolean)
+        .some((field) => String(field).toLowerCase().includes(q))
+    );
+  }, [users, query]);
+
+  const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+
+  // Deleting the last row of the last page would otherwise strand the pager
+  // past the end of the list.
+  useEffect(() => {
+    if (page > pageCount) setPage(pageCount);
+  }, [page, pageCount]);
+
+  const visible = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+
+  const handleOpenShare = (user: AdminUser) => {
+    setShareSubject({
+      id: user.id,
+      label: user.full_name?.trim() || user.email,
+    });
+  };
 
   return (
     <div className="min-h-screen bg-black text-white p-6 md:p-12 pb-32">
@@ -112,6 +158,35 @@ export default function StudentsPage() {
             </div>
           </div>
         </div>
+
+        <div className="mt-6">
+          <SearchField
+            value={query}
+            onChange={(value) => {
+              setQuery(value);
+              setPage(1);
+            }}
+            placeholder="Search every student by name, email or phone..."
+            hint={`${filtered.length} of ${users.length}`}
+          />
+        </div>
+
+        {/* Confirmation of a send — plain, and says exactly where it went. */}
+        {sharedWith && (
+          <div className="mt-6 flex items-start gap-4 p-5 rounded-3xl bg-emerald-500/10 border border-emerald-500/20">
+            <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />
+            <p className="text-emerald-300/90 text-sm leading-relaxed flex-1">
+              Profile shared with <span className="font-bold">{sharedWith}</span>.
+            </p>
+            <button
+              onClick={() => setSharedWith(null)}
+              aria-label="Dismiss"
+              className="text-emerald-400/60 hover:text-emerald-300 transition-colors shrink-0"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Main Content Area */}
@@ -145,7 +220,7 @@ export default function StudentsPage() {
       ) : (
         <div className="max-w-7xl mx-auto flex flex-col gap-4">
           {/* Column headers (desktop) */}
-          {users.length > 0 && (
+          {visible.length > 0 && (
             <div className="hidden md:grid grid-cols-12 gap-4 px-4 pb-1 text-[10px] font-black uppercase tracking-widest text-white/30">
               <div className="col-span-4">Athlete</div>
               <div className="col-span-2">Role</div>
@@ -156,8 +231,8 @@ export default function StudentsPage() {
           )}
 
           <AnimatePresence mode="popLayout">
-            {users.length > 0 ? (
-              users.map((user, index) => (
+            {visible.length > 0 ? (
+              visible.map((user, index) => (
                 <StudentRow
                   key={user.id}
                   user={user}
@@ -166,6 +241,7 @@ export default function StudentsPage() {
                   onEdit={handleOpenEdit}
                   onToggleRole={handleToggleRole}
                   onDelete={handleOpenDelete}
+                  onShare={handleOpenShare}
                 />
               ))
             ) : (
@@ -183,12 +259,23 @@ export default function StudentsPage() {
                     No Students Found
                   </span>
                   <span className="text-white/20 text-[10px] font-bold uppercase">
-                    Members will appear here once they register
+                    {query
+                      ? `Nothing matches "${query}"`
+                      : "Members will appear here once they register"}
                   </span>
                 </div>
               </motion.div>
             )}
           </AnimatePresence>
+
+          <Pagination
+            page={page}
+            pageCount={pageCount}
+            total={filtered.length}
+            pageSize={PAGE_SIZE}
+            onPageChange={setPage}
+            noun="students"
+          />
         </div>
       )}
 
@@ -218,6 +305,14 @@ export default function StudentsPage() {
             : "This will deactivate the student's account."
         }
         confirmText="Deactivate"
+      />
+
+      {/* Share Modal */}
+      <ShareProfileModal
+        isOpen={shareSubject !== null}
+        subject={shareSubject}
+        onClose={() => setShareSubject(null)}
+        onShared={(share) => setSharedWith(share.recipient_email)}
       />
     </div>
   );

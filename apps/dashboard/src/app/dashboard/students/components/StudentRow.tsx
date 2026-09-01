@@ -9,6 +9,7 @@ import {
   Loader2,
   Mail,
   UserRound,
+  Share2,
 } from "lucide-react";
 import { AdminUser } from "@/services/user.service";
 
@@ -19,6 +20,7 @@ interface StudentRowProps {
   onEdit: (user: AdminUser) => void;
   onToggleRole: (user: AdminUser) => void;
   onDelete: (user: AdminUser) => void;
+  onShare: (user: AdminUser) => void;
 }
 
 function formatJoined(value: string) {
@@ -47,6 +49,7 @@ export function StudentRow({
   onEdit,
   onToggleRole,
   onDelete,
+  onShare,
 }: StudentRowProps) {
   const isAdmin = user.role === "ADMIN";
 
@@ -127,6 +130,16 @@ export function StudentRow({
 
       {/* Actions — cols 11-12 */}
       <div className="col-span-6 md:col-span-2 flex items-center justify-end gap-2 relative z-20">
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            onShare(user);
+          }}
+          className="w-11 h-11 rounded-xl border border-white/5 bg-white/5 flex items-center justify-center text-white/40 hover:text-white hover:border-primary/50 hover:bg-primary/10 transition-all active:scale-95"
+          title="Share Profile"
+        >
+          <Share2 className="w-4 h-4" />
+        </button>
         <button
           onClick={(e) => {
             e.stopPropagation();
