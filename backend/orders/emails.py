@@ -33,8 +33,14 @@ def bookings_url():
 
 
 def fighter_card_url():
-    """Where a fighter fills in the card their trainers read before the camp."""
-    return f"{settings.FRONTEND_URL.rstrip('/')}/profile/fighter-card"
+    """Where a fighter fills in the card their trainers read before the camp.
+
+    The card is a tab on the profile page, not a route of its own, so the link
+    carries the query the frontend reads to open that tab directly. Someone
+    whose card is already complete is sent to `bookings_url()` instead — see
+    `_next_step`.
+    """
+    return f'{bookings_url()}?tab=fighter-card'
 
 
 def effective_start_date(order):

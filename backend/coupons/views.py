@@ -2,6 +2,7 @@ from rest_framework import permissions, response, status, viewsets
 from rest_framework.decorators import action
 
 from core.permissions import IsAdmin
+from orders.models import MAX_ORDER_PARTICIPANTS
 from packages.models import Package
 
 from .models import Coupon
@@ -38,6 +39,21 @@ class CouponViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
+        # A group booking is priced per participant, so the code has to be
+        # tested against what the customer actually spends — the same subtotal
+        # `Order.recalculate_totals` derives. Absent (a solo booking, or an
+        # older client) means one person.
+        try:
+            participant_count = int(request.data.get('participant_count', 1))
+        except (TypeError, ValueError):
+            participant_count = 0
+        if not 1 <= participant_count <= MAX_ORDER_PARTICIPANTS:
+            return response.Response(
+                {'error': f'A booking can cover between 1 and '
+                          f'{MAX_ORDER_PARTICIPANTS} people.'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
         try:
             package = Package.objects.get(id=package_id)
         except (Package.DoesNotExist, ValueError, TypeError):
@@ -54,16 +70,17 @@ class CouponViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        reason = coupon.unusable_reason(package.price)
+        subtotal = package.price * participant_count
+        reason = coupon.unusable_reason(subtotal)
         if reason:
             return response.Response(
                 {'valid': False, 'error': reason}, status=status.HTTP_400_BAD_REQUEST)
 
-        discount = coupon.compute_discount(package.price)
+        discount = coupon.compute_discount(subtotal)
         return response.Response({
             'valid': True,
             'coupon': PublicCouponSerializer(coupon).data,
-            'subtotal_amount': package.price,
+            'subtotal_amount': subtotal,
             'discount_amount': discount,
-            'total_amount': package.price - discount,
+            'total_amount': subtotal - discount,
         })

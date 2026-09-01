@@ -335,7 +335,7 @@ class ConfirmationEmailTests(GroupBookingTestBase):
 
         body = self.sent_to('ben@example.com').body
         self.assertNotIn('/reset-password', body)
-        self.assertIn('/profile/fighter-card', body)
+        self.assertIn('/profile?tab=fighter-card', body)
 
     def test_one_bad_address_does_not_cost_the_others_their_email(self):
         with mock.patch('core.emails.EmailMultiAlternatives.send') as send:
