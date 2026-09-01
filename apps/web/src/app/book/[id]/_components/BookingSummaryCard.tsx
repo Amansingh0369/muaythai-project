@@ -72,10 +72,10 @@ export default function BookingSummaryCard({
           <div className="border border-white/[0.08] bg-white/[0.03] p-5">
             <div className="flex items-end justify-between mb-3">
               <span className="font-grotesk text-[13px] tracking-[0.35em] uppercase text-white/60">
-                {price.discountPending ? "Before Discount" : "Total Amount"}
+                Total Amount
               </span>
-              {/* Per-person price comes from the package; the discount only ever
-                  comes from the API — a group discount is never guessed here. */}
+              {/* Every amount here comes from the API — the per-person price from
+                  the package, the discount from the coupon preview. */}
               <span className="font-barlow font-black italic text-3xl text-white">
                 {fmtPrice(price.total)}
               </span>
@@ -99,13 +99,6 @@ export default function BookingSummaryCard({
                   />
                 </>
               )}
-              {price.discountPending && (
-                <PriceRow
-                  label={`Coupon (${price.couponCode})`}
-                  value="Applied at payment"
-                  accent
-                />
-              )}
               <PriceRow label="Duration" value={`${pkg.duration_days} days`} />
               {startDateLabel && <PriceRow label="Start date" value={startDateLabel} />}
             </div>
@@ -113,6 +106,7 @@ export default function BookingSummaryCard({
 
           <CouponField
             packageId={pkg.id}
+            participantCount={price.count}
             coupon={coupon}
             locked={couponLocked}
             onApplied={onCouponApplied}

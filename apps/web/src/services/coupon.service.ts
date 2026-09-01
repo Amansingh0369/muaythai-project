@@ -28,12 +28,24 @@ export function apiErrorMessage(data: any, fallback: string): string {
 
 export const couponService = {
   /** Prices a code against a package before any order exists — creates nothing, so it is
-   *  safe to call while the customer is still filling in the form. */
-  async preview(code: string, packageId: number): Promise<CouponPreview> {
+   *  safe to call while the customer is still filling in the form.
+   *
+   *  `participantCount` prices the whole booking (package price × people), the same
+   *  subtotal `Order.recalculate_totals` derives, so a group sees the discount it will
+   *  actually get. Omitted means one person. */
+  async preview(
+    code: string,
+    packageId: number,
+    participantCount = 1
+  ): Promise<CouponPreview> {
     const res = await fetchWithAuth(API_ENDPOINTS.COUPONS + "/preview/", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ code, package_id: packageId }),
+      body: JSON.stringify({
+        code,
+        package_id: packageId,
+        participant_count: participantCount,
+      }),
     });
     let data: any;
     try { data = await res.json(); } catch { data = {}; }

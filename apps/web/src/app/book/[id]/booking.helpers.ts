@@ -32,6 +32,9 @@ export interface AppliedCoupon {
   total_amount: string;
   /** True when the discount was trimmed to keep the total at the ₹1 floor. */
   isCapped: boolean;
+  /** The booking size these amounts were priced at, so a changed guest count is
+   *  spotted and re-previewed rather than displayed stale. */
+  participantCount: number;
 }
 
 /** Every value except `guests`, which is an array and is handled on its own. */
@@ -103,7 +106,8 @@ const toAmount = (paise: number): string => (paise / 100).toFixed(2);
  */
 export function capPreviewToMinimum(
   preview: { subtotal_amount: string; discount_amount: string },
-  code: string
+  code: string,
+  participantCount: number
 ): AppliedCoupon {
   const subtotal = toPaise(preview.subtotal_amount);
   const requested = toPaise(preview.discount_amount);
@@ -116,6 +120,7 @@ export function capPreviewToMinimum(
     discount_amount: toAmount(discount),
     total_amount: toAmount(subtotal - discount),
     isCapped: discount < requested,
+    participantCount,
   };
 }
 
@@ -302,24 +307,21 @@ export function groupSubtotal(price: string | number, count: number): string {
 }
 
 /**
- * What the summary should show before payment.
+ * What the summary shows before payment.
  *
- * A coupon on a group booking is the awkward case: `/coupons/preview/` prices
- * one place and does not expose the coupon's `max_discount_amount`, so the real
- * group discount cannot be derived here — scaling the preview would overstate
- * it whenever a cap exists, and showing less than Razorpay charges is the one
- * direction that must never happen. So the discount is shown as pending rather
- * than guessed; the order endpoints stay authoritative, as they already are.
+ * `/coupons/preview/` prices the whole booking — package price × participant
+ * count, with any `max_discount_amount` applied server-side by
+ * `Coupon.compute_discount` — so the previewed figures are the real ones at any
+ * group size and can be shown as they come. The order endpoints stay
+ * authoritative; this only keeps the pre-order screen honest about them.
  */
 export interface PriceView {
   count: number;
   perPerson: string;
   subtotal: string;
-  /** Null when there is no coupon, or when the exact figure is only known at payment. */
+  /** Null when no coupon is applied, or when its discount came to nothing. */
   discount: string | null;
   total: string;
-  /** True when a coupon is applied to a group booking: total shown is pre-discount. */
-  discountPending: boolean;
   couponCode: string | null;
 }
 
@@ -337,21 +339,15 @@ export function priceView(
   };
 
   if (!hasDiscount(coupon)) {
-    return { ...base, discount: null, total: subtotal, discountPending: false };
+    return { ...base, discount: null, total: subtotal };
   }
 
-  // Solo booking: the preview priced exactly this, so show it as before.
-  if (count === 1) {
-    return {
-      ...base,
-      subtotal: coupon.subtotal_amount,
-      discount: coupon.discount_amount,
-      total: coupon.total_amount,
-      discountPending: false,
-    };
-  }
-
-  return { ...base, discount: null, total: subtotal, discountPending: true };
+  return {
+    ...base,
+    subtotal: coupon.subtotal_amount,
+    discount: coupon.discount_amount,
+    total: coupon.total_amount,
+  };
 }
 
 export function missingFieldLabels(v: BookingValues): string[] {
