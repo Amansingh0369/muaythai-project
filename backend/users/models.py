@@ -124,3 +124,35 @@ def save_user_profile(sender, instance, raw=False, **kwargs):
         return
     if hasattr(instance, 'profile'):
         instance.profile.save()
+
+
+class ProfileShare(models.Model):
+    """One record per customer dossier emailed outside the platform.
+
+    A share sends confidential material — passport, medical notes, the fighter
+    card's private trainer-only section — to an address an admin typed in, and
+    it cannot be recalled. The row is what makes that answerable afterwards:
+    who sent what, about whom, to whom, and when.
+
+    Only successful sends are recorded. A send that failed disclosed nothing,
+    and the admin is told about it in the response rather than in a log.
+    """
+    #: The customer the dossier describes.
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='profile_shares')
+    #: The admin who sent it. Kept even if their account is later deleted — an
+    #: audit row that disappears with its actor is not an audit row.
+    shared_by = models.ForeignKey(
+        User, on_delete=models.SET_NULL, null=True, blank=True, related_name='shares_sent',
+    )
+    recipient_email = models.EmailField()
+    #: Which dossier sections went out, e.g. ['fighter_card'].
+    sections = models.JSONField(default=list)
+    note = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'users_profile_share'
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.user.email} shared with {self.recipient_email}"

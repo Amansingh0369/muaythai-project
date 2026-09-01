@@ -1,5 +1,6 @@
 from rest_framework import serializers
-from .models import User, Profile
+from .models import User, Profile, ProfileShare
+from .sharing import SECTION_KEYS
 from orders.models import Order
 from packages.models import PackageLike
 
@@ -153,3 +154,35 @@ class AdminUserSerializer(serializers.ModelSerializer):
             profile.save()
 
         return instance
+
+
+class ProfileShareSerializer(serializers.ModelSerializer):
+    """An audit row: one dossier that was emailed out."""
+
+    shared_by_email = serializers.EmailField(source='shared_by.email', read_only=True, default=None)
+
+    class Meta:
+        model = ProfileShare
+        fields = ('id', 'user', 'recipient_email', 'sections', 'note',
+                  'shared_by', 'shared_by_email', 'created_at')
+        read_only_fields = fields
+
+
+class ShareProfileSerializer(serializers.Serializer):
+    """What an admin submits to share a customer's dossier by email."""
+
+    email = serializers.EmailField()
+    #: Defaults to every section. Naming a subset is how a share is kept to
+    #: what the recipient actually needs — see `users.sharing`.
+    sections = serializers.ListField(
+        child=serializers.ChoiceField(choices=SECTION_KEYS),
+        required=False,
+        allow_empty=False,
+    )
+    #: Optional covering message, shown above the dossier.
+    note = serializers.CharField(required=False, allow_blank=True, max_length=2000, default='')
+
+    def validate_sections(self, value):
+        # Deduplicate but do not reorder: build_dossier emits SECTION_KEYS order
+        # regardless, so the stored list should read the same way.
+        return [key for key in SECTION_KEYS if key in set(value)]
