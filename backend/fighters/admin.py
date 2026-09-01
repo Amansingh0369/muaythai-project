@@ -11,10 +11,11 @@ class FighterCardAdmin(admin.ModelAdmin):
     list_filter = ('is_complete', 'camp', 'training_duration', 'cardio_level',
                    'injury_status', 'train_around_limitations')
     search_fields = ('user__email', 'user__full_name', 'city')
-    readonly_fields = ('profile_medical', 'is_complete', 'completed_at', 'created_at', 'updated_at')
+    readonly_fields = ('photo_preview', 'profile_medical', 'is_complete', 'completed_at',
+                       'created_at', 'updated_at')
     autocomplete_fields = ('camp',)
     fieldsets = (
-        ('Fighter', {'fields': ('user', 'camp', 'nationality', 'city')}),
+        ('Fighter', {'fields': ('user', 'camp', 'photo', 'photo_preview', 'nationality', 'city')}),
         ('Training background', {'fields': (
             'training_duration', 'training_frequency', 'trained_in_thailand',
             'thailand_trips', 'other_combat_sports', 'competition_experience',
@@ -40,6 +41,15 @@ class FighterCardAdmin(admin.ModelAdmin):
         }),
         ('Status', {'fields': ('is_complete', 'completed_at', 'created_at', 'updated_at')}),
     )
+
+    @admin.display(description='Preview')
+    def photo_preview(self, obj):
+        """Show the photo itself, not just the storage path the field renders."""
+        if not obj.photo:
+            return '—'
+        return format_html(
+            '<img src="{}" style="max-height: 220px; border-radius: 4px;" />', obj.photo.url,
+        )
 
     @admin.display(description='From the account profile')
     def profile_medical(self, obj):
