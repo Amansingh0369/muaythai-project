@@ -3,20 +3,25 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { AlertCircle, ChevronRight, Loader2, Lock, Phone, Plane, ShieldAlert, User } from "lucide-react";
 import type { EnrichedPackage } from "@/components/FightCampsSection/FightCampsSection.helpers";
+import type { GuestInput } from "@/services/order.service";
 import {
   AppliedCoupon,
   BookingField,
   BookingValues,
   ContentSection,
   FormErrors,
+  GuestErrors,
   SHELL,
   fmtDiscount,
   fmtPrice,
   hasDiscount,
   missingFieldLabels,
+  participantCount,
+  priceView,
   sectionCompletion,
 } from "../booking.helpers";
 import BookingSummaryCard from "./BookingSummaryCard";
+import GuestListSection from "./GuestListSection";
 import { FormField, SectionHeader, SelectInput, TextInput } from "./FormControls";
 import StepRail from "./StepRail";
 
@@ -36,6 +41,13 @@ interface BookingFormStepProps {
   onCouponApplied: (coupon: AppliedCoupon) => void;
   onCouponRemoved: () => void;
   onFieldChange: (field: BookingField, value: string) => void;
+  /** The signed-in buyer, shown as the fixed first row of the guest list. */
+  buyerEmail: string;
+  guestErrors: GuestErrors;
+  guestServerErrors: string[];
+  onGuestAdd: () => void;
+  onGuestChange: (index: number, field: keyof GuestInput, value: string) => void;
+  onGuestRemove: (index: number) => void;
   onSubmit: (e: React.FormEvent) => void;
   onBackToDetails: () => void;
 }
@@ -56,13 +68,23 @@ export default function BookingFormStep({
   onCouponApplied,
   onCouponRemoved,
   onFieldChange,
+  buyerEmail,
+  guestErrors,
+  guestServerErrors,
+  onGuestAdd,
+  onGuestChange,
+  onGuestRemove,
   onSubmit,
   onBackToDetails,
 }: BookingFormStepProps) {
   const missing = missingFieldLabels(values);
   const complete = sectionCompletion(values);
-  // What they'll actually be charged — the discounted total once a coupon is validated.
-  const payable = hasDiscount(coupon) ? coupon.total_amount : pkg.price;
+  // One place per person. The server still owns the real figure — this only
+  // keeps the page honest about what is being bought.
+  const price = priceView(pkg.price, coupon, participantCount(values));
+  const ctaAmount = price.discountPending
+    ? `Up to ${fmtPrice(price.total)}`
+    : fmtPrice(price.total);
 
   /** Every text input is the same wiring — label, field key, placeholder. */
   const text = (field: BookingField, placeholder: string) => ({
@@ -119,6 +141,7 @@ export default function BookingFormStep({
             startDateLabel={startDateLabel}
             coupon={coupon}
             couponLocked={couponLocked}
+            price={price}
             onCouponApplied={onCouponApplied}
             onCouponRemoved={onCouponRemoved}
             onBackToDetails={onBackToDetails}
@@ -188,6 +211,21 @@ export default function BookingFormStep({
               </p>
             </FormCard>
 
+            {/* Friends on the same booking */}
+            <FormCard>
+              <GuestListSection
+                buyerName={values.fullName}
+                buyerEmail={buyerEmail}
+                guests={values.guests}
+                errors={guestErrors}
+                serverErrors={guestServerErrors}
+                disabled={submitting}
+                onAdd={onGuestAdd}
+                onChange={onGuestChange}
+                onRemove={onGuestRemove}
+              />
+            </FormCard>
+
             {/* Order summary + CTA */}
             <FormCard>
               <SectionHeader icon={<ChevronRight size={14} />} title="Order Summary" />
@@ -196,20 +234,42 @@ export default function BookingFormStep({
                 <SummaryRow label="Camp" value={pkg.title} bold />
                 <SummaryRow label={isMultiLocation ? "Locations" : "Location"} value={locationName} />
                 <SummaryRow label="Duration" value={`${pkg.duration_days} Days`} />
-                {hasDiscount(coupon) && (
+                {price.count > 1 && (
+                  <SummaryRow
+                    label="Camp fee"
+                    value={`${fmtPrice(price.perPerson)} × ${price.count}`}
+                  />
+                )}
+                {price.discount !== null && (
                   <>
-                    <SummaryRow label="Package price" value={fmtPrice(coupon.subtotal_amount)} />
+                    <SummaryRow label="Package price" value={fmtPrice(price.subtotal)} />
                     <SummaryRow
-                      label={`Discount (${coupon.code})`}
-                      value={fmtDiscount(coupon.discount_amount)}
+                      label={`Discount (${price.couponCode})`}
+                      value={fmtDiscount(price.discount)}
                       accent
                     />
                   </>
                 )}
+                {price.discountPending && (
+                  <SummaryRow
+                    label={`Coupon (${price.couponCode})`}
+                    value="Applied at payment"
+                    accent
+                  />
+                )}
                 <div className="flex justify-between items-center pt-3">
-                  <span className="font-grotesk text-base text-white font-bold">Total</span>
-                  <span className="font-barlow font-black italic text-3xl text-white">{fmtPrice(payable)}</span>
+                  <span className="font-grotesk text-base text-white font-bold">
+                    {price.discountPending ? "Total before discount" : "Total"}
+                  </span>
+                  <span className="font-barlow font-black italic text-3xl text-white">
+                    {fmtPrice(price.total)}
+                  </span>
                 </div>
+                {price.discountPending && (
+                  <p className="font-grotesk text-[13px] text-white/55 text-right">
+                    Your {price.couponCode} discount comes off the whole booking at payment.
+                  </p>
+                )}
               </div>
 
               <AnimatePresence>
@@ -238,7 +298,7 @@ export default function BookingFormStep({
                   </>
                 ) : (
                   <>
-                    Secure Your Spot · {fmtPrice(payable)}
+                    Secure Your Spot · {ctaAmount}
                     <span className="transition-transform duration-300 group-hover:translate-x-1">→</span>
                   </>
                 )}

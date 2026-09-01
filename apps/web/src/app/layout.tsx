@@ -4,6 +4,7 @@ import "./globals.css";
 import { Providers } from "@/components/Providers";
 import { SITE_CONFIG } from "@repo/utils";
 import StickyReveal from "@/components/StickyReveal";
+import FighterCardReminder from "@/components/FighterCardReminder";
 import { TrackingNoScript, TrackingScripts } from "@/components/Tracking";
 import { Analytics } from "@vercel/analytics/next";
 
@@ -53,6 +54,9 @@ export default function RootLayout({
           <StickyReveal>
             {children}
           </StickyReveal>
+          {/* Site-wide, so a friend who was booked onto a camp sees it wherever
+              they land after setting their password — not only on one tab. */}
+          <FighterCardReminder />
         </Providers>
         {/* Vercel Web Analytics — page views and visitors. Only reports from
             the deployed site; it is inert on localhost. */}

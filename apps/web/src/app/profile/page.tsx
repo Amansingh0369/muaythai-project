@@ -8,10 +8,11 @@ import {
   User, Mail, Phone, Calendar, Shield, LogOut,
   Edit2, Check, X, Loader2, Package,
   Activity, AlertCircle, Contact,
-  Plane, BadgeCheck, Swords,
+  Plane, BadgeCheck, Swords, Users, ArrowRight,
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { userService, FullUser, UserOrder } from "@/services/user.service";
+import { fighterCardService } from "@/services/fighter-card.service";
 import Navbar from "@/components/Navbar";
 import FighterCardBuilder from "@/components/FighterCard/FighterCardBuilder";
 
@@ -129,12 +130,24 @@ export default function ProfilePage() {
   const [saveError, setSaveError] = useState<string | null>(null);
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [activeTab, setActiveTab] = useState<TabId>("profile");
+  // Null until we know — the nudge stays hidden rather than flashing a wrong claim.
+  const [cardComplete, setCardComplete] = useState<boolean | null>(null);
 
   const { register, handleSubmit, reset, formState: { isSubmitting } } = useForm<ProfileForm>();
 
   useEffect(() => {
     if (!isLoading && !user) router.push("/login");
   }, [user, isLoading, router]);
+
+  // ?tab=fighter-card opens the card directly, which is what the site-wide
+  // reminder and the booking emails link to. Read from location rather than
+  // useSearchParams so the page needs no Suspense boundary.
+  useEffect(() => {
+    const tab = new URLSearchParams(window.location.search).get("tab");
+    if (tab === "fighter-card" || tab === "bookings" || tab === "profile") {
+      setActiveTab(tab);
+    }
+  }, []);
 
   useEffect(() => {
     if (!user) return;
@@ -163,6 +176,24 @@ export default function ProfilePage() {
       })
       .finally(() => setFetching(false));
   // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user]);
+
+  // Whether their fighter card is finished — the same thing the booking emails
+  // nudge each participant about, so the app and the email agree.
+  useEffect(() => {
+    if (!user) return;
+    let cancelled = false;
+    fighterCardService
+      .getMyCard()
+      .then((card) => {
+        if (!cancelled) setCardComplete(card.is_complete);
+      })
+      .catch(() => {
+        // A failed read just means no nudge — never a broken bookings tab.
+      });
+    return () => {
+      cancelled = true;
+    };
   }, [user]);
 
   const onSave = async (values: ProfileForm) => {
@@ -335,6 +366,32 @@ export default function ProfilePage() {
       </div>
 
       {/* ── BODY ─────────────────────────────────────────────────────────── */}
+
+      {/* Signing in for the first time lands here, so the nudge sits above the
+          tabs rather than inside one — the site-wide bar stays off this page. */}
+      {fullUser.orders.length > 0 && cardComplete === false && activeTab !== "fighter-card" && (
+        <div className="max-w-6xl mx-auto px-6 md:px-10 pt-8">
+          <button
+            onClick={() => setActiveTab("fighter-card")}
+            className="w-full flex items-center gap-3 text-left border border-primary/25 bg-primary/[0.06] px-4 py-3.5 hover:bg-primary/[0.1] transition-colors duration-200 group"
+          >
+            <Swords size={16} className="text-primary shrink-0" />
+            <span className="min-w-0 flex-1">
+              <span className="block font-grotesk text-[13px] text-white font-bold">
+                Your fighter card isn&apos;t finished
+              </span>
+              <span className="block font-grotesk text-[13px] text-white/60">
+                You have a camp booked — your coaches read it before you arrive.
+              </span>
+            </span>
+            <ArrowRight
+              size={14}
+              className="text-primary shrink-0 group-hover:translate-x-0.5 transition-transform duration-200"
+            />
+          </button>
+        </div>
+      )}
+
       {/* ── TABS ─────────────────────────────────────────────────────────── */}
       <div className="max-w-6xl mx-auto px-6 md:px-10 pt-8">
         <div className="flex items-center gap-1.5 border-b border-white/[0.08] overflow-x-auto">
@@ -567,9 +624,25 @@ export default function ProfilePage() {
                       <p className="font-barlow font-black italic text-xl uppercase text-white leading-[0.95] mb-3">
                         {order.package_name}
                       </p>
-                      <span className="font-barlow font-black text-lg text-white tabular-nums">
-                        ₹{Number(order.total_amount).toLocaleString("en-IN")}
-                      </span>
+                      <div className="flex items-center justify-between gap-2 flex-wrap">
+                        {/* A guest is never shown the total: it covers their
+                            friend's place as well as their own. */}
+                        {order.is_buyer ? (
+                          <span className="font-barlow font-black text-lg text-white tabular-nums">
+                            ₹{Number(order.total_amount ?? 0).toLocaleString("en-IN")}
+                          </span>
+                        ) : (
+                          <span className="font-grotesk text-[12px] font-bold uppercase tracking-[0.2em] text-white/70 border border-white/20 bg-black/25 px-2 py-1">
+                            Booked by a friend
+                          </span>
+                        )}
+                        {order.participant_count > 1 && (
+                          <span className="inline-flex items-center gap-1.5 font-grotesk text-[12px] text-white/70 tracking-wide">
+                            <Users size={11} />
+                            {order.participant_count} fighters
+                          </span>
+                        )}
+                      </div>
                     </div>
                   );
                 })}
