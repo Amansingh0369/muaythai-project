@@ -12,6 +12,7 @@ import {
   Star,
   CreditCard,
   TicketPercent,
+  Image as ImageIcon,
   Menu,
   X,
   ArrowUpRight,
@@ -32,6 +33,7 @@ const menuItems = [
   { icon: Star, label: "Reviews", href: "/dashboard/reviews" },
   { icon: CreditCard, label: "Financials", href: "/dashboard/financials" },
   { icon: TicketPercent, label: "Coupons", href: "/dashboard/coupons" },
+  { icon: ImageIcon, label: "Popup", href: "/dashboard/popup-image" },
 ];
 
 export default function MobileNav() {

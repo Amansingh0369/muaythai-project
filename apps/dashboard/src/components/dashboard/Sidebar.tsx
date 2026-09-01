@@ -11,7 +11,8 @@ import {
   ClipboardList,
   Star,
   CreditCard,
-  TicketPercent
+  TicketPercent,
+  Image as ImageIcon
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -28,6 +29,7 @@ const menuItems = [
   { icon: Star, label: "Reviews", href: "/dashboard/reviews" },
   { icon: CreditCard, label: "Financials", href: "/dashboard/financials" },
   { icon: TicketPercent, label: "Coupons", href: "/dashboard/coupons" },
+  { icon: ImageIcon, label: "Popup", href: "/dashboard/popup-image" },
 ];
 
 export default function Sidebar() {

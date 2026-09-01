@@ -18,6 +18,7 @@ export const API_ENDPOINTS = {
   REVIEWS: "/reviews",
   PAYMENTS: "/payments",
   COUPONS: "/coupons",
+  POPUP_IMAGES: "/popup-images",
   // Analytics is mounted at /api/admin/analytics/ (note the /admin/ segment)
   ANALYTICS: {
     OVERVIEW: "/admin/analytics/",
