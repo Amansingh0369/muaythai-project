@@ -6,9 +6,9 @@ import {
   AppliedCoupon,
   ContentSection,
   NOISE_OVERLAY,
+  PriceView,
   fmtDiscount,
   fmtPrice,
-  hasDiscount,
   splitPoints,
 } from "../booking.helpers";
 import CouponField from "./CouponField";
@@ -21,6 +21,8 @@ interface BookingSummaryCardProps {
   startDateLabel: string | null;
   coupon: AppliedCoupon | null;
   couponLocked: boolean;
+  /** Priced once for everyone the booking covers — see `priceView`. */
+  price: PriceView;
   onCouponApplied: (coupon: AppliedCoupon) => void;
   onCouponRemoved: () => void;
   onBackToDetails: () => void;
@@ -34,13 +36,13 @@ export default function BookingSummaryCard({
   startDateLabel,
   coupon,
   couponLocked,
+  price,
   onCouponApplied,
   onCouponRemoved,
   onBackToDetails,
 }: BookingSummaryCardProps) {
   const Icon = pkg.icon;
   const highlight = sections[sections.length - 1];
-  const discounted = hasDiscount(coupon);
 
   return (
     <div className="w-full lg:w-[360px] xl:w-[400px] shrink-0 lg:sticky lg:top-28">
@@ -69,24 +71,40 @@ export default function BookingSummaryCard({
         <div className="p-6 flex flex-col gap-6">
           <div className="border border-white/[0.08] bg-white/[0.03] p-5">
             <div className="flex items-end justify-between mb-3">
-              <span className="font-grotesk text-[13px] tracking-[0.35em] uppercase text-white/60">Total Amount</span>
-              {/* Every amount below is rendered straight from the API — never recomputed here. */}
+              <span className="font-grotesk text-[13px] tracking-[0.35em] uppercase text-white/60">
+                {price.discountPending ? "Before Discount" : "Total Amount"}
+              </span>
+              {/* Per-person price comes from the package; the discount only ever
+                  comes from the API — a group discount is never guessed here. */}
               <span className="font-barlow font-black italic text-3xl text-white">
-                {fmtPrice(discounted ? coupon.total_amount : pkg.price)}
+                {fmtPrice(price.total)}
               </span>
             </div>
             <div className="space-y-1.5">
-              {discounted ? (
+              <PriceRow
+                label="Camp fee"
+                value={
+                  price.count > 1
+                    ? `${fmtPrice(price.perPerson)} × ${price.count}`
+                    : fmtPrice(price.perPerson)
+                }
+              />
+              {price.discount !== null && (
                 <>
-                  <PriceRow label="Package price" value={fmtPrice(coupon.subtotal_amount)} />
+                  <PriceRow label="Package price" value={fmtPrice(price.subtotal)} />
                   <PriceRow
-                    label={`Discount (${coupon.code})`}
-                    value={fmtDiscount(coupon.discount_amount)}
+                    label={`Discount (${price.couponCode})`}
+                    value={fmtDiscount(price.discount)}
                     accent
                   />
                 </>
-              ) : (
-                <PriceRow label="Camp fee" value={fmtPrice(pkg.price)} />
+              )}
+              {price.discountPending && (
+                <PriceRow
+                  label={`Coupon (${price.couponCode})`}
+                  value="Applied at payment"
+                  accent
+                />
               )}
               <PriceRow label="Duration" value={`${pkg.duration_days} days`} />
               {startDateLabel && <PriceRow label="Start date" value={startDateLabel} />}

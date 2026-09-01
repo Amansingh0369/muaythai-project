@@ -7,7 +7,7 @@ import { AlertCircle, ArrowLeft, BadgeCheck, Loader2 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { packageService, packageLocationNames } from "@/services/package.service";
 import { userService, FullUser } from "@/services/user.service";
-import { orderService } from "@/services/order.service";
+import { orderService, OrderApiError, type GuestInput } from "@/services/order.service";
 import { paymentService } from "@/services/payment.service";
 import { loadRazorpayScript } from "@/lib/razorpay";
 import { enrichPackages, EnrichedPackage } from "@/components/FightCampsSection/FightCampsSection.helpers";
@@ -20,11 +20,15 @@ import {
   BookingValues,
   EMPTY_VALUES,
   FormErrors,
+  GuestErrors,
+  MAX_GUESTS,
   SHELL,
   contentSections,
   fillBlanks,
   fmtDate,
+  hasGuestErrors,
   profileUpdatePayload,
+  validateGuests,
   validateValues,
 } from "./booking.helpers";
 import { openRazorpayCheckout } from "./booking.payment";
@@ -46,6 +50,10 @@ export default function BookingPage() {
 
   const [values, setValues] = useState<BookingValues>(EMPTY_VALUES);
   const [errors, setErrors] = useState<FormErrors>({});
+  const [guestErrors, setGuestErrors] = useState<GuestErrors>({});
+  // Guest-list rejections from the API, kept apart from `submitError` so they
+  // render against the guest section rather than the page-level error line.
+  const [guestServerErrors, setGuestServerErrors] = useState<string[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
@@ -64,6 +72,40 @@ export default function BookingPage() {
   const setField = (field: BookingField, value: string) => {
     setValues((prev) => ({ ...prev, [field]: value }));
     setErrors((prev) => ({ ...prev, [field]: undefined }));
+  };
+
+  // ── Guests ─────────────────────────────────────────────────────────────────
+
+  const buyerEmail = fullUser?.email ?? user?.email ?? "";
+
+  const addGuest = () => {
+    setValues((prev) =>
+      prev.guests.length >= MAX_GUESTS
+        ? prev
+        : { ...prev, guests: [...prev.guests, { full_name: "", email: "" }] }
+    );
+    setGuestServerErrors([]);
+  };
+
+  const changeGuest = (index: number, field: keyof GuestInput, value: string) => {
+    setValues((prev) => ({
+      ...prev,
+      guests: prev.guests.map((guest, i) => (i === index ? { ...guest, [field]: value } : guest)),
+    }));
+    // Clear just this row's message; the rest stand until the next submit.
+    setGuestErrors((prev) => {
+      const next = { ...prev };
+      delete next[index];
+      return next;
+    });
+    setGuestServerErrors([]);
+  };
+
+  const removeGuest = (index: number) => {
+    setValues((prev) => ({ ...prev, guests: prev.guests.filter((_, i) => i !== index) }));
+    // Errors are keyed by position, so they no longer line up with the rows.
+    setGuestErrors({});
+    setGuestServerErrors([]);
   };
 
   // ── Data ───────────────────────────────────────────────────────────────────
@@ -125,7 +167,11 @@ export default function BookingPage() {
     try {
       await userService.updateProfile(profileUpdatePayload(v));
 
-      let order = await orderService.createOrder({ package: pkg.id });
+      let order = await orderService.createOrder({
+        package: pkg.id,
+        // Omitted entirely for a solo booking — the API takes no empty list.
+        ...(v.guests.length > 0 && { guests: v.guests }),
+      });
 
       // Applying a coupon re-prices the order and clears its razorpay_order_id, so it has to
       // settle before the Razorpay order is created — otherwise the customer is charged full price.
@@ -152,7 +198,12 @@ export default function BookingPage() {
       setSuccess(true);
       setTimeout(() => router.push("/profile"), 2500);
     } catch (err: any) {
-      setSubmitError(err?.message || "Something went wrong. Please try again.");
+      // A rejected guest list belongs beside the names, not in the page banner.
+      if (err instanceof OrderApiError && err.guestErrors.length > 0) {
+        setGuestServerErrors(err.guestErrors);
+      } else {
+        setSubmitError(err?.message || "Something went wrong. Please try again.");
+      }
     } finally {
       setSubmitting(false);
     }
@@ -172,8 +223,11 @@ export default function BookingPage() {
     if (!pkg) return;
 
     const fieldErrors = validateValues(values);
+    const rowErrors = validateGuests(values.guests, buyerEmail);
     setErrors(fieldErrors);
-    if (Object.keys(fieldErrors).length > 0) return;
+    setGuestErrors(rowErrors);
+    setGuestServerErrors([]);
+    if (Object.keys(fieldErrors).length > 0 || hasGuestErrors(rowErrors)) return;
 
     // Normally they signed in before this step; this covers a session expiring mid-form.
     if (!user) {
@@ -246,6 +300,11 @@ export default function BookingPage() {
               </motion.div>
               <div>
                 <h2 className="font-barlow font-black italic text-4xl text-white uppercase mb-2">Booking Confirmed</h2>
+                {values.guests.length > 0 && (
+                  <p className="font-grotesk text-sm text-white/80 mb-1">
+                    We&apos;ve emailed all {values.guests.length + 1} fighters.
+                  </p>
+                )}
                 <p className="font-grotesk text-sm text-white/70">Redirecting you to your profile…</p>
               </div>
             </div>
@@ -301,6 +360,12 @@ export default function BookingPage() {
                 }}
                 onCouponRemoved={() => setCoupon(null)}
                 onFieldChange={setField}
+                buyerEmail={buyerEmail}
+                guestErrors={guestErrors}
+                guestServerErrors={guestServerErrors}
+                onGuestAdd={addGuest}
+                onGuestChange={changeGuest}
+                onGuestRemove={removeGuest}
                 onSubmit={handleSubmit}
                 onBackToDetails={() => goToStep("details")}
               />

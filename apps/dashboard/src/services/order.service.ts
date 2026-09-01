@@ -17,6 +17,17 @@ export interface OrderPackageDetails {
   updated_at: string;
 }
 
+/** Somebody an order covers. The buyer is always the first one. */
+export interface OrderParticipant {
+  id: number;
+  user_id: number;
+  full_name: string;
+  email: string;
+  is_buyer: boolean;
+  /** False is what staff chase before a camp starts. */
+  fighter_card_complete: boolean;
+}
+
 export interface Order {
   id: number;
   package: number;
@@ -24,6 +35,9 @@ export interface Order {
   package_details: OrderPackageDetails;
   user: number;
   user_email: string;
+  /** Everyone on the booking — one order can cover several people. */
+  participants: OrderParticipant[];
+  participant_count: number;
   total_amount: number | string;
   start_date: string | null;
   status: OrderStatus;

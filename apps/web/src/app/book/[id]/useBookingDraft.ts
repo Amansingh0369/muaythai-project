@@ -1,7 +1,20 @@
 "use client";
 
 import { Dispatch, SetStateAction, useCallback, useEffect } from "react";
-import { BookingField, BookingValues } from "./booking.helpers";
+import { BookingValues, TEXT_FIELDS } from "./booking.helpers";
+import type { GuestInput } from "@/services/order.service";
+
+/** A draft is whatever was in sessionStorage — trust nothing about its shape. */
+function guestsFrom(raw: unknown): GuestInput[] | null {
+  if (!Array.isArray(raw)) return null;
+  const guests = raw.filter(
+    (g): g is GuestInput =>
+      !!g && typeof g === "object" &&
+      typeof (g as GuestInput).full_name === "string" &&
+      typeof (g as GuestInput).email === "string"
+  );
+  return guests.length ? guests : null;
+}
 
 /**
  * Drafts the form to sessionStorage. Signing in navigates away and back, so without
@@ -26,17 +39,24 @@ export function useBookingDraft(
 
     setValues((prev) => {
       const next = { ...prev };
-      (Object.keys(next) as BookingField[]).forEach((field) => {
+      TEXT_FIELDS.forEach((field) => {
         const saved = draft[field];
         if (typeof saved === "string" && saved) next[field] = saved;
       });
+      // Guests are the one value that is not a string, so they restore on their
+      // own terms — and only when the draft actually holds well-formed rows.
+      const guests = guestsFrom(draft.guests);
+      if (guests && next.guests.length === 0) next.guests = guests;
       return next;
     });
   }, [key, setValues]);
 
   // Persist
   useEffect(() => {
-    if (!Object.values(values).some((v) => v.trim())) return;
+    // Only the text fields can be trimmed; a named guest is worth drafting too.
+    const anythingTyped =
+      TEXT_FIELDS.some((field) => values[field].trim()) || values.guests.length > 0;
+    if (!anythingTyped) return;
     try {
       sessionStorage.setItem(key, JSON.stringify(values));
     } catch {

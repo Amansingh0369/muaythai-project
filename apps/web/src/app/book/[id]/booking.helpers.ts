@@ -1,6 +1,7 @@
 import type { CSSProperties } from "react";
 import type { EnrichedPackage } from "@/components/FightCampsSection/FightCampsSection.helpers";
 import type { FullUser, UpdateProfilePayload, UserProfile } from "@/services/user.service";
+import type { GuestInput } from "@/services/order.service";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -19,6 +20,8 @@ export interface BookingValues {
   passport: string;
   medical: string;
   allergies: string;
+  /** Friends on the same booking. Empty for a solo booking — the buyer is never in here. */
+  guests: GuestInput[];
 }
 
 /** A coupon the customer has validated against the package, before any order exists. */
@@ -31,8 +34,25 @@ export interface AppliedCoupon {
   isCapped: boolean;
 }
 
-export type BookingField = keyof BookingValues;
+/** Every value except `guests`, which is an array and is handled on its own. */
+export type BookingField = Exclude<keyof BookingValues, "guests">;
 export type FormErrors = Partial<Record<BookingField, string>>;
+
+/**
+ * The text fields, listed rather than derived, because several loops here and
+ * in `useBookingDraft` call `.trim()` on every value — which an array is not.
+ */
+export const TEXT_FIELDS: BookingField[] = [
+  "fullName",
+  "phone",
+  "age",
+  "gender",
+  "emergencyName",
+  "emergencyPhone",
+  "passport",
+  "medical",
+  "allergies",
+];
 
 export const EMPTY_VALUES: BookingValues = {
   fullName: "",
@@ -44,7 +64,12 @@ export const EMPTY_VALUES: BookingValues = {
   passport: "",
   medical: "",
   allergies: "",
+  guests: [],
 };
+
+/** `orders.models.MAX_ORDER_PARTICIPANTS` — the buyer counts towards it. */
+export const MAX_PARTICIPANTS = 10;
+export const MAX_GUESTS = MAX_PARTICIPANTS - 1;
 
 // ── Formatting ────────────────────────────────────────────────────────────────
 
@@ -150,6 +175,8 @@ export function isProse(items: string[]): boolean {
 function profileValues(profile: FullUser): BookingValues {
   const p = profile.profile;
   return {
+    // Guests are never part of a saved profile; only the text fields fill blanks.
+    guests: [],
     fullName: profile.full_name ?? "",
     phone: p?.phone_no ?? "",
     age: p?.age != null ? String(p.age) : "",
@@ -166,7 +193,7 @@ function profileValues(profile: FullUser): BookingValues {
 export function fillBlanks(current: BookingValues, profile: FullUser): BookingValues {
   const saved = profileValues(profile);
   const merged = { ...current };
-  (Object.keys(merged) as BookingField[]).forEach((key) => {
+  TEXT_FIELDS.forEach((key) => {
     if (!merged[key].trim()) merged[key] = saved[key];
   });
   return merged;
@@ -206,6 +233,125 @@ export function validateValues(v: BookingValues): FormErrors {
     if (!v[field].trim()) errors[field] = error;
   });
   return errors;
+}
+
+// ── Guests ────────────────────────────────────────────────────────────────────
+
+export interface GuestFieldErrors {
+  full_name?: string;
+  email?: string;
+}
+
+/** Keyed by row index so each message renders against the input it belongs to. */
+export type GuestErrors = Record<number, GuestFieldErrors>;
+
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+/**
+ * The same rules the API enforces, run before submit.
+ *
+ * The backend returns these under `data.guests` and its wording is already
+ * customer-ready, so the two messages that can also come back from the server
+ * are worded identically here — a customer should never see the same problem
+ * described two different ways.
+ */
+export function validateGuests(guests: GuestInput[], buyerEmail: string): GuestErrors {
+  const errors: GuestErrors = {};
+  const seen = new Map<string, number>();
+  const buyer = buyerEmail.trim().toLowerCase();
+
+  guests.forEach((guest, i) => {
+    const row: GuestFieldErrors = {};
+    const name = guest.full_name.trim();
+    const email = guest.email.trim();
+    const key = email.toLowerCase();
+
+    if (!name) row.full_name = "Their name is required";
+
+    if (!email) {
+      row.email = "Their email is required";
+    } else if (!EMAIL_RE.test(email)) {
+      row.email = "That does not look like an email address";
+    } else if (buyer && key === buyer) {
+      row.email = "You are already on this booking — you do not need to add yourself as a guest.";
+    } else if (seen.has(key)) {
+      row.email = `${email} appears on this booking more than once.`;
+    }
+
+    if (!row.email && email) seen.set(key, i);
+    if (row.full_name || row.email) errors[i] = row;
+  });
+
+  return errors;
+}
+
+export function hasGuestErrors(errors: GuestErrors): boolean {
+  return Object.keys(errors).length > 0;
+}
+
+// ── Group pricing ─────────────────────────────────────────────────────────────
+
+/** The booking covers the buyer plus their guests. */
+export function participantCount(v: BookingValues): number {
+  return v.guests.length + 1;
+}
+
+/** Package price once per person, in integer paise so no float drift creeps in. */
+export function groupSubtotal(price: string | number, count: number): string {
+  return toAmount(toPaise(price) * count);
+}
+
+/**
+ * What the summary should show before payment.
+ *
+ * A coupon on a group booking is the awkward case: `/coupons/preview/` prices
+ * one place and does not expose the coupon's `max_discount_amount`, so the real
+ * group discount cannot be derived here — scaling the preview would overstate
+ * it whenever a cap exists, and showing less than Razorpay charges is the one
+ * direction that must never happen. So the discount is shown as pending rather
+ * than guessed; the order endpoints stay authoritative, as they already are.
+ */
+export interface PriceView {
+  count: number;
+  perPerson: string;
+  subtotal: string;
+  /** Null when there is no coupon, or when the exact figure is only known at payment. */
+  discount: string | null;
+  total: string;
+  /** True when a coupon is applied to a group booking: total shown is pre-discount. */
+  discountPending: boolean;
+  couponCode: string | null;
+}
+
+export function priceView(
+  price: string | number,
+  coupon: AppliedCoupon | null,
+  count: number
+): PriceView {
+  const subtotal = groupSubtotal(price, count);
+  const base = {
+    count,
+    perPerson: String(price),
+    subtotal,
+    couponCode: coupon?.code ?? null,
+  };
+
+  if (!hasDiscount(coupon)) {
+    return { ...base, discount: null, total: subtotal, discountPending: false };
+  }
+
+  // Solo booking: the preview priced exactly this, so show it as before.
+  if (count === 1) {
+    return {
+      ...base,
+      subtotal: coupon.subtotal_amount,
+      discount: coupon.discount_amount,
+      total: coupon.total_amount,
+      discountPending: false,
+    };
+  }
+
+  return { ...base, discount: null, total: subtotal, discountPending: true };
 }
 
 export function missingFieldLabels(v: BookingValues): string[] {

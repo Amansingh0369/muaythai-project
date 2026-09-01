@@ -22,9 +22,18 @@ export interface UserProfile {
 export interface UserOrder {
   id: string;
   package_name: string;
-  total_amount: string;
+  /**
+   * Null when `is_buyer` is false, deliberately: a group total covers the
+   * buyer's own place too, so the API does not tell a guest what someone else
+   * spent. A string, as before, for the buyer.
+   */
+  total_amount: string | null;
   status: "PENDING" | "PAID" | "CANCELLED" | "COMPLETED";
   created_at: string;
+  /** False when a friend booked this person onto their booking. */
+  is_buyer: boolean;
+  /** How many people the booking covers, buyer included. */
+  participant_count: number;
 }
 
 export interface LikedPackage {

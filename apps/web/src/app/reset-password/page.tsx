@@ -122,7 +122,7 @@ function ResetPasswordContent() {
           <p className="font-grotesk text-white/70 text-sm">{message}</p>
         </div>
         <Link
-          href="/login"
+          href="/login?redirect=%2Fprofile"
           className="group relative overflow-hidden flex items-center justify-center gap-2 px-10 py-3.5
                      font-barlow font-black text-[13px] tracking-[0.25em] uppercase
                      bg-primary text-black
@@ -185,13 +185,15 @@ function ResetPasswordContent() {
     >
       <div className="flex flex-col items-center text-center mb-7">
         <span className="font-grotesk text-[13px] tracking-[0.5em] uppercase text-primary font-bold mb-3">
-          Password Reset
+          Set Your Password
         </span>
         <h1 className="font-barlow font-black italic text-4xl uppercase text-white tracking-tight">
-          New Password
+          Your Password
         </h1>
+        {/* Worded for both cases: a reset, and a friend who was booked onto a
+            camp setting a password for the very first time. */}
         <p className="font-grotesk text-white/70 text-sm mt-2 max-w-sm">
-          Choose a new password for your account.
+          Choose the password you&apos;ll sign in with.
         </p>
       </div>
 
