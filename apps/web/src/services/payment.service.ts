@@ -22,6 +22,23 @@ export interface VerifyPaymentResponse {
   order_id: number;
 }
 
+export type PaymentStatus = "PENDING" | "SUCCESS" | "FAILED" | "REFUNDED";
+
+/** A payment attempt against an order — there can be several. */
+export interface Payment {
+  id: number;
+  /** The Django order id this attempt belongs to. */
+  order: number;
+  razorpay_payment_id: string | null;
+  razorpay_order_id: string;
+  amount: string;
+  status: PaymentStatus;
+  /** Card, UPI, netbanking… null until Razorpay reports it. */
+  method: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
 async function parse(res: Response): Promise<any> {
   try {
     return await res.json();
@@ -59,11 +76,17 @@ export const paymentService = {
     return data as VerifyPaymentResponse;
   },
 
-  // Optional — payment history for the logged-in user
-  async getHistory(): Promise<any[]> {
+  /**
+   * Every payment attempt the signed-in user has made, newest first.
+   *
+   * Scoped server-side to orders they *bought* (`order__user`), so a friend who
+   * was booked onto someone else's booking gets an empty list rather than a
+   * window onto what their friend paid.
+   */
+  async getHistory(): Promise<Payment[]> {
     const res = await fetchWithAuth(API_ENDPOINTS.PAYMENTS.HISTORY, { method: "GET" });
     const data = await parse(res);
     if (!res.ok) throw new Error(data.error || data.detail || "Failed to load history");
-    return data as any[];
+    return data as Payment[];
   },
 };
