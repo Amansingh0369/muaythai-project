@@ -16,6 +16,12 @@ import { locationService, type Location } from "@/services/location.service";
 const DEFAULT_CENTER: [number, number] = [13.5, 101.0];
 const DEFAULT_ZOOM = 6;
 
+// Esri's tiling scheme advertises levels 0-23, but the Dark Gray Base is only
+// actually rendered to level 16 — every request past it returns a placeholder
+// tile reading "Map data not yet available". Cap the map there so the user
+// can't zoom into it.
+const MAX_ZOOM = 16;
+
 // How close (in pixels) a marker must be to the centre crosshair to be "locked on"
 const LOCK_RADIUS_PX = 70;
 
@@ -169,7 +175,7 @@ export default function DynamicMap({ onMapReady }: DynamicMapProps) {
         center={DEFAULT_CENTER}
         zoom={DEFAULT_ZOOM}
         minZoom={5}
-        maxZoom={19}
+        maxZoom={MAX_ZOOM}
         scrollWheelZoom={false}
         style={{ height: "100%", width: "100%", background: "#0a0a0a" }}
         ref={(instance) => {
@@ -198,6 +204,8 @@ export default function DynamicMap({ onMapReady }: DynamicMapProps) {
           className="map-tiles-black"
           attribution="&copy; Esri, HERE, Garmin, &copy; OpenStreetMap contributors"
           url="https://services.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}"
+          maxNativeZoom={MAX_ZOOM}
+          maxZoom={MAX_ZOOM}
         />
 
         <CenterDetector locations={locations} onSelect={handleSelect} />
